@@ -1,75 +1,651 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Document Viewer</title>
+  <title>Zoe Friedman</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Portfolio and professional site for Zoe Friedman."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
   <style>
-    html, body {
+    :root {
+      --bg: #05060a;
+      --bg-alt: #0b0d13;
+      --accent: #4f8cff;
+      --accent-soft: rgba(79, 140, 255, 0.15);
+      --text-main: #f5f5f7;
+      --text-muted: #9ea3b5;
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
+      --max-width: 1040px;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background: black;
     }
 
-    #pdf {
-      position: absolute;
-      top: 0; left: 0;
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #1a2440 0, #05060a 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px 64px;
+    }
+
+    .shell {
       width: 100%;
-      height: 100%;
-      border: none;
-      transition: opacity 1s ease;
+      max-width: var(--max-width);
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.02),
+        rgba(255, 255, 255, 0.01)
+      );
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(26px) saturate(120%);
+      -webkit-backdrop-filter: blur(26px) saturate(120%);
+      overflow: hidden;
     }
 
-    #video {
+    header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 20% 0, #ffffff 0, #4f8cff 40%, #1c2440 95%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #05060a;
+      font-size: 18px;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-text span:first-child {
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .brand-text span:last-child {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 13px;
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 2px;
+      cursor: pointer;
+    }
+
+    nav a:hover {
+      color: var(--text-main);
+    }
+
+    nav a::after {
+      content: "";
       position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80vw;
-      max-width: 900px;
-      aspect-ratio: 16/9;
+      left: 0;
+      bottom: -2px;
+      width: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #4f8cff, #9d7bff);
+      transition: width 0.18s ease-out;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .btn-ghost {
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--text-main);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(12, 15, 25, 0.8);
+      cursor: pointer;
+    }
+
+    .btn-ghost span {
+      font-size: 13px;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(14, 19, 34, 1);
+    }
+
+    main {
+      padding: 28px 24px 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 28px;
+    }
+
+    @media (max-width: 800px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* Hero / left column */
+
+    .hero {
+      padding-right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-soft);
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.4);
+      font-size: 11px;
+      color: var(--text-muted);
+      width: fit-content;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #57e39f;
+      box-shadow: 0 0 8px rgba(87, 227, 159, 0.7);
+    }
+
+    h1 {
+      font-size: clamp(30px, 4vw, 38px);
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+    }
+
+    h1 span {
+      background: linear-gradient(120deg, #ffffff, #b9c7ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtext {
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      border-radius: var(--radius-pill);
+      padding: 9px 18px;
       border: none;
-      opacity: 0;
-      transition: opacity 1s ease;
-      pointer-events: none;
+      background: linear-gradient(135deg, #4f8cff, #9d7bff);
+      color: #05060a;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 12px 30px rgba(19, 31, 62, 0.7);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.05);
+      transform: translateY(-0.5px);
+    }
+
+    .btn-text {
+      border-radius: var(--radius-pill);
+      padding: 9px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-text:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+    }
+
+    .info-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .info-item {
+      background: rgba(5, 7, 13, 0.9);
+      border-radius: 14px;
+      padding: 10px 11px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .info-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .info-value {
+      font-size: 13px;
+    }
+
+    .info-value strong {
+      font-weight: 600;
+    }
+
+    /* Right column: cards */
+
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: rgba(4, 7, 14, 0.96);
+      border-radius: var(--radius-lg);
+      padding: 14px 14px 13px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .card-pill {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .timeline {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 10px;
+    }
+
+    .timeline-bullet {
+      width: 8px;
+      margin-top: 4px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .bullet-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #4f8cff, #9d7bff);
+    }
+
+    .timeline-body span {
+      display: block;
+    }
+
+    .timeline-role {
+      font-weight: 500;
+    }
+
+    .timeline-meta {
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .timeline-meta small {
+      opacity: 0.85;
+    }
+
+    .timeline-desc {
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(27, 32, 53, 0.95);
+      border: 1px solid rgba(108, 132, 196, 0.6);
+      color: #d5ddff;
+    }
+
+    .contact-row {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .contact-row a {
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .contact-row a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      padding: 0 24px 22px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    @media (max-width: 600px) {
+      .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      footer {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">Z</div>
+        <div class="brand-text">
+          <span>ZOË FRIEDMAN</span>
+          <span>Portfolio</span>
+        </div>
+      </div>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#work">Experience</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+        <a class="btn-ghost" href="#contact">
+          <span>Get in touch</span> →
+        </a>
+      </nav>
+    </header>
 
-  <!-- Your PDF -->
-  <embed id="pdf" src="resume.pdf" type="application/pdf" />
+    <main>
+      <!-- Left column / hero -->
+      <section class="hero" id="about">
+        <div class="hero-tagline">
+          <div class="dot"></div>
+          <span>Available for new opportunities</span>
+        </div>
 
-  <!-- Rickroll (starts hidden) -->
-  <iframe
-    id="video"
-    src=""
-    allow="autoplay; encrypted-media"
-    allowfullscreen>
-  </iframe>
+        <div>
+          <h1>
+            Hi, I’m <span>Zoë</span>. <br />
+            I build thoughtful, human-centered work.
+          </h1>
+          <p class="hero-subtext">
+            Short bio goes here. For example: Zoë is a
+            <strong>designer / creative / student / professional</strong> focused
+            on turning complex ideas into clear, beautiful experiences.
+            She blends analytical thinking with a strong eye for detail.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a class="btn-primary" href="#projects">
+            View selected work
+            <span>↗</span>
+          </a>
+          <!-- Replace resume.pdf with actual file path if you add one -->
+          <a class="btn-text" href="files/resume.pdf" target="_blank" rel="noopener">
+            Download résumé
+          </a>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Location</div>
+            <div class="info-value">
+              <strong>City, State</strong><br />
+              Open to remote work
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Focus</div>
+            <div class="info-value">
+              Product, design, <br />
+              research, storytelling
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Currently</div>
+            <div class="info-value">
+              <strong>Role / School</strong><br />
+              One line about what she’s doing now.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right column / cards -->
+      <section class="right-col">
+        <!-- Experience -->
+        <div class="card" id="work">
+          <div class="card-header">
+            <div class="card-title">Experience</div>
+            <div class="card-pill">Selected roles</div>
+          </div>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-bullet">
+                <div class="bullet-dot"></div>
+              </div>
+              <div class="timeline-body">
+                <span class="timeline-role">Role Title — Organization</span>
+                <span class="timeline-meta">
+                  City · 20XX–Present · <small>Full-time / Part-time</small>
+                </span>
+                <p class="timeline-desc">
+                  One or two concise lines describing what Zoë does here and the
+                  kind of problems she works on.
+                </p>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-bullet">
+                <div class="bullet-dot"></div>
+              </div>
+              <div class="timeline-body">
+                <span class="timeline-role">Previous Role — Company / Program</span>
+                <span class="timeline-meta">
+                  City · 20XX–20XX · <small>Internship / Project</small>
+                </span>
+                <p class="timeline-desc">
+                  Another short description that focuses on impact, results, or
+                  skills learned.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects / skills -->
+        <div class="card" id="projects">
+          <div class="card-header">
+            <div class="card-title">Projects & Skills</div>
+            <div class="card-pill">Snapshot</div>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            A few areas where Zoë does her best work. Replace these with
+            real projects, portfolios, or case studies.
+          </p>
+          <div class="pill-row">
+            <span class="pill">UI / UX Design</span>
+            <span class="pill">Writing & Editing</span>
+            <span class="pill">Research</span>
+            <span class="pill">Strategy</span>
+            <span class="pill">Presentation Design</span>
+            <span class="pill">Data storytelling</span>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="card" id="contact">
+          <div class="card-header">
+            <div class="card-title">Contact</div>
+            <div class="card-pill">Let’s connect</div>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+            For collaborations, opportunities, or just to say hello, feel free
+            to reach out. She aims to respond within a few days.
+          </p>
+          <div class="contact-row">
+            <!-- Replace these with real links -->
+            <span>Email:
+              <a href="mailto:zoe@example.com">zoe@example.com</a></span>
+            <span>LinkedIn:
+              <a href="https://www.linkedin.com/" target="_blank" rel="noopener">
+                linkedin.com/in/zoe-friedman
+              </a>
+            </span>
+            <span>Portfolio:
+              <a href="#">Link or Notion portfolio</a>
+            </span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> Zoë Friedman. All rights reserved.</span>
+      <span style="opacity: 0.85;">Designed & built with care.</span>
+    </footer>
+  </div>
 
   <script>
-    // Time before switching (milliseconds)
-    const delay = 5000; // 5 seconds — change if you want
+    // Set current year automatically
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-    const pdf = document.getElementById("pdf");
-    const video = document.getElementById("video");
-
-    setTimeout(() => {
-      // Fade out the PDF
-      pdf.style.opacity = 0;
-
-      // Load Rickroll video with autoplay
-      video.src = "https://www.youtube.com/embed/a7Lq6ZlSqys?autoplay=1";
-
-      // Fade in the video after the PDF starts fading out
-      setTimeout(() => {
-        video.style.opacity = 1;
-        video.style.pointerEvents = "auto";
-      }, 1000);
-
-    }, delay);
+    // Smooth scroll for in-page links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener("click", function (e) {
+        const targetId = this.getAttribute("href").slice(1);
+        const target = document.getElementById(targetId);
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
   </script>
-
 </body>
 </html>
