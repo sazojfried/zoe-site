@@ -1,91 +1,75 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.1">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="UTF-8" />
+  <title>Document Viewer</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+
+    #pdf {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      transition: opacity 1s ease;
+    }
+
+    #video {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80vw;
+      max-width: 900px;
+      aspect-ratio: 16/9;
+      border: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Document Viewer&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>html, body {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow: hidden;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: black;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>#pdf {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top: 0; left: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: opacity 1s ease;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>#video {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top: 50%; left: 50%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transform: translate(-50%, -50%);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width: 80vw;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-width: 900px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>aspect-ratio: 16/9;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>opacity: 0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>transition: opacity 1s ease;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>pointer-events: none;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Your PDF --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;embed id="pdf" src="resume.pdf" type="application/pdf" /&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Rickroll (starts hidden) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;iframe</p>
-<p class="p1"><span class="Apple-converted-space">    </span>id="video"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>src=""</p>
-<p class="p1"><span class="Apple-converted-space">    </span>allow="autoplay; encrypted-media"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>allowfullscreen&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/iframe&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>// Time before switching (milliseconds)</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const delay = 5000; // 5 seconds — change if you want</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const pdf = document.getElementById("pdf");</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const video = document.getElementById("video");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>setTimeout(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>// Fade out the PDF</p>
-<p class="p1"><span class="Apple-converted-space">      </span>pdf.style.opacity = 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// Load Rickroll video with autoplay</p>
-<p class="p1"><span class="Apple-converted-space">      </span>video.src = "https://www.youtube.com/embed/a7Lq6ZlSqys?autoplay=1";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// Fade in the video after the PDF starts fading out</p>
-<p class="p1"><span class="Apple-converted-space">      </span>setTimeout(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>video.style.opacity = 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>video.style.pointerEvents = "auto";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}, 1000);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>}, delay);</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+  <!-- Your PDF -->
+  <embed id="pdf" src="resume.pdf" type="application/pdf" />
+
+  <!-- Rickroll (starts hidden) -->
+  <iframe
+    id="video"
+    src=""
+    allow="autoplay; encrypted-media"
+    allowfullscreen>
+  </iframe>
+
+  <script>
+    // Time before switching (milliseconds)
+    const delay = 5000; // 5 seconds — change if you want
+
+    const pdf = document.getElementById("pdf");
+    const video = document.getElementById("video");
+
+    setTimeout(() => {
+      // Fade out the PDF
+      pdf.style.opacity = 0;
+
+      // Load Rickroll video with autoplay
+      video.src = "https://www.youtube.com/embed/a7Lq6ZlSqys?autoplay=1";
+
+      // Fade in the video after the PDF starts fading out
+      setTimeout(() => {
+        video.style.opacity = 1;
+        video.style.pointerEvents = "auto";
+      }, 1000);
+
+    }, delay);
+  </script>
+
 </body>
 </html>
