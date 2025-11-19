@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+A<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -742,13 +742,13 @@
         <div class="section-title"><span>Softball Stats</span></div>
         <div class="section-body">
           <p>Key performance stats (current season):</p>
-          <div class="pill-row" style="margin-top:14px;">
-            <span class="pill">AVG: .000</span>
-            <span class="pill">OBP: .000</span>
-            <span class="pill">SLG: .000</span>
-            <span class="pill">OPS: .000</span>
-            <span class="pill">Fielding %: .000</span>
-          </div>
+         <div class="pill-row" style="margin-top:14px;">
+  <span class="pill" id="stat-avg">AVG: .000</span>
+  <span class="pill" id="stat-obp">OBP: .000</span>
+  <span class="pill" id="stat-slg">SLG: .000</span>
+  <span class="pill" id="stat-ops">OPS: .000</span>
+  <span class="pill" id="stat-fld">Fielding %: .000</span>
+</div>
         </div>
       </div>
     </section>
@@ -936,6 +936,34 @@
     }, { threshold: 0.1 });
 
     document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+        // Load stats from Cloudflare Worker
+    async function loadStats() {
+      try {
+        const res = await fetch("/api/stats");
+        if (!res.ok) return; // keep defaults if API fails
+
+        const data = await res.json();
+
+        const avgEl = document.getElementById("stat-avg");
+        const obpEl = document.getElementById("stat-obp");
+        const slgEl = document.getElementById("stat-slg");
+        const opsEl = document.getElementById("stat-ops");
+        const fldEl = document.getElementById("stat-fld");
+
+        if (avgEl && data.avg) avgEl.textContent = "AVG: " + data.avg;
+        if (obpEl && data.obp) obpEl.textContent = "OBP: " + data.obp;
+        if (slgEl && data.slg) slgEl.textContent = "SLG: " + data.slg;
+        if (opsEl && data.ops) opsEl.textContent = "OPS: " + data.ops;
+        // Optional: if you later store fielding % in KV
+        if (fldEl && data.fld) fldEl.textContent = "Fielding %: " + data.fld;
+      } catch (err) {
+        console.error("Failed to load stats", err);
+      }
+    }
+
+    // Call once on page load
+    loadStats();
+
   </script>
 </body>
 </html>
