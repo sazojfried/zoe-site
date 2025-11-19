@@ -1,1 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zoe Friedman — Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --red: #b31b1b;
+      --red-soft: #ff6b6b;
+      --text-main: #141414;
+      --text-muted: #666a73;
+      --bg-page: #f4f5f7;
+      --bg-elevated: rgba(255, 255, 255, 0.85);
+      --bg-card: #ffffff;
+      --border-subtle: #e2e4ea;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.12);
+      --radius-card: 18px;
+    }
+
+    /* Dark mode */
+    body.dark {
+      --text-main: #f4f4f4;
+      --text-muted: #b8bbc7;
+      --bg-page: #0e0e11;
+      --bg-elevated: rgba(15, 15, 20, 0.75);
+      --bg-card: #181a1f;
+      --border-subtle: #2e313a;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* NAV */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .nav-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .logo-block {
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.2;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .logo-name {
+      font-size: 18px;
+      letter-spacing: 0.18em;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    nav {
+      display: flex;
+      gap: 22px;
+      font-size: 13px;
+      align-items: center;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 4px;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    nav a.active,
+    nav a:hover {
+      color: var(--red-soft);
+    }
+
+    nav a.active::after,
+    nav a:hover::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0 auto;
+      width: 80%;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--red-soft);
+    }
+
+    /* Dark mode toggle */
+    .theme-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-left: 10px;
+      transition: 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(179, 27, 27, 0.09);
+      color: var(--text-main);
+      border-color: var(--red-soft);
+      transform: translateY(-1px);
+    }
+
+    /* PAGE TITLE */
+    .page-header {
+      max-width: 1040px;
+      margin: 40px auto 20px;
+      padding: 0 18px;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* GALLERY GRID */
+    .gallery {
+      max-width: 1040px;
+      margin: 0 auto 60px;
+      padding: 0 18px;
+
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      border-radius: 14px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      transition: transform 0.2s ease;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-4px);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAV -->
+  <header>
+    <div class="nav-inner">
+      <div class="logo-block">
+        <div class="logo-name">ZOE FRIEDMAN</div>
+        <div class="logo-sub">Economics · Softball · Community</div>
+      </div>
+
+      <nav>
+        <a href="index.html#home">Home</a>
+        <a href="index.html#about">About</a>
+        <a href="index.html#experience">Experience</a>
+        <a href="index.html#skills">Highlights</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="gallery.html" class="active">Gallery</a>
+
+        <button id="theme-toggle" class="theme-toggle">Light mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- PAGE TITLE -->
+  <div class="page-header">
+    <h1>Gallery</h1>
+    <p>A collection of moments from softball, campus life, and community work.</p>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="gallery">
+    <!-- Replace filenames with your own -->
+    <div class="gallery-item">
+      <img src="images/zoe-softball.jpg" alt="Softball action" />
+    </div>
+
+    <div class="gallery-item">
+      <img src="images/zoe-headshot.jpeg" alt="Zoe headshot" />
+    </div>
+
+    <!-- Add more photos -->
+    <!-- <div class="gallery-item"><img src="images/photo3.jpg" /></div> -->
+    <!-- <div class="gallery-item"><img src="images/photo4.jpg" /></div> -->
+    <!-- <div class="gallery-item"><img src="images/photo5.jpg" /></div> -->
+  </div>
+
+  <footer>
+    © <span id="year"></span> Zoe Friedman. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const toggleBtn = document.getElementById("theme-toggle");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      toggleBtn.textContent = document.body.classList.contains("dark")
+        ? "Light mode"
+        : "Dark mode";
+    });
+  </script>
+</body>
+</html>
 
