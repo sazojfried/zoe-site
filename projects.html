@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zoe Friedman — Projects</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Projects page for Zoe Friedman, featuring a simple Flappy Bird style game."
+  />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --red: #b31b1b;
+      --red-soft: #f97373;
+      --bg-page: #f4f5f7;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --border-subtle: #e2e4ea;
+      --text-main: #141414;
+      --text-muted: #666a73;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    /* Dark theme overrides */
+    body.theme-dark {
+      --bg-page: #050509;
+      --bg-elevated: rgba(5, 5, 9, 0.96);
+      --bg-card: #11121a;
+      --border-subtle: #26283a;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3b4;
+      --shadow-soft: 0 22px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* NAV (copied to match index) */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .nav-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .logo-block {
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.2;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .logo-name {
+      font-size: 18px;
+      letter-spacing: 0.18em;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      font-size: 13px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      position: relative;
+      padding-bottom: 4px;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a.active,
+    .nav-links a:hover {
+      color: var(--red-soft);
+    }
+
+    .nav-links a.active::after,
+    .nav-links a:hover::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0 auto;
+      width: 80%;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--red-soft);
+    }
+
+    .theme-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease,
+        border-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(179, 27, 27, 0.09);
+      color: var(--text-main);
+      border-color: var(--red-soft);
+      transform: translateY(-1px);
+    }
+
+    .nav-toggle {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .nav-toggle span + span {
+      margin-top: 3px;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+    }
+
+    body.nav-open .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+    }
+
+    @media (max-width: 780px) {
+      .nav-inner {
+        align-items: center;
+      }
+
+      .nav-right {
+        gap: 8px;
+      }
+
+      .nav-links {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 10px 18px 12px;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 13px;
+      }
+
+      body.nav-open .nav-links {
+        display: flex;
+      }
+
+      .theme-toggle {
+        font-size: 10px;
+        padding: 5px 10px;
+      }
+
+      .nav-toggle {
+        display: inline-flex;
+      }
+    }
+
+    /* PAGE LAYOUT */
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 24px 18px 40px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-subtle);
+      padding: 22px 22px 24px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: var(--red-soft);
+    }
+
+    .section-title span {
+      border-bottom: 2px solid var(--red-soft);
+      padding-bottom: 3px;
+    }
+
+    .section-body {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+
+    /* GAME AREA */
+    .game-wrapper {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 3 / 4; /* keep canvas nicely sized on phones */
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: linear-gradient(to bottom, #87ceeb, #e0f6ff);
+    }
+
+    body.theme-dark .game-container {
+      background: linear-gradient(to bottom, #030712, #020617);
+    }
+
+    canvas#game-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .game-instructions {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .game-score {
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-main);
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+  </style>
+</head>
+<body class="theme-dark">
+  <!-- NAV -->
+  <header>
+    <div class="nav-inner">
+      <div class="logo-block">
+        <div class="logo-name">ZOE FRIEDMAN</div>
+        <div class="logo-sub">Economics · Softball · Community</div>
+      </div>
+
+      <div class="nav-right">
+        <nav class="nav-links">
+          <a href="index.html#home">Home</a>
+          <a href="index.html#stats">Stats</a>
+          <a href="index.html#experience">Experience</a>
+          <a href="index.html#contact">Contact</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="projects.html" class="active">Projects</a>
+        </nav>
+
+        <button id="theme-toggle" class="theme-toggle" type="button">
+          Light mode
+        </button>
+
+        <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="card">
+      <div class="section-title"><span>Flappy Zoe</span></div>
+      <div class="section-body">
+        <p>
+          A simple Flappy Bird–style game, just for fun.
+          Tap or click to flap and avoid the pipes. Score a point for each set of pipes you pass.
+        </p>
+
+        <div class="game-wrapper">
+          <div class="game-container">
+            <canvas id="game-canvas"></canvas>
+          </div>
+          <div class="game-score" id="score-display">Score: 0</div>
+          <div class="game-instructions">
+            Click / tap / press space or ↑ to flap.  
+            Refresh the page to restart if things get wild.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Zoe Friedman. All rights reserved.
+  </footer>
+
+  <script>
+    // Footer year
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const body = document.body;
+    const toggleBtn = document.getElementById("theme-toggle");
+
+    function updateToggleLabel() {
+      toggleBtn.textContent = body.classList.contains("theme-dark")
+        ? "Light mode"
+        : "Dark mode";
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("theme-dark");
+      updateToggleLabel();
+    });
+
+    updateToggleLabel();
+
+    // Hamburger menu
+    const navToggle = document.getElementById("nav-toggle");
+    navToggle.addEventListener("click", () => {
+      body.classList.toggle("nav-open");
+    });
+
+    document.querySelectorAll(".nav-links a").forEach(link => {
+      link.addEventListener("click", () => {
+        body.classList.remove("nav-open");
+      });
+    });
+
+    // ---------- Flappy Bird–style game ----------
+    (function () {
+      const canvas = document.getElementById("game-canvas");
+      const ctx = canvas.getContext("2d");
+      const scoreDisplay = document.getElementById("score-display");
+
+      // Internal game resolution; canvas will scale with CSS
+      const WIDTH = 300;
+      const HEIGHT = 400;
+      canvas.width = WIDTH;
+      canvas.height = HEIGHT;
+
+      let birdY = HEIGHT / 2;
+      let birdX = WIDTH * 0.25;
+      let birdVel = 0;
+      const gravity = 0.35;
+      const flapStrength = -6;
+
+      const pipeWidth = 50;
+      const pipeGap = 110;
+      const pipeSpeed = 2.0;
+
+      let pipes = [];
+      let frame = 0;
+      let score = 0;
+      let gameOver = false;
+      let started = false;
+
+      function resetGame() {
+        birdY = HEIGHT / 2;
+        birdVel = 0;
+        pipes = [];
+        score = 0;
+        frame = 0;
+        gameOver = false;
+        started = false;
+        scoreDisplay.textContent = "Score: 0";
+      }
+
+      function spawnPipe() {
+        const minTop = 40;
+        const maxTop = HEIGHT - pipeGap - 40;
+        const topHeight = minTop + Math.random() * (maxTop - minTop);
+        pipes.push({
+          x: WIDTH + pipeWidth,
+          top: topHeight,
+          passed: false,
+        });
+      }
+
+      function flap() {
+        if (!started) {
+          started = true;
+        }
+        if (gameOver) {
+          resetGame();
+          return;
+        }
+        birdVel = flapStrength;
+      }
+
+      function update() {
+        if (!started) {
+          draw();
+          requestAnimationFrame(update);
+          return;
+        }
+
+        if (!gameOver) {
+          frame++;
+
+          // Bird physics
+          birdVel += gravity;
+          birdY += birdVel;
+
+          // Spawn pipes every 110 frames roughly
+          if (frame % 110 === 0) {
+            spawnPipe();
+          }
+
+          // Move pipes
+          for (let i = 0; i < pipes.length; i++) {
+            pipes[i].x -= pipeSpeed;
+          }
+
+          // Remove off-screen pipes
+          pipes = pipes.filter(p => p.x + pipeWidth > 0);
+
+          // Collision detection
+          if (birdY + 10 >= HEIGHT || birdY - 10 <= 0) {
+            gameOver = true;
+          }
+
+          const birdRadius = 10;
+          for (let i = 0; i < pipes.length; i++) {
+            const p = pipes[i];
+            const inXRange = birdX + birdRadius > p.x && birdX - birdRadius < p.x + pipeWidth;
+            const inTop = birdY - birdRadius < p.top;
+            const inBottom = birdY + birdRadius > p.top + pipeGap;
+
+            if (inXRange && (inTop || inBottom)) {
+              gameOver = true;
+              break;
+            }
+
+            // scoring
+            if (!p.passed && p.x + pipeWidth < birdX - birdRadius) {
+              p.passed = true;
+              score++;
+              scoreDisplay.textContent = "Score: " + score;
+            }
+          }
+        }
+
+        draw();
+        requestAnimationFrame(update);
+      }
+
+      function draw() {
+        // background
+        const isDark = body.classList.contains("theme-dark");
+        if (isDark) {
+          const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+          gradient.addColorStop(0, "#020617");
+          gradient.addColorStop(1, "#0b1120");
+          ctx.fillStyle = gradient;
+        } else {
+          const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+          gradient.addColorStop(0, "#87ceeb");
+          gradient.addColorStop(1, "#e0f6ff");
+          ctx.fillStyle = gradient;
+        }
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Pipes
+        for (let i = 0; i < pipes.length; i++) {
+          const p = pipes[i];
+          if (isDark) {
+            ctx.fillStyle = "#1f2937";
+          } else {
+            ctx.fillStyle = "#22c55e";
+          }
+          // top pipe
+          ctx.fillRect(p.x, 0, pipeWidth, p.top);
+          // bottom pipe
+          ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, HEIGHT - (p.top + pipeGap));
+        }
+
+        // Bird
+        ctx.save();
+        ctx.translate(birdX, birdY);
+        ctx.rotate(Math.max(-0.5, Math.min(0.5, birdVel / 10)));
+        ctx.fillStyle = isDark ? "#f97373" : "#b31b1b";
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Overlay messages
+        ctx.fillStyle = isDark ? "rgba(15,23,42,0.65)" : "rgba(15,23,42,0.2)";
+        ctx.font = "12px Inter, system-ui, sans-serif";
+        ctx.textAlign = "center";
+
+        if (!started && !gameOver) {
+          ctx.fillText("Click / tap / space to start", WIDTH / 2, HEIGHT / 2 - 10);
+        } else if (gameOver) {
+          ctx.fillText("Game over — click / tap / space to restart", WIDTH / 2, HEIGHT / 2);
+        }
+      }
+
+      // Input
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.code === "ArrowUp") {
+          e.preventDefault();
+          flap();
+        }
+      });
+
+      canvas.addEventListener("click", flap);
+      canvas.addEventListener("touchstart", function (e) {
+        e.preventDefault();
+        flap();
+      }, { passive: false });
+
+      // Kick off loop
+      resetGame();
+      update();
+    })();
+  </script>
+</body>
+</html>
