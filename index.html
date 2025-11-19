@@ -17,17 +17,26 @@
 
   <style>
     :root {
-      --red: #b31b1b;         /* Haverford-ish red */
+      --red: #b31b1b;              /* Haverford-ish red */
       --red-soft: #f97373;
-      --text-main: #f9fafb;
-      --text-muted: #9ca3b4;
+      --bg-page: #f4f5f7;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --border-subtle: #e2e4ea;
+      --text-main: #141414;
+      --text-muted: #666a73;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    /* Dark theme overrides */
+    body.theme-dark {
       --bg-page: #050509;
-      --bg-elevated: #0b0c13;
+      --bg-elevated: rgba(5, 5, 9, 0.96);
       --bg-card: #11121a;
       --border-subtle: #26283a;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3b4;
       --shadow-soft: 0 22px 50px rgba(0, 0, 0, 0.7);
-      --radius-card: 18px;
-      --max-width: 1040px;
     }
 
     * {
@@ -41,6 +50,7 @@
         "Segoe UI", sans-serif;
       background-color: var(--bg-page);
       color: var(--text-main);
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     a {
@@ -53,14 +63,15 @@
     header {
       position: sticky;
       top: 0;
-      z-index: 10;
-      background: rgba(5, 5, 9, 0.96);
-      border-bottom: 1px solid #141522;
+      z-index: 20;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
       backdrop-filter: blur(12px);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
     }
 
     .nav-inner {
-      max-width: var(--max-width);
+      max-width: 1040px;
       margin: 0 auto;
       padding: 10px 18px;
       display: flex;
@@ -93,12 +104,14 @@
       display: flex;
       gap: 22px;
       font-size: 13px;
+      align-items: center;
     }
 
     nav a {
       position: relative;
       padding-bottom: 4px;
-      color: #e5e7eb;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
     }
 
     nav a.active,
@@ -120,6 +133,30 @@
       background: var(--red-soft);
     }
 
+    /* Theme toggle button */
+
+    .theme-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-left: 10px;
+      transition: background-color 0.2s ease, color 0.2s ease,
+        border-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(179, 27, 27, 0.09);
+      color: var(--text-main);
+      border-color: var(--red-soft);
+      transform: translateY(-1px);
+    }
+
     @media (max-width: 780px) {
       .nav-inner {
         flex-direction: column;
@@ -128,40 +165,44 @@
         justify-content: center;
         flex-wrap: wrap;
       }
+      .theme-toggle {
+        margin-left: 0;
+        margin-top: 4px;
+      }
     }
 
-    /* HERO – full width image */
+    /* HERO – fixed background image */
 
     .hero {
+      position: relative;
       width: 100%;
-      border-bottom: 1px solid #141522;
+      height: 70vh;
+      min-height: 340px;
       overflow: visible;
-      background: #000;
-    }
-
-    .hero img {
-      display: block;
-      width: 100%;
-      height: auto;
-      max-height: 70vh;
-      object-fit: cover;
-      object-position: center 40%;
-      filter: saturate(1.05);
+      border-bottom: 1px solid var(--border-subtle);
+      background-image:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.85)),
+        url("images/zoe-softball.jpg");
+      background-size: cover;
+      background-position: center 40%;
+      background-attachment: fixed; /* key bit: image stays put */
     }
 
     /* Main content */
 
     .page {
-      max-width: var(--max-width);
+      max-width: 1040px;
       margin: 0 auto;
       padding: 0 18px 40px;
     }
 
     .card {
-      background: radial-gradient(circle at top left, #191b27, #101119);
-      border-radius: var(--radius-card);
+      background: var(--bg-card);
+      border-radius: 18px;
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-subtle);
+      transition: background-color 0.25s ease, border-color 0.25s ease,
+        box-shadow 0.25s ease;
     }
 
     /* Intro stats card that overlaps hero */
@@ -256,7 +297,7 @@
 
     .section-body {
       font-size: 14px;
-      color: #e5e7f2;
+      color: var(--text-main);
       line-height: 1.7;
     }
 
@@ -284,6 +325,10 @@
       border-radius: 16px;
       overflow: hidden;
       border: 3px solid var(--red);
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    body.theme-dark .about-photo-inner {
       box-shadow: 0 16px 30px rgba(0, 0, 0, 0.85);
     }
 
@@ -324,7 +369,7 @@
       background: var(--red-soft);
       margin-top: 5px;
       flex-shrink: 0;
-      box-shadow: 0 0 0 4px rgba(179, 27, 27, 0.25);
+      box-shadow: 0 0 0 4px rgba(179, 27, 27, 0.2);
     }
 
     .timeline-role {
@@ -350,7 +395,13 @@
       font-size: 12px;
       padding: 6px 10px;
       border-radius: 999px;
-      border: 1px solid #3b3f58;
+      border: 1px solid #d6d8e0;
+      background: #f8f9fc;
+      color: #333746;
+    }
+
+    body.theme-dark .pill {
+      border-color: #3b3f58;
       background: #181a27;
       color: #e5e7f5;
     }
@@ -376,12 +427,13 @@
       padding: 16px;
       font-size: 11px;
       color: var(--text-muted);
-      border-top: 1px solid #141522;
-      background: #050509;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
     }
   </style>
 </head>
-<body>
+<body class="theme-dark">
   <!-- NAV -->
   <header>
     <div class="nav-inner">
@@ -395,14 +447,15 @@
         <a href="#experience">Experience</a>
         <a href="#skills">Highlights</a>
         <a href="#contact">Contact</a>
+        <button id="theme-toggle" class="theme-toggle" type="button">
+          Light mode
+        </button>
       </nav>
     </div>
   </header>
 
-  <!-- HERO IMAGE -->
-  <section class="hero" id="home">
-    <img src="images/zoe-softball.jpg" alt="Zoe Friedman in softball action" />
-  </section>
+  <!-- HERO IMAGE (fixed background) -->
+  <section class="hero" id="home" aria-label="Zoe Friedman in softball action"></section>
 
   <main class="page">
     <!-- INTRO CARD -->
@@ -587,9 +640,30 @@
   </footer>
 
   <script>
+    // year in footer
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // simple nav highlighting + smooth scroll
+    // theme toggle
+    const body = document.body;
+    const toggleBtn = document.getElementById("theme-toggle");
+
+    function updateToggleLabel() {
+      if (body.classList.contains("theme-dark")) {
+        toggleBtn.textContent = "Light mode";
+      } else {
+        toggleBtn.textContent = "Dark mode";
+      }
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("theme-dark");
+      updateToggleLabel();
+    });
+
+    // ensure label matches initial state
+    updateToggleLabel();
+
+    // simple nav smooth scroll
     document.querySelectorAll("nav a[href^='#']").forEach(link => {
       link.addEventListener("click", function (e) {
         const id = this.getAttribute("href").slice(1);
