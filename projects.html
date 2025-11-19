@@ -985,7 +985,7 @@
       update();
     })();
 
-        // --------- Dad Invaders Game ----------
+          // --------- Dad Invaders Game (easier + dad1.png) ----------
     (function () {
       const canvas = document.getElementById("dad-canvas");
       const ctx = canvas.getContext("2d");
@@ -1003,21 +1003,26 @@
 
       // --- Player (Dad ship) ---
       const playerImg = new Image();
-      playerImg.src = "images/dad1.png";
+      playerImg.src = "images/dad1.png";  // make sure this EXACT path/name exists
       let playerImgLoaded = false;
-      playerImg.onload = () => (playerImgLoaded = true);
+      playerImg.onload = () => {
+        playerImgLoaded = true;
+        console.log("Dad sprite loaded from images/dad1.png");
+      };
+      playerImg.onerror = () => {
+        console.error("Could not load images/dad1.png — check file name/path (case-sensitive).");
+      };
 
       const player = {
-        w: 32,
-        h: 22,
-        x: WIDTH / 2 - 16,
-        y: HEIGHT - 50,
-        speed: 2.2,
+        w: 40,    // slightly bigger so the PNG is more visible
+        h: 26,
+        x: WIDTH / 2 - 20,
+        y: HEIGHT - 52,
+        speed: 2.7,  // a bit faster for easier dodging
         movingLeft: false,
         movingRight: false,
-        canShoot: true,
         lastShot: 0,
-        shotCooldown: 320 // ms
+        shotCooldown: 280 // can shoot a bit more often
       };
 
       // --- Game state ---
@@ -1031,14 +1036,14 @@
         10
       );
       let wave = 1;
-      let lives = 3;
+      let lives = 5;  // give Dad more lives
 
-      // --- Invaders ---
+      // --- Invaders (easier baseline) ---
       let invaders = [];
       let invaderDir = 1;
-      let invaderSpeedBase = 0.45;
+      let invaderSpeedBase = 0.30;  // was 0.45, now slower
       let invaderSpeed = invaderSpeedBase;
-      const invaderStepDown = 12;
+      const invaderStepDown = 10;
       const rows = 5;
       const cols = 10;
       const invaderW = 18;
@@ -1053,7 +1058,8 @@
       // --- Bullets ---
       const playerBullets = [];
       const invaderBullets = [];
-      const maxPlayerBullets = 1;
+      const maxPlayerBullets = 1;  // keep classic one-shot rule
+      const maxInvaderBullets = 5; // cap enemy spam
 
       // --- Shields ---
       const shields = [];
@@ -1062,7 +1068,7 @@
       const shieldBlock = 4;
 
       // --- UFO ---
-      let ufo = null; // {x,y,w,h,speed,alive,dir}
+      let ufo = null; // {x,y,w,h,speed}
 
       // --- Input ---
       const keys = {};
@@ -1090,13 +1096,14 @@
               w: invaderW,
               h: invaderH,
               alive: true,
-              type: r // could vary score by row
+              type: r
             });
             invadersAlive++;
           }
         }
         invaderDir = 1;
-        invaderSpeedBase *= 1 + (wave - 1) * 0.08;
+        // wave speed-up, but gentler
+        invaderSpeedBase *= 1 + (wave - 1) * 0.05;
         invaderSpeed = invaderSpeedBase;
       }
 
@@ -1108,10 +1115,8 @@
           const centerX = spacing * (i + 1);
           const startX = centerX - shieldWidth / 2;
           const startY = HEIGHT - 120;
-          // simple blocky shield
           for (let y = 0; y < shieldHeight; y += shieldBlock) {
             for (let x = 0; x < shieldWidth; x += shieldBlock) {
-              // cut out bottom middle chunk for classic shape
               const relX = x / shieldBlock;
               const relY = y / shieldBlock;
               if (
@@ -1133,7 +1138,7 @@
       }
 
       function spawnUFO() {
-        const chance = 0.002; // small probability each frame
+        const chance = 0.0015; // a bit rarer
         if (ufo || !started || gameOver) return;
         if (Math.random() < chance) {
           const dir = Math.random() < 0.5 ? 1 : -1;
@@ -1146,15 +1151,13 @@
             y,
             w,
             h,
-            speed: 1.5 * dir,
-            alive: true
+            speed: 1.3 * dir
           };
         }
       }
 
       function explodeUFO() {
         if (!ufo) return;
-        // random bonus like original
         const bonusChoices = [50, 100, 150, 300];
         const bonus =
           bonusChoices[Math.floor(Math.random() * bonusChoices.length)];
@@ -1170,8 +1173,8 @@
         if (fullReset) {
           score = 0;
           wave = 1;
-          lives = 3;
-          invaderSpeedBase = 0.45;
+          lives = 5;
+          invaderSpeedBase = 0.30;
         }
         started = false;
         paused = false;
@@ -1195,11 +1198,9 @@
       }
 
       function shootPlayerBullet() {
-        if (!player.canShoot) return;
-        if (playerBullets.length >= maxPlayerBullets) return;
         const now = performance.now();
+        if (playerBullets.length >= maxPlayerBullets) return;
         if (now - player.lastShot < player.shotCooldown) return;
-
         playerBullets.push({
           x: player.x + player.w / 2 - 1,
           y: player.y - 6,
@@ -1211,7 +1212,6 @@
       }
 
       function invadersCanFire(inv) {
-        // only allow lowest invader in each column to shoot
         for (let other of invaders) {
           if (
             other.alive &&
@@ -1226,7 +1226,11 @@
       }
 
       function maybeInvaderShoot() {
-        const fireChance = 0.0025 + 0.0003 * wave;
+        if (invaderBullets.length >= maxInvaderBullets) return;
+        const fireChanceBase = 0.0015;   // was 0.0025
+        const fireWaveFactor = 0.0002;   // slightly smaller scaling
+        const fireChance = fireChanceBase + fireWaveFactor * wave;
+
         for (let inv of invaders) {
           if (!inv.alive) continue;
           if (!invadersCanFire(inv)) continue;
@@ -1236,7 +1240,7 @@
               y: inv.y + inv.h,
               w: 2,
               h: 8,
-              vy: 2.1 + 0.15 * wave
+              vy: 1.7 + 0.12 * wave  // slower bullets
             });
           }
         }
@@ -1254,7 +1258,6 @@
           if (inv.y + inv.h > bottomMost) bottomMost = inv.y + inv.h;
         }
 
-        // if none alive
         if (invadersAlive === 0) {
           wave++;
           resetInvaders();
@@ -1262,12 +1265,10 @@
           return;
         }
 
-        // Adjust speed as aliens die (classic "speed up")
         const total = rows * cols;
         const ratio = 1 - invadersAlive / total;
-        invaderSpeed = invaderSpeedBase * (1 + ratio * 3.0);
+        invaderSpeed = invaderSpeedBase * (1 + ratio * 2.4); // still speeds up, but gentler than *3
 
-        // Check wall hit
         if (leftMost <= 10 && invaderDir < 0) {
           invaderDir = 1;
           for (let inv of invaders) if (inv.alive) inv.y += invaderStepDown;
@@ -1281,7 +1282,6 @@
           inv.x += invaderDir * invaderSpeed;
         }
 
-        // Lose if invaders reach too low
         if (bottomMost >= HEIGHT - 80) {
           loseLife();
         }
@@ -1292,7 +1292,6 @@
         if (lives <= 0) {
           gameOver = true;
         } else {
-          // reset positions but keep score & wave
           player.x = WIDTH / 2 - player.w / 2;
           playerBullets.length = 0;
           invaderBullets.length = 0;
@@ -1302,18 +1301,15 @@
       }
 
       function updateBullets() {
-        // Player bullets
         for (let b of playerBullets) {
           b.y += b.vy;
         }
-        // remove offscreen
         for (let i = playerBullets.length - 1; i >= 0; i--) {
           if (playerBullets[i].y + playerBullets[i].h < 0) {
             playerBullets.splice(i, 1);
           }
         }
 
-        // Invader bullets
         for (let b of invaderBullets) {
           b.y += b.vy;
         }
@@ -1325,7 +1321,7 @@
       }
 
       function handleCollisions() {
-        // Player bullets vs invaders & UFO & shields
+        // Player bullets
         for (let i = playerBullets.length - 1; i >= 0; i--) {
           const b = playerBullets[i];
           const bRect = { x: b.x, y: b.y, w: b.w, h: b.h };
@@ -1349,7 +1345,6 @@
               inv.alive = false;
               invadersAlive--;
               hitInvader = true;
-              // scoring by row: lower rows = more points
               const baseScore = 10 + (rows - inv.type - 1) * 10;
               score += baseScore;
               if (score > highScore) {
@@ -1371,13 +1366,12 @@
             if (rectsCollide(bRect, sRect)) {
               s.alive = false;
               playerBullets.splice(i, 1);
-              hitInvader = true;
               break;
             }
           }
         }
 
-        // Invader bullets vs shields and player
+        // Invader bullets
         for (let i = invaderBullets.length - 1; i >= 0; i--) {
           const b = invaderBullets[i];
           const bRect = { x: b.x, y: b.y, w: b.w, h: b.h };
@@ -1434,7 +1428,6 @@
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-        // stars
         ctx.fillStyle = "rgba(148, 163, 184, 0.9)";
         for (let i = 0; i < 40; i++) {
           const x = (i * 59) % WIDTH;
@@ -1509,7 +1502,6 @@
         }
       }
 
-      // --- Loop ---
       function loop() {
         if (!canvas.isConnected) return;
 
@@ -1531,7 +1523,6 @@
         requestAnimationFrame(loop);
       }
 
-      // --- Update step (only when running) ---
       function tick() {
         if (!started || paused || gameOver) {
           requestAnimationFrame(tick);
@@ -1550,9 +1541,8 @@
         requestAnimationFrame(tick);
       }
 
-      // --- Input handling ---
+      // --- Input ---
       window.addEventListener("keydown", (e) => {
-        keys[e.code] = true;
         if (e.code === "ArrowLeft" || e.code === "KeyA") {
           player.movingLeft = true;
         } else if (e.code === "ArrowRight" || e.code === "KeyD") {
@@ -1576,7 +1566,6 @@
       });
 
       window.addEventListener("keyup", (e) => {
-        keys[e.code] = false;
         if (e.code === "ArrowLeft" || e.code === "KeyA") {
           player.movingLeft = false;
         } else if (e.code === "ArrowRight" || e.code === "KeyD") {
@@ -1602,7 +1591,6 @@
       loop();
       tick();
     })();
-
   </script>
 </body>
 </html>
