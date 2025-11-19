@@ -503,6 +503,23 @@ background-image:
     padding: 0 14px 32px;
   }
 }
+/* ---------- iPhone Hero Fix ---------- */
+@media (max-width: 780px) {
+  .hero {
+    height: 45vh !important;        /* smaller hero on iPhone */
+    min-height: 240px !important;
+    background-attachment: scroll !important; /* disable fixed (iOS bug) */
+    background-position: center top !important;
+    background-size: cover !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    height: 38vh !important;
+    min-height: 200px !important;
+  }
+}
 
     
   </style>
