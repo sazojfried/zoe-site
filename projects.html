@@ -364,16 +364,13 @@
     <div class="card">
       <div class="section-title"><span>Flappy Zoe</span></div>
       <div class="section-body">
-        <p>
-          A simple Flappy Bird–style game, just for fun.
-          Tap or click to flap and avoid the pipes. Score a point for each set of pipes you pass.
-        </p>
+        <!-- description removed on purpose -->
 
         <div class="game-wrapper">
           <div class="game-container">
             <canvas id="game-canvas"></canvas>
           </div>
-          <div class="game-score" id="score-display">Score: 0</div>
+          <div class="game-score" id="score-display">Score: 0 &nbsp;|&nbsp; Best: 0</div>
           <div class="game-instructions">
             Click / tap / press space or ↑ to flap.  
             Refresh the page to restart if things get wild.
@@ -419,7 +416,7 @@
       });
     });
 
-    // ---------- Flappy Bird–style game ----------
+    // ---------- Flappy Zoe game ----------
     (function () {
       const canvas = document.getElementById("game-canvas");
       const ctx = canvas.getContext("2d");
@@ -431,21 +428,53 @@
       canvas.width = WIDTH;
       canvas.height = HEIGHT;
 
+      // Bird (Zoe's face)
+      const birdRadius = 12;
       let birdY = HEIGHT / 2;
       let birdX = WIDTH * 0.25;
       let birdVel = 0;
       const gravity = 0.35;
       const flapStrength = -6;
 
+      const birdImg = new Image();
+      let birdImgLoaded = false;
+     birdImg.src = "images/zoe1.jpg";
+      birdImg.onload = () => {
+        birdImgLoaded = true;
+      };
+
+      // Pipes as softball bats
       const pipeWidth = 50;
       const pipeGap = 110;
-      const pipeSpeed = 2.0;
+      const basePipeSpeed = 2.0;
+      const maxExtraSpeed = 1.2; // cap on speed increase
+
+      // Background scroll
+      let bgOffset = 0;
+      const bgBaseSpeed = 0.5;
+      const bgMaxExtra = 0.6;
 
       let pipes = [];
       let frame = 0;
       let score = 0;
+      let bestScore = 0;
       let gameOver = false;
       let started = false;
+
+      function currentPipeSpeed() {
+        // slight speedup with score, capped
+        const extra = Math.min(score * 0.08, maxExtraSpeed);
+        return basePipeSpeed + extra;
+      }
+
+      function currentBgSpeed() {
+        const extra = Math.min(score * 0.03, bgMaxExtra);
+        return bgBaseSpeed + extra;
+      }
+
+      function updateScoreDisplay() {
+        scoreDisplay.textContent = "Score: " + score + " \u00a0|\u00a0 Best: " + bestScore;
+      }
 
       function resetGame() {
         birdY = HEIGHT / 2;
@@ -455,7 +484,8 @@
         frame = 0;
         gameOver = false;
         started = false;
-        scoreDisplay.textContent = "Score: 0";
+        bgOffset = 0;
+        updateScoreDisplay();
       }
 
       function spawnPipe() {
@@ -494,32 +524,38 @@
           birdVel += gravity;
           birdY += birdVel;
 
-          // Spawn pipes every 110 frames roughly
+          // Spawn pipes every ~110 frames
           if (frame % 110 === 0) {
             spawnPipe();
           }
 
+          // Background scroll
+          bgOffset -= currentBgSpeed();
+
           // Move pipes
+          const speed = currentPipeSpeed();
           for (let i = 0; i < pipes.length; i++) {
-            pipes[i].x -= pipeSpeed;
+            pipes[i].x -= speed;
           }
 
           // Remove off-screen pipes
           pipes = pipes.filter(p => p.x + pipeWidth > 0);
 
-          // Collision detection
-          if (birdY + 10 >= HEIGHT || birdY - 10 <= 0) {
+          // Collision with top/bottom
+          if (birdY + birdRadius >= HEIGHT || birdY - birdRadius <= 0) {
             gameOver = true;
           }
 
-          const birdRadius = 10;
+          // Pipe collisions & scoring
           for (let i = 0; i < pipes.length; i++) {
             const p = pipes[i];
-            const inXRange = birdX + birdRadius > p.x && birdX - birdRadius < p.x + pipeWidth;
-            const inTop = birdY - birdRadius < p.top;
-            const inBottom = birdY + birdRadius > p.top + pipeGap;
+            const inXRange =
+              birdX + birdRadius > p.x &&
+              birdX - birdRadius < p.x + pipeWidth;
+            const hitsTop = birdY - birdRadius < p.top;
+            const hitsBottom = birdY + birdRadius > p.top + pipeGap;
 
-            if (inXRange && (inTop || inBottom)) {
+            if (inXRange && (hitsTop || hitsBottom)) {
               gameOver = true;
               break;
             }
@@ -528,7 +564,10 @@
             if (!p.passed && p.x + pipeWidth < birdX - birdRadius) {
               p.passed = true;
               score++;
-              scoreDisplay.textContent = "Score: " + score;
+              if (score > bestScore) {
+                bestScore = score;
+              }
+              updateScoreDisplay();
             }
           }
         }
@@ -537,45 +576,107 @@
         requestAnimationFrame(update);
       }
 
-      function draw() {
-        // background
-        const isDark = body.classList.contains("theme-dark");
+      function drawBackground(isDark) {
+        // vertical gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
         if (isDark) {
-          const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
           gradient.addColorStop(0, "#020617");
           gradient.addColorStop(1, "#0b1120");
-          ctx.fillStyle = gradient;
         } else {
-          const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
           gradient.addColorStop(0, "#87ceeb");
           gradient.addColorStop(1, "#e0f6ff");
-          ctx.fillStyle = gradient;
         }
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-        // Pipes
-        for (let i = 0; i < pipes.length; i++) {
-          const p = pipes[i];
-          if (isDark) {
-            ctx.fillStyle = "#1f2937";
-          } else {
-            ctx.fillStyle = "#22c55e";
-          }
-          // top pipe
-          ctx.fillRect(p.x, 0, pipeWidth, p.top);
-          // bottom pipe
-          ctx.fillRect(p.x, p.top + pipeGap, pipeWidth, HEIGHT - (p.top + pipeGap));
+        // scrolling "field fence" stripes for motion
+        const stripeSpacing = 40;
+        const stripeWidth = 6;
+        let startX = bgOffset % stripeSpacing;
+        if (startX > 0) startX -= stripeSpacing;
+
+        ctx.fillStyle = isDark ? "rgba(148,163,184,0.25)" : "rgba(148,163,184,0.45)";
+        for (let x = startX; x < WIDTH; x += stripeSpacing) {
+          ctx.fillRect(x, HEIGHT - 80, stripeWidth, 80);
         }
 
-        // Bird
+        // ground band
+        ctx.fillStyle = isDark ? "#0f172a" : "#22c55e";
+        ctx.fillRect(0, HEIGHT - 20, WIDTH, 20);
+      }
+
+      function drawPipesAsBats(isDark) {
+        const batBarrelColor = isDark ? "#facc6b" : "#fbbf24";
+        const batHandleColor = isDark ? "#e5e7eb" : "#e5e7eb";
+
+        for (let i = 0; i < pipes.length; i++) {
+          const p = pipes[i];
+
+          const batX = p.x + pipeWidth / 2;
+          const batThickness = 18;
+
+          // helper to draw a single vertical bat
+          function drawBat(yStart, yEnd, upsideDown) {
+            const length = Math.abs(yEnd - yStart);
+            const topY = Math.min(yStart, yEnd);
+
+            // barrel
+            ctx.fillStyle = batBarrelColor;
+            ctx.fillRect(
+              batX - batThickness / 2,
+              topY,
+              batThickness,
+              length
+            );
+
+            // knob at one end
+            ctx.beginPath();
+            ctx.fillStyle = batHandleColor;
+            const knobRadius = batThickness * 0.45;
+            const knobY = upsideDown ? topY + length : topY;
+            ctx.arc(batX, knobY, knobRadius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // top bat (hanging down)
+          drawBat(0, p.top, true);
+          // bottom bat (standing up)
+          drawBat(p.top + pipeGap, HEIGHT, false);
+        }
+      }
+
+      function drawBird(isDark) {
         ctx.save();
         ctx.translate(birdX, birdY);
         ctx.rotate(Math.max(-0.5, Math.min(0.5, birdVel / 10)));
-        ctx.fillStyle = isDark ? "#f97373" : "#b31b1b";
-        ctx.beginPath();
-        ctx.arc(0, 0, 10, 0, Math.PI * 2);
-        ctx.fill();
+
+        const size = birdRadius * 2;
+
+        if (birdImgLoaded) {
+          // circular crop of Zoe's headshot
+          ctx.beginPath();
+          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
+          ctx.closePath();
+          ctx.clip();
+
+          ctx.drawImage(birdImg, -birdRadius, -birdRadius, size, size);
+        } else {
+          // fallback circle
+          ctx.fillStyle = isDark ? "#f97373" : "#b31b1b";
+          ctx.beginPath();
+          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
         ctx.restore();
+      }
+
+      function draw() {
+        const isDark = body.classList.contains("theme-dark");
+
+        drawBackground(isDark);
+        drawPipesAsBats(isDark);
+        drawBird(isDark);
 
         // Overlay messages
         ctx.fillStyle = isDark ? "rgba(15,23,42,0.65)" : "rgba(15,23,42,0.2)";
@@ -598,10 +699,14 @@
       });
 
       canvas.addEventListener("click", flap);
-      canvas.addEventListener("touchstart", function (e) {
-        e.preventDefault();
-        flap();
-      }, { passive: false });
+      canvas.addEventListener(
+        "touchstart",
+        function (e) {
+          e.preventDefault();
+          flap();
+        },
+        { passive: false }
+      );
 
       // Kick off loop
       resetGame();
