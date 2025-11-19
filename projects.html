@@ -985,7 +985,7 @@
       update();
     })();
 
-  // --------- Dad Invaders Game (easier + dad1.png) ----------
+ // --------- Dad Invaders Game (easier + dad1.png) ----------
 (function () {
   const canvas = document.getElementById("dad-canvas");
   const ctx = canvas.getContext("2d");
@@ -994,13 +994,18 @@
   const scoreEl = document.getElementById("dad-score-display");
   const container = document.getElementById("dad-container");
 
-  // MATCH 3:4 ASPECT RATIO (no more squish)
   const WIDTH = 360;
-  const HEIGHT = 480; // <— was 420
+  const HEIGHT = 480; // keep 3:4 ratio
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
 
+  // ✅ force the canvas to visually fill the rounded box
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.display = "block";
+
   const PIXEL_FONT = '"Press Start 2P", system-ui, monospace';
+  // ...everything else in your Dad Invaders code stays EXACTLY the same
 
   // --- Player (Dad ship) ---
   const playerImg = new Image();
