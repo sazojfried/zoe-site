@@ -431,6 +431,80 @@ background-image:
       background: var(--bg-elevated);
       transition: background-color 0.25s ease, border-color 0.25s ease;
     }
+/* ---------- Mobile tweaks (iPhone friendly) ---------- */
+@media (max-width: 768px) {
+  /* Nav stacks and wraps cleanly */
+  .nav-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 6px;
+  }
+
+  .logo-name {
+    font-size: 16px;
+    letter-spacing: 0.14em;
+  }
+
+  .logo-sub {
+    font-size: 10px;
+  }
+
+  .theme-toggle {
+    margin-left: 0;
+    margin-top: 4px;
+    padding: 6px 12px;
+  }
+
+  /* Hero not too tall on phones */
+  .hero img {
+    max-height: 55vh;
+    object-position: center top;
+  }
+
+  /* Intro card overlap softer so it doesn't feel cramped */
+  .intro-card-wrapper {
+    margin-top: -30px;
+  }
+
+  .intro-heading h1 {
+    font-size: 18px;
+  }
+
+  .intro-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-card {
+    padding: 18px 16px 20px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .about-photo img {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .page {
+    padding: 0 14px 32px;
+  }
+}
+
+    
   </style>
 </head>
 <body class="theme-dark">
