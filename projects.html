@@ -373,6 +373,44 @@
       background: var(--bg-elevated);
       transition: background-color 0.25s ease, border-color 0.25s ease;
     }
+        /* Dad Invaders mobile controls */
+    .dad-touch-controls {
+      display: none;           /* hidden by default (desktop) */
+      margin-top: 8px;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .dad-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      font-size: 14px;
+      padding: 8px 14px;
+      min-width: 52px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: transform 0.08s ease, background-color 0.15s ease,
+        border-color 0.15s ease;
+    }
+
+    .dad-btn:active {
+      transform: translateY(1px) scale(0.97);
+      background: rgba(248, 250, 252, 0.08);
+      border-color: var(--red-soft);
+    }
+
+    /* show only on mobile-ish widths */
+    @media (max-width: 780px) {
+      .dad-touch-controls {
+        display: flex;
+      }
+    }
+
   </style>
 </head>
 <body class="theme-dark">
@@ -447,6 +485,12 @@
           <div class="game-instructions">
             MOVE: ← → &nbsp;&nbsp;|&nbsp;&nbsp; SHOOT: SPACE / ↑ &nbsp;&nbsp;|&nbsp;&nbsp; PAUSE: P
           </div>
+                    <div class="dad-touch-controls">
+            <button id="dad-left" class="dad-btn">⟵</button>
+            <button id="dad-fire" class="dad-btn">FIRE</button>
+            <button id="dad-right" class="dad-btn">⟶</button>
+          </div>
+
         </div>
       </div>
       <div class="more-coming">More projects coming soon...</div>
