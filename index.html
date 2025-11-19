@@ -8,6 +8,17 @@
     name="description"
     content="Official site for Zoe Friedman, Haverford College Economics student and varsity softball athlete."
   />
+
+  <!-- Open Graph (link preview) -->
+  <meta property="og:title" content="Zoe Friedman — Haverford Softball & Economics" />
+  <meta property="og:description" content="Official site for Zoe Friedman — varsity softball athlete, economics student, and community leader at Haverford College." />
+  <meta property="og:image" content="https://zoefriedman.com/images/zoe-softball.jpg" />
+  <meta property="og:url" content="https://zoefriedman.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Favicon (make sure images/favicon.png exists) -->
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -81,7 +92,7 @@
     }
 
     .logo-block {
-      text-align: center;
+      text-align: left;
       font-size: 13px;
       line-height: 1.2;
       letter-spacing: 0.12em;
@@ -100,27 +111,33 @@
       font-weight: 400;
     }
 
-    nav {
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-links {
       display: flex;
       gap: 22px;
       font-size: 13px;
       align-items: center;
     }
 
-    nav a {
+    .nav-links a {
       position: relative;
       padding-bottom: 4px;
       color: var(--text-muted);
       transition: color 0.2s ease;
     }
 
-    nav a.active,
-    nav a:hover {
+    .nav-links a.active,
+    .nav-links a:hover {
       color: var(--red-soft);
     }
 
-    nav a.active::after,
-    nav a:hover::after {
+    .nav-links a.active::after,
+    .nav-links a:hover::after {
       content: "";
       position: absolute;
       left: 0;
@@ -145,7 +162,6 @@
       background: transparent;
       color: var(--text-muted);
       cursor: pointer;
-      margin-left: 10px;
       transition: background-color 0.2s ease, color 0.2s ease,
         border-color 0.2s ease, transform 0.1s ease;
     }
@@ -157,17 +173,80 @@
       transform: translateY(-1px);
     }
 
+    /* Hamburger */
+
+    .nav-toggle {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .nav-toggle span + span {
+      margin-top: 3px;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+    }
+
+    body.nav-open .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+    }
+
     @media (max-width: 780px) {
       .nav-inner {
+        align-items: center;
+      }
+
+      .nav-right {
+        gap: 8px;
+      }
+
+      .nav-links {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 10px 18px 12px;
+        display: none;
         flex-direction: column;
+        gap: 10px;
+        font-size: 13px;
       }
-      nav {
-        justify-content: center;
-        flex-wrap: wrap;
+
+      body.nav-open .nav-links {
+        display: flex;
       }
+
       .theme-toggle {
-        margin-left: 0;
-        margin-top: 4px;
+        font-size: 10px;
+        padding: 5px 10px;
+      }
+
+      .nav-toggle {
+        display: inline-flex;
       }
     }
 
@@ -180,12 +259,12 @@
       min-height: 340px;
       overflow: visible;
       border-bottom: 1px solid var(--border-subtle);
-background-image:
-  linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.45)),
-  url("images/zoe-softball.jpg");
+      background-image:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.45)),
+        url("images/zoe-softball.jpg");
       background-size: cover;
       background-position: center 40%;
-      background-attachment: fixed; /* key bit: image stays put */
+      background-attachment: fixed;
     }
 
     /* Main content */
@@ -210,6 +289,30 @@ background-image:
     .intro-card-wrapper {
       margin-top: -40px;
       margin-bottom: 28px;
+      position: relative;
+    }
+
+    .intro-card-wrapper::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      left: 0;
+      right: 0;
+      height: 160px;
+      background: linear-gradient(
+        180deg,
+        rgba(244, 245, 247, 0) 0%,
+        rgba(244, 245, 247, 1) 90%
+      );
+      z-index: -1;
+    }
+
+    body.theme-dark .intro-card-wrapper::before {
+      background: linear-gradient(
+        180deg,
+        rgba(5, 5, 9, 0) 0%,
+        rgba(5, 5, 9, 1) 90%
+      );
     }
 
     .intro-card {
@@ -431,97 +534,79 @@ background-image:
       background: var(--bg-elevated);
       transition: background-color 0.25s ease, border-color 0.25s ease;
     }
-/* ---------- Mobile tweaks (iPhone friendly) ---------- */
-@media (max-width: 768px) {
-  /* Nav stacks and wraps cleanly */
-  .nav-inner {
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
 
-  nav {
-    flex-wrap: wrap;
-    justify-content: center;
-    row-gap: 6px;
-  }
+    /* Fade-in animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
 
-  .logo-name {
-    font-size: 16px;
-    letter-spacing: 0.14em;
-  }
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-  .logo-sub {
-    font-size: 10px;
-  }
+    /* ---------- Mobile tweaks (iPhone friendly) ---------- */
+    @media (max-width: 768px) {
+      .logo-name {
+        font-size: 16px;
+        letter-spacing: 0.14em;
+      }
 
-  .theme-toggle {
-    margin-left: 0;
-    margin-top: 4px;
-    padding: 6px 12px;
-  }
+      .logo-sub {
+        font-size: 10px;
+      }
 
-  /* Hero not too tall on phones */
-  .hero img {
-    max-height: 55vh;
-    object-position: center top;
-  }
+      .intro-card-wrapper {
+        margin-top: -30px;
+      }
 
-  /* Intro card overlap softer so it doesn't feel cramped */
-  .intro-card-wrapper {
-    margin-top: -30px;
-  }
+      .intro-heading h1 {
+        font-size: 18px;
+      }
 
-  .intro-heading h1 {
-    font-size: 18px;
-  }
+      .section-card {
+        padding: 18px 16px 20px;
+      }
 
-  .intro-grid {
-    grid-template-columns: 1fr;
-  }
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
 
-  .section-card {
-    padding: 18px 16px 20px;
-  }
+      .about-photo img {
+        max-width: 220px;
+      }
+    }
 
-  .about-grid {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
+    @media (max-width: 480px) {
+      body {
+        font-size: 14px;
+      }
 
-  .about-photo img {
-    max-width: 220px;
-  }
-}
+      .page {
+        padding: 0 14px 32px;
+      }
+    }
 
-@media (max-width: 480px) {
-  body {
-    font-size: 14px;
-  }
+    /* ---------- iPhone Hero Fix ---------- */
+    @media (max-width: 780px) {
+      .hero {
+        height: 45vh !important;
+        min-height: 240px !important;
+        background-attachment: scroll !important;
+        background-position: center top !important;
+        background-size: cover !important;
+      }
+    }
 
-  .page {
-    padding: 0 14px 32px;
-  }
-}
-/* ---------- iPhone Hero Fix ---------- */
-@media (max-width: 780px) {
-  .hero {
-    height: 45vh !important;        /* smaller hero on iPhone */
-    min-height: 240px !important;
-    background-attachment: scroll !important; /* disable fixed (iOS bug) */
-    background-position: center top !important;
-    background-size: cover !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero {
-    height: 38vh !important;
-    min-height: 200px !important;
-  }
-}
-
-    
+    @media (max-width: 480px) {
+      .hero {
+        height: 38vh !important;
+        min-height: 200px !important;
+      }
+    }
   </style>
 </head>
 <body class="theme-dark">
@@ -532,18 +617,28 @@ background-image:
         <div class="logo-name">ZOE FRIEDMAN</div>
         <div class="logo-sub">Economics · Softball · Community</div>
       </div>
-      <nav>
-  <a href="#home" class="active">Home</a>
-  <a href="#about">About</a>
-  <a href="#experience">Experience</a>
-  <a href="#skills">Highlights</a>
-  <a href="#contact">Contact</a>
 
-  <!-- NEW PAGE -->
-  <a href="gallery.html">Gallery</a>
+      <div class="nav-right">
+        <nav class="nav-links">
+          <a href="#home" class="active">Home</a>
+          <a href="#about">About</a>
+          <a href="#experience">Experience</a>
+          <a href="#skills">Highlights</a>
+          <a href="#press">Press</a>
+          <a href="#contact">Contact</a>
+          <a href="gallery.html">Gallery</a>
+        </nav>
 
-  <button id="theme-toggle" class="theme-toggle" type="button">Light mode</button>
-</nav>
+        <button id="theme-toggle" class="theme-toggle" type="button">
+          Light mode
+        </button>
+
+        <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -552,7 +647,7 @@ background-image:
 
   <main class="page">
     <!-- INTRO CARD -->
-    <div class="intro-card-wrapper">
+    <div class="intro-card-wrapper fade-in">
       <div class="card intro-card">
         <div class="intro-heading">
           <h1>ZOE FRIEDMAN</h1>
@@ -579,7 +674,7 @@ background-image:
     </div>
 
     <!-- ABOUT -->
-    <section id="about">
+    <section id="about" class="fade-in">
       <div class="card section-card">
         <div class="section-title"><span>About</span></div>
         <div class="about-grid">
@@ -610,8 +705,34 @@ background-image:
       </div>
     </section>
 
+    <!-- TESTIMONIALS -->
+    <section id="testimonials" class="fade-in">
+      <div class="card section-card">
+        <div class="section-title"><span>Testimonials</span></div>
+        <div class="section-body">
+          <blockquote style="margin-bottom:16px; font-style:italic;">
+            “Zoe brings a rare combination of discipline, grit, and leadership — both on the softball
+            field and in the classroom.”
+            <br />
+            <span style="color:var(--text-muted); font-size:12px;">
+              — Varsity Softball Coach
+            </span>
+          </blockquote>
+
+          <blockquote style="margin-bottom:16px; font-style:italic;">
+            “She’s the kind of leader people trust. The first to show up, the last to leave, and always
+            uplifting others along the way.”
+            <br />
+            <span style="color:var(--text-muted); font-size:12px;">
+              — Community Program Director
+            </span>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
     <!-- EXPERIENCE -->
-    <section id="experience">
+    <section id="experience" class="fade-in">
       <div class="card section-card">
         <div class="section-title"><span>Experience</span></div>
         <div class="section-body">
@@ -681,8 +802,25 @@ background-image:
       </div>
     </section>
 
+    <!-- PRESS / FEATURES -->
+    <section id="press" class="fade-in">
+      <div class="card section-card">
+        <div class="section-title"><span>Press &amp; Features</span></div>
+        <div class="section-body">
+          <ul style="line-height:1.8;">
+            <li>
+              <a href="#" target="_blank">Haverford Athletics — Spotlight on Softball Leadership</a>
+            </li>
+            <li>
+              <a href="#" target="_blank">Community Impact Feature — Volunteer Youth Coaching</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <!-- HIGHLIGHTS -->
-    <section id="skills">
+    <section id="skills" class="fade-in">
       <div class="card section-card">
         <div class="section-title"><span>Highlights</span></div>
         <div class="section-body">
@@ -704,7 +842,7 @@ background-image:
     </section>
 
     <!-- CONTACT -->
-    <section id="contact">
+    <section id="contact" class="fade-in">
       <div class="card section-card">
         <div class="section-title"><span>Contact</span></div>
         <div class="section-body">
@@ -736,9 +874,10 @@ background-image:
     // year in footer
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // theme toggle
     const body = document.body;
     const toggleBtn = document.getElementById("theme-toggle");
+    const navToggle = document.getElementById("nav-toggle");
+    const navLinks = document.querySelector(".nav-links a.active");
 
     function updateToggleLabel() {
       if (body.classList.contains("theme-dark")) {
@@ -748,18 +887,32 @@ background-image:
       }
     }
 
+    // theme toggle
     toggleBtn.addEventListener("click", () => {
       body.classList.toggle("theme-dark");
       updateToggleLabel();
     });
 
-    // ensure label matches initial state
+    // initial label
     updateToggleLabel();
 
-    // simple nav smooth scroll
-    document.querySelectorAll("nav a[href^='#']").forEach(link => {
+    // hamburger toggle
+    document.getElementById("nav-toggle").addEventListener("click", () => {
+      body.classList.toggle("nav-open");
+    });
+
+    // close mobile nav when clicking a section link
+    document.querySelectorAll(".nav-links a[href^='#']").forEach(link => {
+      link.addEventListener("click", () => {
+        body.classList.remove("nav-open");
+      });
+    });
+
+    // smooth scroll for internal anchors on this page
+    document.querySelectorAll("a[href^='#']").forEach(link => {
       link.addEventListener("click", function (e) {
         const id = this.getAttribute("href").slice(1);
+        if (!id) return;
         const target = document.getElementById(id);
         if (!target) return;
         e.preventDefault();
@@ -769,6 +922,17 @@ background-image:
         });
       });
     });
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("show");
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
   </script>
 </body>
 </html>
