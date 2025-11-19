@@ -16,7 +16,7 @@
   <meta property="og:url" content="https://zoefriedman.com/" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <!-- Favicon (make sure images/favicon.png exists) -->
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="images/favicon.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -621,10 +621,9 @@
       <div class="nav-right">
         <nav class="nav-links">
           <a href="#home" class="active">Home</a>
-          <a href="#about">About</a>
           <a href="#experience">Experience</a>
-          <a href="#skills">Highlights</a>
-          <a href="#press">Press</a>
+          <a href="#stats">Stats</a>
+          <a href="#projects">Projects</a>
           <a href="#contact">Contact</a>
           <a href="gallery.html">Gallery</a>
         </nav>
@@ -705,28 +704,19 @@
       </div>
     </section>
 
-    <!-- TESTIMONIALS -->
-    <section id="testimonials" class="fade-in">
+    <!-- STATS (replacing Testimonials) -->
+    <section id="stats" class="fade-in">
       <div class="card section-card">
-        <div class="section-title"><span>Testimonials</span></div>
+        <div class="section-title"><span>Softball Stats</span></div>
         <div class="section-body">
-          <blockquote style="margin-bottom:16px; font-style:italic;">
-            “Zoe brings a rare combination of discipline, grit, and leadership — both on the softball
-            field and in the classroom.”
-            <br />
-            <span style="color:var(--text-muted); font-size:12px;">
-              — Varsity Softball Coach
-            </span>
-          </blockquote>
-
-          <blockquote style="margin-bottom:16px; font-style:italic;">
-            “She’s the kind of leader people trust. The first to show up, the last to leave, and always
-            uplifting others along the way.”
-            <br />
-            <span style="color:var(--text-muted); font-size:12px;">
-              — Community Program Director
-            </span>
-          </blockquote>
+          <p>Key performance stats (current season):</p>
+          <div class="pill-row" style="margin-top:14px;">
+            <span class="pill">AVG: .000</span>
+            <span class="pill">OBP: .000</span>
+            <span class="pill">SLG: .000</span>
+            <span class="pill">OPS: .000</span>
+            <span class="pill">Fielding %: .000</span>
+          </div>
         </div>
       </div>
     </section>
@@ -802,24 +792,17 @@
       </div>
     </section>
 
-    <!-- PRESS / FEATURES -->
-    <section id="press" class="fade-in">
+    <!-- PROJECTS -->
+    <section id="projects" class="fade-in">
       <div class="card section-card">
-        <div class="section-title"><span>Press &amp; Features</span></div>
+        <div class="section-title"><span>Projects</span></div>
         <div class="section-body">
-          <ul style="line-height:1.8;">
-            <li>
-              <a href="#" target="_blank">Haverford Athletics — Spotlight on Softball Leadership</a>
-            </li>
-            <li>
-              <a href="#" target="_blank">Community Impact Feature — Volunteer Youth Coaching</a>
-            </li>
-          </ul>
+          <p>Content coming soon.</p>
         </div>
       </div>
     </section>
 
-    <!-- HIGHLIGHTS -->
+    <!-- HIGHLIGHTS (still on page, just not in nav) -->
     <section id="skills" class="fade-in">
       <div class="card section-card">
         <div class="section-title"><span>Highlights</span></div>
@@ -876,8 +859,6 @@
 
     const body = document.body;
     const toggleBtn = document.getElementById("theme-toggle");
-    const navToggle = document.getElementById("nav-toggle");
-    const navLinks = document.querySelector(".nav-links a.active");
 
     function updateToggleLabel() {
       if (body.classList.contains("theme-dark")) {
