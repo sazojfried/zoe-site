@@ -1593,7 +1593,65 @@
     requestAnimationFrame(tick);
   }
 
-  // --- Input ---
+   // --- Input ---
+  const keys = {};
+
+  // On-screen buttons (mobile only)
+  const leftBtn  = document.getElementById("dad-left");
+  const rightBtn = document.getElementById("dad-right");
+  const fireBtn  = document.getElementById("dad-fire");
+
+  function bindHoldButton(btn, onPress, onRelease) {
+    if (!btn) return;
+    const start = (e) => {
+      e.preventDefault();
+      onPress();
+    };
+    const end = (e) => {
+      e.preventDefault();
+      onRelease();
+    };
+    btn.addEventListener("touchstart", start, { passive: false });
+    btn.addEventListener("touchend", end, { passive: false });
+    btn.addEventListener("touchcancel", end, { passive: false });
+    btn.addEventListener("mousedown", start);
+    btn.addEventListener("mouseup", end);
+    btn.addEventListener("mouseleave", end);
+  }
+
+  // Only wire touch controls when viewport is small
+  if (window.matchMedia("(max-width: 780px)").matches) {
+    bindHoldButton(
+      leftBtn,
+      () => { player.movingLeft = true; },
+      () => { player.movingLeft = false; }
+    );
+    bindHoldButton(
+      rightBtn,
+      () => { player.movingRight = true; },
+      () => { player.movingRight = false; }
+    );
+
+    if (fireBtn) {
+      const fireTap = (e) => {
+        e.preventDefault();
+        if (!started) {
+          started = true;
+          paused = false;
+          gameOver = false;
+        } else if (gameOver) {
+          resetGame(true);
+          started = true;
+        } else {
+          shootPlayerBullet();
+        }
+      };
+      fireBtn.addEventListener("touchstart", fireTap, { passive: false });
+      fireBtn.addEventListener("click", fireTap);
+    }
+  }
+
+  // Keyboard + canvas click (desktop & mobile)
   window.addEventListener("keydown", (e) => {
     if (e.code === "ArrowLeft" || e.code === "KeyA") {
       player.movingLeft = true;
@@ -1637,6 +1695,7 @@
       shootPlayerBullet();
     }
   });
+
 
   // Init
   resetGame(true);
