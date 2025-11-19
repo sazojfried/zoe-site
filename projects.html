@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Projects page for Zoe Friedman, featuring a simple Flappy Bird style game."
+    content="Projects page for Zoe Friedman, featuring a Flappy Bird style game."
   />
 
   <!-- Favicon -->
@@ -31,12 +31,11 @@
       --text-main: #141414;
       --text-muted: #666a73;
       --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.14);
-      
-      /* High-contrast pipes + ground */
-      --pipe-light: #22c55e; /* bright green */
+
+      --pipe-light: #22c55e;
       --pipe-dark: #16a34a;
-      --ground-light: #d97706; /* strong golden orange */
-      --ground-dark: #a16207;
+      --ground-light: #f97316;
+      --ground-dark: #ea580c;
     }
 
     body.theme-dark {
@@ -48,9 +47,9 @@
       --text-muted: #9ca3b4;
       --shadow-soft: 0 22px 50px rgba(0, 0, 0, 0.7);
 
-      --pipe-light: #0ea5e9; /* bright blue */
+      --pipe-light: #0ea5e9;
       --pipe-dark: #0369a1;
-      --ground-light: #facc15; /* bright yellow */
+      --ground-light: #facc15;
       --ground-dark: #ca8a04;
     }
 
@@ -113,6 +112,12 @@
       font-weight: 400;
     }
 
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .nav-links {
       display: flex;
       gap: 22px;
@@ -144,19 +149,94 @@
       border-radius: 999px;
     }
 
-    /* Theme + Mobile Nav */
-    .theme-toggle,
-    .nav-toggle {
+    .theme-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--text-muted);
       cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease,
+        border-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(179, 27, 27, 0.08);
+      color: var(--text-main);
+      border-color: var(--red-soft);
+      transform: translateY(-1px);
+    }
+
+    .nav-toggle {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .nav-toggle span + span {
+      margin-top: 3px;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+    }
+
+    body.nav-open .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
     }
 
     @media (max-width: 780px) {
-      .nav-links {
-        display: none;
+      .nav-inner {
+        align-items: center;
       }
+
+      .nav-right {
+        gap: 8px;
+      }
+
+      .nav-links {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 10px 18px 12px;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 13px;
+      }
+
       body.nav-open .nav-links {
         display: flex;
-        flex-direction: column;
+      }
+
+      .nav-toggle {
+        display: inline-flex;
       }
     }
 
@@ -170,21 +250,24 @@
     .card {
       background: var(--bg-card);
       border-radius: 18px;
-      padding: 22px;
+      padding: 22px 22px 24px;
       border: 1px solid var(--border-subtle);
       box-shadow: var(--shadow-soft);
     }
 
+    .section-title {
+      margin-bottom: 12px;
+    }
+
     .section-title span {
-      border-bottom: 2px solid var(--red-soft);
-      padding-bottom: 3px;
       font-size: 16px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--red-soft);
+      border-bottom: 2px solid var(--red-soft);
+      padding-bottom: 3px;
     }
 
-    /* GAME AREA */
     .game-wrapper {
       display: flex;
       flex-direction: column;
@@ -200,11 +283,78 @@
       border: 1px solid var(--border-subtle);
       overflow: hidden;
       background: transparent;
+      transform-origin: center;
+      transition: transform 0.08s ease-out;
+    }
+
+    .game-container.bounce {
+      transform: scale(1.03);
+    }
+
+    canvas#game-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .game-meta {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
     }
 
     .game-score {
       font-size: 14px;
       font-weight: 600;
+      text-align: center;
+    }
+
+    .game-instructions {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .difficulty-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .difficulty-label {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .difficulty-button {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: background-color 0.15s ease, color 0.15s ease,
+        border-color 0.15s ease, transform 0.08s ease;
+    }
+
+    .difficulty-button:hover {
+      transform: translateY(-1px);
+      border-color: var(--red-soft);
+    }
+
+    .difficulty-button.active {
+      background: var(--red-soft);
+      color: #ffffff;
+      border-color: var(--red-soft);
     }
 
     .more-coming {
@@ -221,10 +371,11 @@
       font-size: 11px;
       color: var(--text-muted);
       border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
     }
   </style>
 </head>
-
 <body class="theme-dark">
   <header>
     <div class="nav-inner">
@@ -233,20 +384,24 @@
         <div class="logo-sub">Economics · Softball · Community</div>
       </div>
 
-      <nav class="nav-links">
-        <a href="index.html#home">Home</a>
-        <a href="index.html#stats">Stats</a>
-        <a href="index.html#experience">Experience</a>
-        <a href="index.html#contact">Contact</a>
-        <a href="gallery.html">Gallery</a>
-        <a href="projects.html" class="active">Projects</a>
-      </nav>
+      <div class="nav-right">
+        <nav class="nav-links">
+          <a href="index.html#home">Home</a>
+          <a href="index.html#stats">Stats</a>
+          <a href="index.html#experience">Experience</a>
+          <a href="index.html#contact">Contact</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="projects.html" class="active">Projects</a>
+        </nav>
 
-      <button id="theme-toggle" class="theme-toggle">Light mode</button>
+        <button id="theme-toggle" class="theme-toggle" type="button">
+          Light mode
+        </button>
 
-      <button id="nav-toggle" class="nav-toggle">
-        <span></span><span></span><span></span>
-      </button>
+        <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -255,14 +410,25 @@
       <div class="section-title"><span>Flappy Zoe</span></div>
 
       <div class="game-wrapper">
-        <div class="game-container">
+        <div class="game-container" id="game-container">
           <canvas id="game-canvas"></canvas>
         </div>
 
-        <div class="game-score" id="score-display">Score: 0 | Best: 0</div>
+        <div class="game-meta">
+          <div class="game-score" id="score-display">
+            Score: 0&nbsp;|&nbsp;Best: 0
+          </div>
 
-        <div class="game-instructions">
-          Click / tap / space to flap.  
+          <div class="difficulty-controls">
+            <span class="difficulty-label">Difficulty:</span>
+            <button class="difficulty-button" data-mode="easy">Easy</button>
+            <button class="difficulty-button active" data-mode="normal">Normal</button>
+            <button class="difficulty-button" data-mode="cracked">Cracked</button>
+          </div>
+
+          <div class="game-instructions">
+            Click / tap / press space or ↑ to flap.
+          </div>
         </div>
       </div>
 
@@ -270,96 +436,211 @@
     </div>
   </main>
 
-  <footer>© <span id="year"></span> Zoe Friedman. All rights reserved.</footer>
+  <footer>
+    © <span id="year"></span> Zoe Friedman. All rights reserved.
+  </footer>
 
   <script>
+    // Footer year
     document.getElementById("year").textContent = new Date().getFullYear();
 
     const body = document.body;
-    const toggleBtn = document.getElementById("theme-toggle");
+    const themeToggle = document.getElementById("theme-toggle");
+    const navToggle = document.getElementById("nav-toggle");
 
-    toggleBtn.addEventListener("click", () => {
-      body.classList.toggle("theme-dark");
-      toggleBtn.textContent = body.classList.contains("theme-dark")
+    function updateThemeLabel() {
+      themeToggle.textContent = body.classList.contains("theme-dark")
         ? "Light mode"
         : "Dark mode";
+    }
+
+    themeToggle.addEventListener("click", () => {
+      body.classList.toggle("theme-dark");
+      updateThemeLabel();
+    });
+    updateThemeLabel();
+
+    navToggle.addEventListener("click", () => {
+      body.classList.toggle("nav-open");
     });
 
-    // GAME --------------------------------------------------
+    document.querySelectorAll(".nav-links a").forEach((link) => {
+      link.addEventListener("click", () => {
+        body.classList.remove("nav-open");
+      });
+    });
+
+    // --------- Flappy Zoe Game ----------
     (function () {
       const canvas = document.getElementById("game-canvas");
       const ctx = canvas.getContext("2d");
       const scoreDisplay = document.getElementById("score-display");
+      const gameContainer = document.getElementById("game-container");
 
-      const WIDTH = 300;
-      const HEIGHT = 400;
+      const WIDTH = 320;
+      const HEIGHT = 440;
       canvas.width = WIDTH;
       canvas.height = HEIGHT;
 
+      // Zoe's face
+      const birdImg = new Image();
+      birdImg.src = "images/z1.png";
+      let birdImgLoaded = false;
+      birdImg.onload = () => (birdImgLoaded = true);
+
       // Bird
-      const birdRadius = 12;
+      let birdRadius = 20; // bigger so you can see her face
       let birdX = WIDTH * 0.25;
       let birdY = HEIGHT / 2;
       let birdVel = 0;
-      const gravity = 0.35;
-      const flapStrength = -6;
+      let birdScale = 1;
 
-      // Zoe face
-      const birdImg = new Image();
-      let imgLoaded = false;
-      birdImg.src = "images/z1.png";
-      birdImg.onload = () => (imgLoaded = true);
+      // Difficulties
+      const difficulties = {
+        easy:   { gap: 145, baseSpeed: 1.7, gravity: 0.30, flap: -6.5 },
+        normal: { gap: 120, baseSpeed: 2.0, gravity: 0.35, flap: -6.2 },
+        cracked:{ gap: 95,  baseSpeed: 2.3, gravity: 0.40, flap: -5.6 }
+      };
 
-      // Pipes
-      const pipeWidth = 50;
-      const pipeGap = 115;
-      const baseSpeed = 2.0;
+      let currentMode = "normal";
+      let pipeGap = difficulties[currentMode].gap;
+      let baseSpeed = difficulties[currentMode].baseSpeed;
+      let gravity = difficulties[currentMode].gravity;
+      let flapStrength = difficulties[currentMode].flap;
       const maxExtraSpeed = 1.2;
 
+      // Pipes
+      const pipeWidth = 55;
       let pipes = [];
+      let frame = 0;
+
+      // Background / ground / clouds
+      let groundOffset = 0;
+      let cloudOffset = 0;
+      const groundBaseSpeed = 0.7;
+      const cloudBaseSpeed = 0.3;
+
+      // Score
       let score = 0;
       let best = 0;
-      let frame = 0;
       let started = false;
       let gameOver = false;
 
-      // Scrolling ground
-      let groundOffset = 0;
-      const groundBaseSpeed = 0.7;
+      // Confetti
+      let confettiTimer = 0;
+      const confettiColors = ["#f97373", "#22c55e", "#3b82f6", "#facc15", "#e879f9"];
+
+      // Audio (Web Audio beeps)
+      let audioCtx = null;
+      function playTone(freq, duration, type, volume) {
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type || "sine";
+          osc.frequency.value = freq;
+          gain.gain.value = volume;
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {
+          // ignore if audio context fails
+        }
+      }
+
+      function playFlapSound() {
+        playTone(650, 0.08, "triangle", 0.08);
+      }
+
+      function playScoreSound() {
+        playTone(900, 0.12, "square", 0.09);
+      }
+
+      function playHitSound() {
+        playTone(180, 0.22, "sawtooth", 0.12);
+      }
+
+      function updateScoreDisplay() {
+        scoreDisplay.textContent = "Score: " + score + " \u00a0|\u00a0 Best: " + best;
+      }
+
+      function applyDifficulty(mode) {
+        currentMode = mode;
+        const d = difficulties[mode];
+        pipeGap = d.gap;
+        baseSpeed = d.baseSpeed;
+        gravity = d.gravity;
+        flapStrength = d.flap;
+
+        document.querySelectorAll(".difficulty-button").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.mode === mode);
+        });
+
+        resetGame();
+      }
+
+      document.querySelectorAll(".difficulty-button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const mode = btn.dataset.mode;
+          applyDifficulty(mode);
+        });
+      });
 
       function currentSpeed() {
         return baseSpeed + Math.min(score * 0.08, maxExtraSpeed);
       }
 
-      function reset() {
+      function resetGame() {
         birdY = HEIGHT / 2;
         birdVel = 0;
+        birdScale = 1;
         pipes = [];
-        score = 0;
         frame = 0;
+        score = 0;
         started = false;
         gameOver = false;
-        updateScore();
-      }
-
-      function updateScore() {
-        scoreDisplay.textContent = `Score: ${score} | Best: ${best}`;
+        groundOffset = 0;
+        cloudOffset = 0;
+        confettiTimer = 0;
+        updateScoreDisplay();
       }
 
       function spawnPipe() {
         const minTop = 40;
-        const maxTop = HEIGHT - pipeGap - 40;
+        const maxTop = HEIGHT - pipeGap - 60;
         const top = minTop + Math.random() * (maxTop - minTop);
-        pipes.push({ x: WIDTH + pipeWidth, top, passed: false });
+        pipes.push({
+          x: WIDTH + pipeWidth,
+          top,
+          passed: false
+        });
       }
 
       function flap() {
-        if (!started) started = true;
-        if (gameOver) return reset();
+        if (!started) {
+          started = true;
+        }
+        if (gameOver) {
+          resetGame();
+          return;
+        }
         birdVel = flapStrength;
+        birdScale = 1.12;
+        gameContainer.classList.add("bounce");
+        setTimeout(() => gameContainer.classList.remove("bounce"), 90);
+        playFlapSound();
       }
 
+      // Input
       canvas.addEventListener("click", flap);
+      canvas.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        flap();
+      }, { passive: false });
+
       window.addEventListener("keydown", (e) => {
         if (e.code === "Space" || e.code === "ArrowUp") {
           e.preventDefault();
@@ -369,58 +650,110 @@
 
       function drawBackground() {
         const isDark = body.classList.contains("theme-dark");
-
-        // sky
-        const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-        gradient.addColorStop(0, isDark ? "#020617" : "#87ceeb");
-        gradient.addColorStop(1, isDark ? "#0b1120" : "#e0f6ff");
-        ctx.fillStyle = gradient;
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+        if (isDark) {
+          skyGrad.addColorStop(0, "#020617");
+          skyGrad.addColorStop(1, "#0b1120");
+        } else {
+          skyGrad.addColorStop(0, "#87ceeb");
+          skyGrad.addColorStop(1, "#e0f6ff");
+        }
+        ctx.fillStyle = skyGrad;
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-        // scrolling ground
-        const groundColor = isDark ? "var(--ground-dark)" : "var(--ground-light)";
-        ctx.fillStyle = groundColor;
+        // Clouds (parallax)
+        cloudOffset -= cloudBaseSpeed + currentSpeed() * 0.15;
+        if (cloudOffset < -WIDTH) cloudOffset += WIDTH;
 
-        groundOffset -= groundBaseSpeed;
-        if (groundOffset < -WIDTH) groundOffset = 0;
+        ctx.fillStyle = isDark ? "rgba(226,232,240,0.25)" : "rgba(255,255,255,0.75)";
+        const cloudSets = [
+          { y: 80, scale: 1.0 },
+          { y: 130, scale: 0.8 },
+          { y: 60, scale: 0.9 }
+        ];
 
-        ctx.fillRect(groundOffset, HEIGHT - 25, WIDTH, 25);
-        ctx.fillRect(groundOffset + WIDTH, HEIGHT - 25, WIDTH, 25);
+        cloudSets.forEach(({ y, scale }, idx) => {
+          const baseX = (cloudOffset * (0.6 + idx * 0.1)) % WIDTH;
+          for (let i = -1; i <= 2; i++) {
+            const cx = baseX + i * 140;
+            drawCloud(cx, y, scale);
+          }
+        });
+
+        // Ground
+        const groundLight = getComputedStyle(document.documentElement)
+          .getPropertyValue("--ground-light");
+        const groundDark = getComputedStyle(document.documentElement)
+          .getPropertyValue("--ground-dark");
+
+        groundOffset -= groundBaseSpeed + currentSpeed() * 0.25;
+        if (groundOffset < -WIDTH) groundOffset += WIDTH;
+
+        const groundHeight = 28;
+        const baseY = HEIGHT - groundHeight;
+
+        const groundGrad = ctx.createLinearGradient(0, baseY, 0, HEIGHT);
+        groundGrad.addColorStop(0, groundLight.trim());
+        groundGrad.addColorStop(1, groundDark.trim());
+
+        ctx.fillStyle = groundGrad;
+        ctx.fillRect(groundOffset, baseY, WIDTH, groundHeight);
+        ctx.fillRect(groundOffset + WIDTH, baseY, WIDTH, groundHeight);
+      }
+
+      function drawCloud(cx, cy, s) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, 18 * s, Math.PI * 0.5, Math.PI * 1.5);
+        ctx.arc(cx + 18 * s, cy - 12 * s, 18 * s, Math.PI, Math.PI * 2);
+        ctx.arc(cx + 36 * s, cy, 18 * s, Math.PI * 1.5, Math.PI * 0.5);
+        ctx.closePath();
+        ctx.fill();
       }
 
       function drawPipes() {
-        const light = getComputedStyle(document.documentElement)
-          .getPropertyValue("--pipe-light");
-        const dark = getComputedStyle(document.documentElement)
-          .getPropertyValue("--pipe-dark");
+        const pipeLight = getComputedStyle(document.documentElement)
+          .getPropertyValue("--pipe-light").trim();
+        const pipeDark = getComputedStyle(document.documentElement)
+          .getPropertyValue("--pipe-dark").trim();
 
         for (const p of pipes) {
           const x = p.x;
 
-          ctx.fillStyle = light;
+          // top pipe
+          ctx.fillStyle = pipeLight;
           ctx.fillRect(x, 0, pipeWidth, p.top);
+          ctx.fillStyle = pipeDark;
+          ctx.fillRect(x, p.top - 18, pipeWidth, 18);
 
-          ctx.fillStyle = dark;
-          ctx.fillRect(x, 0, pipeWidth, 20);
-
-          ctx.fillStyle = light;
-          ctx.fillRect(x, p.top + pipeGap, pipeWidth, HEIGHT);
-
-          ctx.fillStyle = dark;
-          ctx.fillRect(x, p.top + pipeGap, pipeWidth, 20);
+          // bottom pipe
+          ctx.fillStyle = pipeLight;
+          ctx.fillRect(x, p.top + pipeGap, pipeWidth, HEIGHT - (p.top + pipeGap));
+          ctx.fillStyle = pipeDark;
+          ctx.fillRect(x, p.top + pipeGap, pipeWidth, 18);
         }
       }
 
       function drawBird() {
         ctx.save();
         ctx.translate(birdX, birdY);
-        ctx.rotate(Math.max(-0.5, Math.min(0.5, birdVel / 10)));
+        const tilt = Math.max(-0.5, Math.min(0.5, birdVel / 9));
+        ctx.rotate(tilt);
 
-        if (imgLoaded) {
+        // decay bounce scale
+        birdScale += (1 - birdScale) * 0.12;
+        ctx.scale(birdScale, birdScale);
+
+        if (birdImgLoaded) {
           ctx.beginPath();
           ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
           ctx.clip();
-          ctx.drawImage(birdImg, -birdRadius, -birdRadius, birdRadius * 2, birdRadius * 2);
+          ctx.drawImage(
+            birdImg,
+            -birdRadius,
+            -birdRadius,
+            birdRadius * 2,
+            birdRadius * 2
+          );
         } else {
           ctx.fillStyle = "#b31b1b";
           ctx.beginPath();
@@ -430,43 +763,70 @@
         ctx.restore();
       }
 
+      function drawConfetti() {
+        if (confettiTimer <= 0) return;
+        for (let i = 0; i < 40; i++) {
+          const x = Math.random() * WIDTH;
+          const y = Math.random() * (HEIGHT * 0.6);
+          const w = 3;
+          const h = 7 + Math.random() * 4;
+          ctx.fillStyle = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+          ctx.fillRect(x, y, w, h);
+        }
+        confettiTimer--;
+      }
+
       function update() {
         if (!started) {
           draw();
-          return requestAnimationFrame(update);
+          requestAnimationFrame(update);
+          return;
         }
 
         if (!gameOver) {
           frame++;
+
           birdVel += gravity;
           birdY += birdVel;
 
-          if (frame % 110 === 0) spawnPipe();
-
-          const speed = currentSpeed();
-          for (const p of pipes) p.x -= speed;
-          pipes = pipes.filter((p) => p.x + pipeWidth > 0);
-
-          // Collisions
-          if (birdY + birdRadius >= HEIGHT || birdY - birdRadius <= 0) {
-            gameOver = true;
+          if (frame % 110 === 0) {
+            spawnPipe();
           }
 
+          const speed = currentSpeed();
           for (const p of pipes) {
-            const hitX =
+            p.x -= speed;
+          }
+          pipes = pipes.filter((p) => p.x + pipeWidth > 0);
+
+          // collisions with bounds
+          if (birdY + birdRadius >= HEIGHT || birdY - birdRadius <= 0) {
+            gameOver = true;
+            playHitSound();
+          }
+
+          // pipe collisions + scoring
+          for (const p of pipes) {
+            const inX =
               birdX + birdRadius > p.x &&
               birdX - birdRadius < p.x + pipeWidth;
+            const hitTop = birdY - birdRadius < p.top;
+            const hitBottom = birdY + birdRadius > p.top + pipeGap;
 
-            const hitYTop = birdY - birdRadius < p.top;
-            const hitYBot = birdY + birdRadius > p.top + pipeGap;
-
-            if (hitX && (hitYTop || hitYBot)) gameOver = true;
+            if (inX && (hitTop || hitBottom)) {
+              gameOver = true;
+              playHitSound();
+            }
 
             if (!p.passed && p.x + pipeWidth < birdX - birdRadius) {
               p.passed = true;
               score++;
-              if (score > best) best = score;
-              updateScore();
+              if (score > best) {
+                best = score;
+                confettiTimer = 90; // ~1.5s
+              }
+              playScoreSound();
+              updateScoreDisplay();
             }
           }
         }
@@ -479,22 +839,29 @@
         drawBackground();
         drawPipes();
         drawBird();
+        drawConfetti();
 
         ctx.fillStyle = body.classList.contains("theme-dark")
-          ? "rgba(255,255,255,0.7)"
-          : "rgba(0,0,0,0.4)";
-        ctx.font = "12px Inter";
+          ? "rgba(15,23,42,0.65)"
+          : "rgba(15,23,42,0.25)";
+        ctx.font = "12px Inter, system-ui, sans-serif";
         ctx.textAlign = "center";
 
         if (!started && !gameOver) {
-          ctx.fillText("Click / tap / space to start", WIDTH / 2, HEIGHT / 2 - 10);
-        }
-        if (gameOver) {
-          ctx.fillText("Game over — click / tap / space to restart", WIDTH / 2, HEIGHT / 2);
+          ctx.fillText("Click / tap / space to start", WIDTH / 2, HEIGHT / 2 - 8);
+        } else if (gameOver) {
+          ctx.fillText(
+            "Game over — click / tap / space to restart",
+            WIDTH / 2,
+            HEIGHT / 2
+          );
         }
       }
 
-      reset();
+      // init
+      updateScoreDisplay();
+      resetGame();
+      applyDifficulty("normal"); // sets mode + resets
       update();
     })();
   </script>
