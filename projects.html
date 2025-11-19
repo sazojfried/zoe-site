@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&display=swap"
     rel="stylesheet"
   />
 
@@ -24,33 +24,30 @@
     :root {
       --red: #b31b1b;
       --red-soft: #f97373;
-      --bg-page: #f4f5f7;
-      --bg-elevated: #ffffff;
-      --bg-card: #ffffff;
-      --border-subtle: #e2e4ea;
-      --text-main: #141414;
-      --text-muted: #666a73;
-      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.14);
-
-      --pipe-light: #22c55e;
-      --pipe-dark: #16a34a;
-      --ground-light: #f97316;
-      --ground-dark: #ea580c;
-    }
-
-    body.theme-dark {
-      --bg-page: #050509;
-      --bg-elevated: rgba(5, 5, 9, 0.96);
+      --bg-page: #0b0b10;
+      --bg-elevated: #11121a;
       --bg-card: #11121a;
       --border-subtle: #26283a;
       --text-main: #f9fafb;
       --text-muted: #9ca3b4;
-      --shadow-soft: 0 22px 50px rgba(0, 0, 0, 0.7);
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.8);
 
-      --pipe-light: #0ea5e9;
-      --pipe-dark: #0369a1;
-      --ground-light: #facc15;
-      --ground-dark: #ca8a04;
+      /* NYC game colors */
+      --ground-light: #b31b1b; /* Haverford red */
+      --ground-dark: #7f1010;
+      --pipe-light: #1e3a8a;   /* gentle dark blue */
+      --pipe-dark: #0b1f4f;
+    }
+
+    body.theme-dark {
+      /* same palette, just slightly deeper */
+      --bg-page: #030711;
+      --bg-elevated: #050816;
+      --bg-card: #050816;
+      --border-subtle: #1f2937;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3b4;
+      --shadow-soft: 0 22px 50px rgba(0, 0, 0, 0.9);
     }
 
     * {
@@ -477,8 +474,8 @@
       const scoreDisplay = document.getElementById("score-display");
       const gameContainer = document.getElementById("game-container");
 
-      const WIDTH = 320;
-      const HEIGHT = 440;
+      const WIDTH = 360;
+      const HEIGHT = 480;
       canvas.width = WIDTH;
       canvas.height = HEIGHT;
 
@@ -489,17 +486,17 @@
       birdImg.onload = () => (birdImgLoaded = true);
 
       // Bird
-      let birdRadius = 20; // bigger so you can see her face
-      let birdX = WIDTH * 0.25;
+      let birdRadius = 28;
+      let birdX = WIDTH / 2;
       let birdY = HEIGHT / 2;
       let birdVel = 0;
       let birdScale = 1;
 
       // Difficulties
       const difficulties = {
-        easy:   { gap: 145, baseSpeed: 1.7, gravity: 0.30, flap: -6.5 },
-        normal: { gap: 120, baseSpeed: 2.0, gravity: 0.35, flap: -6.2 },
-        cracked:{ gap: 95,  baseSpeed: 2.3, gravity: 0.40, flap: -5.6 }
+        easy:   { gap: 150, baseSpeed: 1.7, gravity: 0.30, flap: -6.8 },
+        normal: { gap: 125, baseSpeed: 2.0, gravity: 0.35, flap: -6.2 },
+        cracked:{ gap: 100, baseSpeed: 2.4, gravity: 0.40, flap: -5.6 }
       };
 
       let currentMode = "normal";
@@ -514,23 +511,22 @@
       let pipes = [];
       let frame = 0;
 
-      // Background / ground / clouds
+      // Skyline + ground scroll
+      let skylineOffset = 0;
       let groundOffset = 0;
-      let cloudOffset = 0;
-      const groundBaseSpeed = 0.7;
-      const cloudBaseSpeed = 0.3;
 
       // Score
       let score = 0;
       let best = 0;
       let started = false;
       let gameOver = false;
+      let gotNewBestThisRun = false;
 
-      // Confetti
+      // Confetti only for new high score at end
       let confettiTimer = 0;
       const confettiColors = ["#f97373", "#22c55e", "#3b82f6", "#facc15", "#e879f9"];
 
-      // Audio (Web Audio beeps)
+      // Audio (simple beeps)
       let audioCtx = null;
       function playTone(freq, duration, type, volume) {
         try {
@@ -547,7 +543,7 @@
           osc.start();
           osc.stop(audioCtx.currentTime + duration);
         } catch (e) {
-          // ignore if audio context fails
+          // ignore if unavailable
         }
       }
 
@@ -567,6 +563,10 @@
         scoreDisplay.textContent = "Score: " + score + " \u00a0|\u00a0 Best: " + best;
       }
 
+      function currentSpeed() {
+        return baseSpeed + Math.min(score * 0.08, maxExtraSpeed);
+      }
+
       function applyDifficulty(mode) {
         currentMode = mode;
         const d = difficulties[mode];
@@ -584,14 +584,9 @@
 
       document.querySelectorAll(".difficulty-button").forEach((btn) => {
         btn.addEventListener("click", () => {
-          const mode = btn.dataset.mode;
-          applyDifficulty(mode);
+          applyDifficulty(btn.dataset.mode);
         });
       });
-
-      function currentSpeed() {
-        return baseSpeed + Math.min(score * 0.08, maxExtraSpeed);
-      }
 
       function resetGame() {
         birdY = HEIGHT / 2;
@@ -602,15 +597,16 @@
         score = 0;
         started = false;
         gameOver = false;
+        gotNewBestThisRun = false;
+        skylineOffset = 0;
         groundOffset = 0;
-        cloudOffset = 0;
         confettiTimer = 0;
         updateScoreDisplay();
       }
 
       function spawnPipe() {
         const minTop = 40;
-        const maxTop = HEIGHT - pipeGap - 60;
+        const maxTop = HEIGHT - pipeGap - 80;
         const top = minTop + Math.random() * (maxTop - minTop);
         pipes.push({
           x: WIDTH + pipeWidth,
@@ -620,9 +616,7 @@
       }
 
       function flap() {
-        if (!started) {
-          started = true;
-        }
+        if (!started) started = true;
         if (gameOver) {
           resetGame();
           return;
@@ -648,66 +642,65 @@
         }
       });
 
-      function drawBackground() {
-        const isDark = body.classList.contains("theme-dark");
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-        if (isDark) {
-          skyGrad.addColorStop(0, "#020617");
-          skyGrad.addColorStop(1, "#0b1120");
-        } else {
-          skyGrad.addColorStop(0, "#87ceeb");
-          skyGrad.addColorStop(1, "#e0f6ff");
-        }
-        ctx.fillStyle = skyGrad;
+      function drawNYCSkylineBackground() {
+        // sunset gradient
+        const grad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+        grad.addColorStop(0, "#ffb347"); // top orange
+        grad.addColorStop(0.4, "#ff5f6d"); // pink
+        grad.addColorStop(1, "#1f2937"); // deep blue
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-        // Clouds (parallax)
-        cloudOffset -= cloudBaseSpeed + currentSpeed() * 0.15;
-        if (cloudOffset < -WIDTH) cloudOffset += WIDTH;
+        const skylineColorFar = "rgba(15,23,42,0.9)";
+        const skylineColorNear = "rgba(10,16,32,1)";
 
-        ctx.fillStyle = isDark ? "rgba(226,232,240,0.25)" : "rgba(255,255,255,0.75)";
-        const cloudSets = [
-          { y: 80, scale: 1.0 },
-          { y: 130, scale: 0.8 },
-          { y: 60, scale: 0.9 }
-        ];
+        // far skyline
+        skylineOffset -= currentSpeed() * 0.25;
+        if (skylineOffset < -80) skylineOffset += 80;
 
-        cloudSets.forEach(({ y, scale }, idx) => {
-          const baseX = (cloudOffset * (0.6 + idx * 0.1)) % WIDTH;
-          for (let i = -1; i <= 2; i++) {
-            const cx = baseX + i * 140;
-            drawCloud(cx, y, scale);
+        ctx.fillStyle = skylineColorFar;
+        for (let i = -3; i < 10; i++) {
+          const x = skylineOffset + i * 60;
+          const baseHeight = 80 + ((i * 37 % 40) + 40);
+          const h = baseHeight;
+          const y = HEIGHT - 80 - h;
+          const w = 40;
+          ctx.fillRect(x, y, w, h);
+
+          // occasional spire
+          if (i % 3 === 0) {
+            ctx.fillRect(x + w * 0.45, y - 20, w * 0.1, 20);
           }
-        });
+        }
 
-        // Ground
+        // near skyline layer
+        ctx.fillStyle = skylineColorNear;
+        for (let i = -2; i < 11; i++) {
+          const x = skylineOffset * 1.4 + i * 70;
+          const baseHeight = 60 + ((i * 53 % 50) + 40);
+          const h = baseHeight;
+          const y = HEIGHT - 60 - h;
+          const w = 46;
+          ctx.fillRect(x, y, w, h);
+        }
+
+        // scrolling ground (Haverford red)
         const groundLight = getComputedStyle(document.documentElement)
-          .getPropertyValue("--ground-light");
+          .getPropertyValue("--ground-light").trim();
         const groundDark = getComputedStyle(document.documentElement)
-          .getPropertyValue("--ground-dark");
+          .getPropertyValue("--ground-dark").trim();
 
-        groundOffset -= groundBaseSpeed + currentSpeed() * 0.25;
+        groundOffset -= currentSpeed() * 0.5;
         if (groundOffset < -WIDTH) groundOffset += WIDTH;
 
-        const groundHeight = 28;
-        const baseY = HEIGHT - groundHeight;
-
-        const groundGrad = ctx.createLinearGradient(0, baseY, 0, HEIGHT);
-        groundGrad.addColorStop(0, groundLight.trim());
-        groundGrad.addColorStop(1, groundDark.trim());
-
+        const groundH = 34;
+        const bottomY = HEIGHT - groundH;
+        const groundGrad = ctx.createLinearGradient(0, bottomY, 0, HEIGHT);
+        groundGrad.addColorStop(0, groundLight);
+        groundGrad.addColorStop(1, groundDark);
         ctx.fillStyle = groundGrad;
-        ctx.fillRect(groundOffset, baseY, WIDTH, groundHeight);
-        ctx.fillRect(groundOffset + WIDTH, baseY, WIDTH, groundHeight);
-      }
-
-      function drawCloud(cx, cy, s) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, 18 * s, Math.PI * 0.5, Math.PI * 1.5);
-        ctx.arc(cx + 18 * s, cy - 12 * s, 18 * s, Math.PI, Math.PI * 2);
-        ctx.arc(cx + 36 * s, cy, 18 * s, Math.PI * 1.5, Math.PI * 0.5);
-        ctx.closePath();
-        ctx.fill();
+        ctx.fillRect(groundOffset, bottomY, WIDTH, groundH);
+        ctx.fillRect(groundOffset + WIDTH, bottomY, WIDTH, groundH);
       }
 
       function drawPipes() {
@@ -739,7 +732,6 @@
         const tilt = Math.max(-0.5, Math.min(0.5, birdVel / 9));
         ctx.rotate(tilt);
 
-        // decay bounce scale
         birdScale += (1 - birdScale) * 0.12;
         ctx.scale(birdScale, birdScale);
 
@@ -765,12 +757,13 @@
 
       function drawConfetti() {
         if (confettiTimer <= 0) return;
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 45; i++) {
           const x = Math.random() * WIDTH;
           const y = Math.random() * (HEIGHT * 0.6);
           const w = 3;
           const h = 7 + Math.random() * 4;
-          ctx.fillStyle = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+          ctx.fillStyle =
+            confettiColors[Math.floor(Math.random() * confettiColors.length)];
           ctx.fillRect(x, y, w, h);
         }
         confettiTimer--;
@@ -789,9 +782,7 @@
           birdVel += gravity;
           birdY += birdVel;
 
-          if (frame % 110 === 0) {
-            spawnPipe();
-          }
+          if (frame % 110 === 0) spawnPipe();
 
           const speed = currentSpeed();
           for (const p of pipes) {
@@ -799,10 +790,11 @@
           }
           pipes = pipes.filter((p) => p.x + pipeWidth > 0);
 
-          // collisions with bounds
-          if (birdY + birdRadius >= HEIGHT || birdY - birdRadius <= 0) {
+          // bounds collisions
+          if (!gameOver && (birdY + birdRadius >= HEIGHT || birdY - birdRadius <= 0)) {
             gameOver = true;
             playHitSound();
+            if (gotNewBestThisRun) confettiTimer = 120;
           }
 
           // pipe collisions + scoring
@@ -813,9 +805,10 @@
             const hitTop = birdY - birdRadius < p.top;
             const hitBottom = birdY + birdRadius > p.top + pipeGap;
 
-            if (inX && (hitTop || hitBottom)) {
+            if (!gameOver && inX && (hitTop || hitBottom)) {
               gameOver = true;
               playHitSound();
+              if (gotNewBestThisRun) confettiTimer = 120;
             }
 
             if (!p.passed && p.x + pipeWidth < birdX - birdRadius) {
@@ -823,7 +816,7 @@
               score++;
               if (score > best) {
                 best = score;
-                confettiTimer = 90; // ~1.5s
+                gotNewBestThisRun = true;
               }
               playScoreSound();
               updateScoreDisplay();
@@ -836,32 +829,46 @@
       }
 
       function draw() {
-        drawBackground();
+        drawNYCSkylineBackground();
         drawPipes();
         drawBird();
         drawConfetti();
 
-        ctx.fillStyle = body.classList.contains("theme-dark")
-          ? "rgba(15,23,42,0.65)"
-          : "rgba(15,23,42,0.25)";
-        ctx.font = "12px Inter, system-ui, sans-serif";
         ctx.textAlign = "center";
 
         if (!started && !gameOver) {
-          ctx.fillText("Click / tap / space to start", WIDTH / 2, HEIGHT / 2 - 8);
+          ctx.font = '12px "Press Start 2P", system-ui, monospace';
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = "rgba(0,0,0,0.7)";
+          ctx.lineWidth = 3;
+          ctx.strokeText("CLICK / TAP / SPACE TO START", WIDTH / 2, HEIGHT / 2 - 60);
+          ctx.fillText("CLICK / TAP / SPACE TO START", WIDTH / 2, HEIGHT / 2 - 60);
         } else if (gameOver) {
-          ctx.fillText(
-            "Game over — click / tap / space to restart",
-            WIDTH / 2,
-            HEIGHT / 2
-          );
+          // main GAME OVER text
+          ctx.font = '18px "Press Start 2P", system-ui, monospace';
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = "rgba(0,0,0,0.8)";
+          ctx.lineWidth = 4;
+          ctx.strokeText("GAME OVER", WIDTH / 2, HEIGHT / 2 - 10);
+          ctx.fillText("GAME OVER", WIDTH / 2, HEIGHT / 2 - 10);
+
+          // restart instructions
+          ctx.font = '10px "Press Start 2P", system-ui, monospace';
+          ctx.strokeText("CLICK / TAP / SPACE TO RESTART", WIDTH / 2, HEIGHT / 2 + 20);
+          ctx.fillText("CLICK / TAP / SPACE TO RESTART", WIDTH / 2, HEIGHT / 2 + 20);
+
+          // new high score banner
+          if (gotNewBestThisRun) {
+            ctx.font = '12px "Press Start 2P", system-ui, monospace';
+            ctx.strokeText("NEW HIGH SCORE!", WIDTH / 2, HEIGHT / 2 - 40);
+            ctx.fillText("NEW HIGH SCORE!", WIDTH / 2, HEIGHT / 2 - 40);
+          }
         }
       }
 
       // init
       updateScoreDisplay();
-      resetGame();
-      applyDifficulty("normal"); // sets mode + resets
+      applyDifficulty("normal"); // sets mode & resets
       update();
     })();
   </script>
