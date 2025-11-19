@@ -31,9 +31,14 @@
       --text-main: #141414;
       --text-muted: #666a73;
       --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.14);
+      
+      /* High-contrast pipes + ground */
+      --pipe-light: #22c55e; /* bright green */
+      --pipe-dark: #16a34a;
+      --ground-light: #d97706; /* strong golden orange */
+      --ground-dark: #a16207;
     }
 
-    /* Dark theme overrides */
     body.theme-dark {
       --bg-page: #050509;
       --bg-elevated: rgba(5, 5, 9, 0.96);
@@ -42,6 +47,11 @@
       --text-main: #f9fafb;
       --text-muted: #9ca3b4;
       --shadow-soft: 0 22px 50px rgba(0, 0, 0, 0.7);
+
+      --pipe-light: #0ea5e9; /* bright blue */
+      --pipe-dark: #0369a1;
+      --ground-light: #facc15; /* bright yellow */
+      --ground-dark: #ca8a04;
     }
 
     * {
@@ -63,7 +73,7 @@
       text-decoration: none;
     }
 
-    /* NAV (copied to match index) */
+    /* NAV */
     header {
       position: sticky;
       top: 0;
@@ -85,12 +95,11 @@
     }
 
     .logo-block {
-      text-align: left;
       font-size: 13px;
-      line-height: 1.2;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       font-weight: 600;
+      line-height: 1.2;
     }
 
     .logo-name {
@@ -104,12 +113,6 @@
       font-weight: 400;
     }
 
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
     .nav-links {
       display: flex;
       gap: 22px;
@@ -118,10 +121,10 @@
     }
 
     .nav-links a {
-      position: relative;
       padding-bottom: 4px;
       color: var(--text-muted);
       transition: color 0.2s ease;
+      position: relative;
     }
 
     .nav-links a.active,
@@ -136,106 +139,24 @@
       left: 0;
       right: 0;
       bottom: 0;
-      margin: 0 auto;
-      width: 80%;
       height: 2px;
-      border-radius: 999px;
       background: var(--red-soft);
-    }
-
-    .theme-toggle {
       border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      padding: 5px 10px;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: background-color 0.2s ease, color 0.2s ease,
-        border-color 0.2s ease, transform 0.1s ease;
     }
 
-    .theme-toggle:hover {
-      background: rgba(179, 27, 27, 0.09);
-      color: var(--text-main);
-      border-color: var(--red-soft);
-      transform: translateY(-1px);
-    }
-
+    /* Theme + Mobile Nav */
+    .theme-toggle,
     .nav-toggle {
-      display: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: transparent;
       cursor: pointer;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-
-    .nav-toggle span {
-      display: block;
-      width: 16px;
-      height: 2px;
-      border-radius: 999px;
-      background: var(--text-muted);
-      transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
-    }
-
-    .nav-toggle span + span {
-      margin-top: 3px;
-    }
-
-    body.nav-open .nav-toggle span:nth-child(1) {
-      transform: translateY(5px) rotate(45deg);
-    }
-
-    body.nav-open .nav-toggle span:nth-child(2) {
-      opacity: 0;
-    }
-
-    body.nav-open .nav-toggle span:nth-child(3) {
-      transform: translateY(-5px) rotate(-45deg);
     }
 
     @media (max-width: 780px) {
-      .nav-inner {
-        align-items: center;
-      }
-
-      .nav-right {
-        gap: 8px;
-      }
-
       .nav-links {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 100%;
-        background: var(--bg-elevated);
-        border-bottom: 1px solid var(--border-subtle);
-        padding: 10px 18px 12px;
         display: none;
-        flex-direction: column;
-        gap: 10px;
-        font-size: 13px;
       }
-
       body.nav-open .nav-links {
         display: flex;
-      }
-
-      .theme-toggle {
-        font-size: 10px;
-        padding: 5px 10px;
-      }
-
-      .nav-toggle {
-        display: inline-flex;
+        flex-direction: column;
       }
     }
 
@@ -249,34 +170,22 @@
     .card {
       background: var(--bg-card);
       border-radius: 18px;
-      box-shadow: var(--shadow-soft);
+      padding: 22px;
       border: 1px solid var(--border-subtle);
-      padding: 22px 22px 24px;
-      margin-bottom: 24px;
-    }
-
-    .section-title {
-      font-size: 16px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      color: var(--red-soft);
+      box-shadow: var(--shadow-soft);
     }
 
     .section-title span {
       border-bottom: 2px solid var(--red-soft);
       padding-bottom: 3px;
-    }
-
-    .section-body {
-      font-size: 14px;
-      color: var(--text-main);
-      line-height: 1.7;
+      font-size: 16px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--red-soft);
     }
 
     /* GAME AREA */
     .game-wrapper {
-      margin-top: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -284,37 +193,26 @@
     }
 
     .game-container {
-      position: relative;
       width: 100%;
       max-width: 420px;
-      aspect-ratio: 3 / 4; /* keep canvas nicely sized on phones */
+      aspect-ratio: 3 / 4;
       border-radius: 18px;
-      overflow: hidden;
       border: 1px solid var(--border-subtle);
-      background: linear-gradient(to bottom, #87ceeb, #e0f6ff);
-    }
-
-    body.theme-dark .game-container {
-      background: linear-gradient(to bottom, #030712, #020617);
-    }
-
-    canvas#game-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .game-instructions {
-      font-size: 13px;
-      color: var(--text-muted);
-      text-align: center;
+      overflow: hidden;
+      background: transparent;
     }
 
     .game-score {
       font-size: 14px;
       font-weight: 600;
+    }
+
+    .more-coming {
+      margin-top: 28px;
       text-align: center;
-      color: var(--text-main);
+      font-size: 14px;
+      color: var(--text-muted);
+      font-style: italic;
     }
 
     footer {
@@ -323,13 +221,11 @@
       font-size: 11px;
       color: var(--text-muted);
       border-top: 1px solid var(--border-subtle);
-      background: var(--bg-elevated);
-      transition: background-color 0.25s ease, border-color 0.25s ease;
     }
   </style>
 </head>
+
 <body class="theme-dark">
-  <!-- NAV -->
   <header>
     <div class="nav-inner">
       <div class="logo-block">
@@ -337,237 +233,240 @@
         <div class="logo-sub">Economics · Softball · Community</div>
       </div>
 
-      <div class="nav-right">
-        <nav class="nav-links">
-          <a href="index.html#home">Home</a>
-          <a href="index.html#stats">Stats</a>
-          <a href="index.html#experience">Experience</a>
-          <a href="index.html#contact">Contact</a>
-          <a href="gallery.html">Gallery</a>
-          <a href="projects.html" class="active">Projects</a>
-        </nav>
+      <nav class="nav-links">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#stats">Stats</a>
+        <a href="index.html#experience">Experience</a>
+        <a href="index.html#contact">Contact</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="projects.html" class="active">Projects</a>
+      </nav>
 
-        <button id="theme-toggle" class="theme-toggle" type="button">
-          Light mode
-        </button>
+      <button id="theme-toggle" class="theme-toggle">Light mode</button>
 
-        <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Toggle navigation">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
+      <button id="nav-toggle" class="nav-toggle">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
 
   <main class="page">
     <div class="card">
       <div class="section-title"><span>Flappy Zoe</span></div>
-      <div class="section-body">
-        <!-- description removed on purpose -->
 
-        <div class="game-wrapper">
-          <div class="game-container">
-            <canvas id="game-canvas"></canvas>
-          </div>
-          <div class="game-score" id="score-display">Score: 0 &nbsp;|&nbsp; Best: 0</div>
-          <div class="game-instructions">
-            Click / tap / press space or ↑ to flap.  
-            Refresh the page to restart if things get wild.
-          </div>
+      <div class="game-wrapper">
+        <div class="game-container">
+          <canvas id="game-canvas"></canvas>
+        </div>
+
+        <div class="game-score" id="score-display">Score: 0 | Best: 0</div>
+
+        <div class="game-instructions">
+          Click / tap / space to flap.  
         </div>
       </div>
+
+      <div class="more-coming">More projects coming soon...</div>
     </div>
   </main>
 
-  <footer>
-    © <span id="year"></span> Zoe Friedman. All rights reserved.
-  </footer>
+  <footer>© <span id="year"></span> Zoe Friedman. All rights reserved.</footer>
 
   <script>
-    // Footer year
     document.getElementById("year").textContent = new Date().getFullYear();
 
     const body = document.body;
     const toggleBtn = document.getElementById("theme-toggle");
 
-    function updateToggleLabel() {
+    toggleBtn.addEventListener("click", () => {
+      body.classList.toggle("theme-dark");
       toggleBtn.textContent = body.classList.contains("theme-dark")
         ? "Light mode"
         : "Dark mode";
-    }
-
-    toggleBtn.addEventListener("click", () => {
-      body.classList.toggle("theme-dark");
-      updateToggleLabel();
     });
 
-    updateToggleLabel();
-
-    // Hamburger menu
-    const navToggle = document.getElementById("nav-toggle");
-    navToggle.addEventListener("click", () => {
-      body.classList.toggle("nav-open");
-    });
-
-    document.querySelectorAll(".nav-links a").forEach(link => {
-      link.addEventListener("click", () => {
-        body.classList.remove("nav-open");
-      });
-    });
-
-    // ---------- Flappy Zoe game ----------
+    // GAME --------------------------------------------------
     (function () {
       const canvas = document.getElementById("game-canvas");
       const ctx = canvas.getContext("2d");
       const scoreDisplay = document.getElementById("score-display");
 
-      // Internal game resolution; canvas will scale with CSS
       const WIDTH = 300;
       const HEIGHT = 400;
       canvas.width = WIDTH;
       canvas.height = HEIGHT;
 
-      // Bird (Zoe's face)
+      // Bird
       const birdRadius = 12;
-      let birdY = HEIGHT / 2;
       let birdX = WIDTH * 0.25;
+      let birdY = HEIGHT / 2;
       let birdVel = 0;
       const gravity = 0.35;
       const flapStrength = -6;
 
+      // Zoe face
       const birdImg = new Image();
-      let birdImgLoaded = false;
-     birdImg.src = "images/z1.png";
-      birdImg.onload = () => {
-        birdImgLoaded = true;
-      };
+      let imgLoaded = false;
+      birdImg.src = "images/z1.png";
+      birdImg.onload = () => (imgLoaded = true);
 
-      // Pipes as softball bats
+      // Pipes
       const pipeWidth = 50;
-      const pipeGap = 110;
-      const basePipeSpeed = 2.0;
-      const maxExtraSpeed = 1.2; // cap on speed increase
-
-      // Background scroll
-      let bgOffset = 0;
-      const bgBaseSpeed = 0.5;
-      const bgMaxExtra = 0.6;
+      const pipeGap = 115;
+      const baseSpeed = 2.0;
+      const maxExtraSpeed = 1.2;
 
       let pipes = [];
-      let frame = 0;
       let score = 0;
-      let bestScore = 0;
-      let gameOver = false;
+      let best = 0;
+      let frame = 0;
       let started = false;
+      let gameOver = false;
 
-      function currentPipeSpeed() {
-        // slight speedup with score, capped
-        const extra = Math.min(score * 0.08, maxExtraSpeed);
-        return basePipeSpeed + extra;
+      // Scrolling ground
+      let groundOffset = 0;
+      const groundBaseSpeed = 0.7;
+
+      function currentSpeed() {
+        return baseSpeed + Math.min(score * 0.08, maxExtraSpeed);
       }
 
-      function currentBgSpeed() {
-        const extra = Math.min(score * 0.03, bgMaxExtra);
-        return bgBaseSpeed + extra;
-      }
-
-      function updateScoreDisplay() {
-        scoreDisplay.textContent = "Score: " + score + " \u00a0|\u00a0 Best: " + bestScore;
-      }
-
-      function resetGame() {
+      function reset() {
         birdY = HEIGHT / 2;
         birdVel = 0;
         pipes = [];
         score = 0;
         frame = 0;
-        gameOver = false;
         started = false;
-        bgOffset = 0;
-        updateScoreDisplay();
+        gameOver = false;
+        updateScore();
+      }
+
+      function updateScore() {
+        scoreDisplay.textContent = `Score: ${score} | Best: ${best}`;
       }
 
       function spawnPipe() {
         const minTop = 40;
         const maxTop = HEIGHT - pipeGap - 40;
-        const topHeight = minTop + Math.random() * (maxTop - minTop);
-        pipes.push({
-          x: WIDTH + pipeWidth,
-          top: topHeight,
-          passed: false,
-        });
+        const top = minTop + Math.random() * (maxTop - minTop);
+        pipes.push({ x: WIDTH + pipeWidth, top, passed: false });
       }
 
       function flap() {
-        if (!started) {
-          started = true;
-        }
-        if (gameOver) {
-          resetGame();
-          return;
-        }
+        if (!started) started = true;
+        if (gameOver) return reset();
         birdVel = flapStrength;
+      }
+
+      canvas.addEventListener("click", flap);
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space" || e.code === "ArrowUp") {
+          e.preventDefault();
+          flap();
+        }
+      });
+
+      function drawBackground() {
+        const isDark = body.classList.contains("theme-dark");
+
+        // sky
+        const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+        gradient.addColorStop(0, isDark ? "#020617" : "#87ceeb");
+        gradient.addColorStop(1, isDark ? "#0b1120" : "#e0f6ff");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // scrolling ground
+        const groundColor = isDark ? "var(--ground-dark)" : "var(--ground-light)";
+        ctx.fillStyle = groundColor;
+
+        groundOffset -= groundBaseSpeed;
+        if (groundOffset < -WIDTH) groundOffset = 0;
+
+        ctx.fillRect(groundOffset, HEIGHT - 25, WIDTH, 25);
+        ctx.fillRect(groundOffset + WIDTH, HEIGHT - 25, WIDTH, 25);
+      }
+
+      function drawPipes() {
+        const light = getComputedStyle(document.documentElement)
+          .getPropertyValue("--pipe-light");
+        const dark = getComputedStyle(document.documentElement)
+          .getPropertyValue("--pipe-dark");
+
+        for (const p of pipes) {
+          const x = p.x;
+
+          ctx.fillStyle = light;
+          ctx.fillRect(x, 0, pipeWidth, p.top);
+
+          ctx.fillStyle = dark;
+          ctx.fillRect(x, 0, pipeWidth, 20);
+
+          ctx.fillStyle = light;
+          ctx.fillRect(x, p.top + pipeGap, pipeWidth, HEIGHT);
+
+          ctx.fillStyle = dark;
+          ctx.fillRect(x, p.top + pipeGap, pipeWidth, 20);
+        }
+      }
+
+      function drawBird() {
+        ctx.save();
+        ctx.translate(birdX, birdY);
+        ctx.rotate(Math.max(-0.5, Math.min(0.5, birdVel / 10)));
+
+        if (imgLoaded) {
+          ctx.beginPath();
+          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(birdImg, -birdRadius, -birdRadius, birdRadius * 2, birdRadius * 2);
+        } else {
+          ctx.fillStyle = "#b31b1b";
+          ctx.beginPath();
+          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
       }
 
       function update() {
         if (!started) {
           draw();
-          requestAnimationFrame(update);
-          return;
+          return requestAnimationFrame(update);
         }
 
         if (!gameOver) {
           frame++;
-
-          // Bird physics
           birdVel += gravity;
           birdY += birdVel;
 
-          // Spawn pipes every ~110 frames
-          if (frame % 110 === 0) {
-            spawnPipe();
-          }
+          if (frame % 110 === 0) spawnPipe();
 
-          // Background scroll
-          bgOffset -= currentBgSpeed();
+          const speed = currentSpeed();
+          for (const p of pipes) p.x -= speed;
+          pipes = pipes.filter((p) => p.x + pipeWidth > 0);
 
-          // Move pipes
-          const speed = currentPipeSpeed();
-          for (let i = 0; i < pipes.length; i++) {
-            pipes[i].x -= speed;
-          }
-
-          // Remove off-screen pipes
-          pipes = pipes.filter(p => p.x + pipeWidth > 0);
-
-          // Collision with top/bottom
+          // Collisions
           if (birdY + birdRadius >= HEIGHT || birdY - birdRadius <= 0) {
             gameOver = true;
           }
 
-          // Pipe collisions & scoring
-          for (let i = 0; i < pipes.length; i++) {
-            const p = pipes[i];
-            const inXRange =
+          for (const p of pipes) {
+            const hitX =
               birdX + birdRadius > p.x &&
               birdX - birdRadius < p.x + pipeWidth;
-            const hitsTop = birdY - birdRadius < p.top;
-            const hitsBottom = birdY + birdRadius > p.top + pipeGap;
 
-            if (inXRange && (hitsTop || hitsBottom)) {
-              gameOver = true;
-              break;
-            }
+            const hitYTop = birdY - birdRadius < p.top;
+            const hitYBot = birdY + birdRadius > p.top + pipeGap;
 
-            // scoring
+            if (hitX && (hitYTop || hitYBot)) gameOver = true;
+
             if (!p.passed && p.x + pipeWidth < birdX - birdRadius) {
               p.passed = true;
               score++;
-              if (score > bestScore) {
-                bestScore = score;
-              }
-              updateScoreDisplay();
+              if (score > best) best = score;
+              updateScore();
             }
           }
         }
@@ -576,140 +475,26 @@
         requestAnimationFrame(update);
       }
 
-      function drawBackground(isDark) {
-        // vertical gradient
-        const gradient = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-        if (isDark) {
-          gradient.addColorStop(0, "#020617");
-          gradient.addColorStop(1, "#0b1120");
-        } else {
-          gradient.addColorStop(0, "#87ceeb");
-          gradient.addColorStop(1, "#e0f6ff");
-        }
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-        // scrolling "field fence" stripes for motion
-        const stripeSpacing = 40;
-        const stripeWidth = 6;
-        let startX = bgOffset % stripeSpacing;
-        if (startX > 0) startX -= stripeSpacing;
-
-        ctx.fillStyle = isDark ? "rgba(148,163,184,0.25)" : "rgba(148,163,184,0.45)";
-        for (let x = startX; x < WIDTH; x += stripeSpacing) {
-          ctx.fillRect(x, HEIGHT - 80, stripeWidth, 80);
-        }
-
-        // ground band
-        ctx.fillStyle = isDark ? "#0f172a" : "#22c55e";
-        ctx.fillRect(0, HEIGHT - 20, WIDTH, 20);
-      }
-
-      function drawPipesAsBats(isDark) {
-        const batBarrelColor = isDark ? "#facc6b" : "#fbbf24";
-        const batHandleColor = isDark ? "#e5e7eb" : "#e5e7eb";
-
-        for (let i = 0; i < pipes.length; i++) {
-          const p = pipes[i];
-
-          const batX = p.x + pipeWidth / 2;
-          const batThickness = 18;
-
-          // helper to draw a single vertical bat
-          function drawBat(yStart, yEnd, upsideDown) {
-            const length = Math.abs(yEnd - yStart);
-            const topY = Math.min(yStart, yEnd);
-
-            // barrel
-            ctx.fillStyle = batBarrelColor;
-            ctx.fillRect(
-              batX - batThickness / 2,
-              topY,
-              batThickness,
-              length
-            );
-
-            // knob at one end
-            ctx.beginPath();
-            ctx.fillStyle = batHandleColor;
-            const knobRadius = batThickness * 0.45;
-            const knobY = upsideDown ? topY + length : topY;
-            ctx.arc(batX, knobY, knobRadius, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          // top bat (hanging down)
-          drawBat(0, p.top, true);
-          // bottom bat (standing up)
-          drawBat(p.top + pipeGap, HEIGHT, false);
-        }
-      }
-
-      function drawBird(isDark) {
-        ctx.save();
-        ctx.translate(birdX, birdY);
-        ctx.rotate(Math.max(-0.5, Math.min(0.5, birdVel / 10)));
-
-        const size = birdRadius * 2;
-
-        if (birdImgLoaded) {
-          // circular crop of Zoe's headshot
-          ctx.beginPath();
-          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
-          ctx.closePath();
-          ctx.clip();
-
-          ctx.drawImage(birdImg, -birdRadius, -birdRadius, size, size);
-        } else {
-          // fallback circle
-          ctx.fillStyle = isDark ? "#f97373" : "#b31b1b";
-          ctx.beginPath();
-          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.restore();
-      }
-
       function draw() {
-        const isDark = body.classList.contains("theme-dark");
+        drawBackground();
+        drawPipes();
+        drawBird();
 
-        drawBackground(isDark);
-        drawPipesAsBats(isDark);
-        drawBird(isDark);
-
-        // Overlay messages
-        ctx.fillStyle = isDark ? "rgba(15,23,42,0.65)" : "rgba(15,23,42,0.2)";
-        ctx.font = "12px Inter, system-ui, sans-serif";
+        ctx.fillStyle = body.classList.contains("theme-dark")
+          ? "rgba(255,255,255,0.7)"
+          : "rgba(0,0,0,0.4)";
+        ctx.font = "12px Inter";
         ctx.textAlign = "center";
 
         if (!started && !gameOver) {
           ctx.fillText("Click / tap / space to start", WIDTH / 2, HEIGHT / 2 - 10);
-        } else if (gameOver) {
+        }
+        if (gameOver) {
           ctx.fillText("Game over — click / tap / space to restart", WIDTH / 2, HEIGHT / 2);
         }
       }
 
-      // Input
-      window.addEventListener("keydown", (e) => {
-        if (e.code === "Space" || e.code === "ArrowUp") {
-          e.preventDefault();
-          flap();
-        }
-      });
-
-      canvas.addEventListener("click", flap);
-      canvas.addEventListener(
-        "touchstart",
-        function (e) {
-          e.preventDefault();
-          flap();
-        },
-        { passive: false }
-      );
-
-      // Kick off loop
-      resetGame();
+      reset();
       update();
     })();
   </script>
