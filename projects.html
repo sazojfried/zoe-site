@@ -22,22 +22,24 @@
 
   <style>
     :root {
-      --red: #b31b1b;
-      --red-soft: #f97373;
-      --bg-page: #0b0b10;
-      --bg-elevated: #11121a;
-      --bg-card: #11121a;
-      --border-subtle: #26283a;
-      --text-main: #f9fafb;
-      --text-muted: #9ca3b4;
-      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.8);
+  --red: #b31b1b;
+  --red-soft: #f97373;
 
-      /* NYC game colors */
-      --ground-light: #b31b1b; /* Haverford red */
-      --ground-dark: #7f1010;
-      --pipe-light: #1e3a8a;   /* gentle dark blue */
-      --pipe-dark: #0b1f4f;
-    }
+  /* LIGHT THEME (default when body does NOT have .theme-dark) */
+  --bg-page: #f4f5f7;
+  --bg-elevated: #ffffff;
+  --bg-card: #ffffff;
+  --border-subtle: #e2e4ea;
+  --text-main: #141414;
+  --text-muted: #666a73;
+  --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.14);
+
+  /* NYC game colors (same for both themes) */
+  --ground-light: #b31b1b; /* Haverford red */
+  --ground-dark: #7f1010;
+  --pipe-light: #1e3a8a;   /* gentle dark blue */
+  --pipe-dark: #0b1f4f;
+}
 
     body.theme-dark {
       /* same palette, just slightly deeper */
