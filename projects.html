@@ -420,7 +420,7 @@
             <span class="difficulty-label">Difficulty:</span>
             <button class="difficulty-button" data-mode="easy">Easy</button>
             <button class="difficulty-button active" data-mode="normal">Normal</button>
-            <button class="difficulty-button" data-mode="cracked">Cracked</button>
+            <button class="difficulty-button" data-mode="cracked">Extremely Difficult</button>
           </div>
 
           <div class="game-instructions">
@@ -485,8 +485,9 @@
       let birdImgLoaded = false;
       birdImg.onload = () => (birdImgLoaded = true);
 
-      // Bird
-      let birdRadius = 28;
+      // Bird (separate visual radius + hitbox)
+      let birdDrawRadius = 28;   // how big Zoe LOOKS
+      let birdHitRadius  = 20;   // how big Zoe PLAYS
       let birdX = WIDTH / 2;
       let birdY = HEIGHT / 2;
       let birdVel = 0;
@@ -511,18 +512,25 @@
       let pipes = [];
       let frame = 0;
 
-      // Skyline + ground scroll
-      let skylineOffset = 0;
+      // Skyline + ground scroll (smooth tiling)
+      let skylineFarOffset = 0;
+      let skylineNearOffset = 0;
       let groundOffset = 0;
 
-      // Score
+      // Score / state
       let score = 0;
       let best = 0;
       let started = false;
       let gameOver = false;
       let gotNewBestThisRun = false;
 
-      // Confetti only for new high score at end
+      // Easter egg party state (extremely difficult mode, score 14)
+      const PARTY_TRIGGER_SCORE = 14;
+      let partyActive = false;
+      let partyFrame = 0;
+      let partyCountdown = 3;
+
+      // Confetti only for new high score at end + party event
       let confettiTimer = 0;
       const confettiColors = ["#f97373", "#22c55e", "#3b82f6", "#facc15", "#e879f9"];
 
@@ -598,9 +606,17 @@
         started = false;
         gameOver = false;
         gotNewBestThisRun = false;
-        skylineOffset = 0;
+
+        skylineFarOffset = 0;
+        skylineNearOffset = 0;
         groundOffset = 0;
+
         confettiTimer = 0;
+
+        partyActive = false;
+        partyFrame = 0;
+        partyCountdown = 3;
+
         updateScoreDisplay();
       }
 
@@ -619,6 +635,10 @@
         if (!started) started = true;
         if (gameOver) {
           resetGame();
+          return;
+        }
+        if (partyActive) {
+          // ignore flaps during party countdown
           return;
         }
         birdVel = flapStrength;
@@ -642,56 +662,60 @@
         }
       });
 
+      function triggerParty() {
+        partyActive = true;
+        partyFrame = 0;
+        partyCountdown = 3;
+        confettiTimer = 160; // extra confetti burst
+      }
+
       function drawNYCSkylineBackground() {
         // sunset gradient
         const grad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
         grad.addColorStop(0, "#ffb347"); // top orange
         grad.addColorStop(0.4, "#ff5f6d"); // pink
-        grad.addColorStop(1, "#1f2937"); // deep blue
+        grad.addColorStop(1, "#1f2937");   // deep blue
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-        const skylineColorFar = "rgba(15,23,42,0.9)";
-        const skylineColorNear = "rgba(10,16,32,1)";
+        // --- FAR SKYLINE (slow layer, seamless loop) ---
+        const farTile = 70;
+        skylineFarOffset -= currentSpeed() * 0.25;
+        if (skylineFarOffset <= -farTile) skylineFarOffset += farTile;
 
-        // far skyline
-        skylineOffset -= currentSpeed() * 0.25;
-        if (skylineOffset < -80) skylineOffset += 80;
-
-        ctx.fillStyle = skylineColorFar;
-        for (let i = -3; i < 10; i++) {
-          const x = skylineOffset + i * 60;
-          const baseHeight = 80 + ((i * 37 % 40) + 40);
-          const h = baseHeight;
+        ctx.fillStyle = "rgba(15,23,42,0.9)";
+        for (let i = 0, x = skylineFarOffset; x < WIDTH + farTile; i++, x += farTile) {
+          const h = 80 + ((i * 37) % 40) + 40;
           const y = HEIGHT - 80 - h;
           const w = 40;
           ctx.fillRect(x, y, w, h);
 
-          // occasional spire
           if (i % 3 === 0) {
             ctx.fillRect(x + w * 0.45, y - 20, w * 0.1, 20);
           }
         }
 
-        // near skyline layer
-        ctx.fillStyle = skylineColorNear;
-        for (let i = -2; i < 11; i++) {
-          const x = skylineOffset * 1.4 + i * 70;
-          const baseHeight = 60 + ((i * 53 % 50) + 40);
-          const h = baseHeight;
+        // --- NEAR SKYLINE (faster parallax, also tiled) ---
+        const nearTile = 90;
+        skylineNearOffset -= currentSpeed() * 0.4;
+        if (skylineNearOffset <= -nearTile) skylineNearOffset += nearTile;
+
+        ctx.fillStyle = "rgba(10,16,32,1)";
+        for (let i = 0, x = skylineNearOffset; x < WIDTH + nearTile; i++, x += nearTile) {
+          const h = 60 + ((i * 53) % 50) + 40;
           const y = HEIGHT - 60 - h;
           const w = 46;
           ctx.fillRect(x, y, w, h);
         }
 
-        // scrolling ground (Haverford red)
+        // --- GROUND (Haverford red) ---
         const groundLight = getComputedStyle(document.documentElement)
           .getPropertyValue("--ground-light").trim();
         const groundDark = getComputedStyle(document.documentElement)
           .getPropertyValue("--ground-dark").trim();
 
         groundOffset -= currentSpeed() * 0.5;
-        if (groundOffset < -WIDTH) groundOffset += WIDTH;
+        if (groundOffset <= -WIDTH) groundOffset += WIDTH;
 
         const groundH = 34;
         const bottomY = HEIGHT - groundH;
@@ -726,6 +750,30 @@
         }
       }
 
+      // soft shadow under Zoe
+      function drawBirdShadow() {
+        const groundY = HEIGHT - 34; // same as ground height in background
+        const maxShadowY = groundY - 2;
+        const shadowY = Math.min(birdY + birdDrawRadius + 10, maxShadowY);
+        const shadowX = birdX;
+
+        const distToGround = Math.max(0, groundY - birdY - birdDrawRadius);
+        const t = Math.max(0, Math.min(1, distToGround / 120)); // 0 when close to ground
+        const maxRadiusX = birdDrawRadius * 1.0;
+        const minRadiusX = birdDrawRadius * 0.4;
+        const radiusX = minRadiusX + (maxRadiusX - minRadiusX) * t;
+        const radiusY = 5 + 5 * t;
+
+        ctx.save();
+        ctx.translate(shadowX, shadowY);
+        ctx.beginPath();
+        ctx.scale(1, radiusY / radiusX);
+        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.arc(0, 0, radiusX, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
       function drawBird() {
         ctx.save();
         ctx.translate(birdX, birdY);
@@ -737,19 +785,19 @@
 
         if (birdImgLoaded) {
           ctx.beginPath();
-          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
+          ctx.arc(0, 0, birdDrawRadius, 0, Math.PI * 2);
           ctx.clip();
           ctx.drawImage(
             birdImg,
-            -birdRadius,
-            -birdRadius,
-            birdRadius * 2,
-            birdRadius * 2
+            -birdDrawRadius,
+            -birdDrawRadius,
+            birdDrawRadius * 2,
+            birdDrawRadius * 2
           );
         } else {
           ctx.fillStyle = "#b31b1b";
           ctx.beginPath();
-          ctx.arc(0, 0, birdRadius, 0, Math.PI * 2);
+          ctx.arc(0, 0, birdDrawRadius, 0, Math.PI * 2);
           ctx.fill();
         }
         ctx.restore();
@@ -776,6 +824,22 @@
           return;
         }
 
+        // Party easter egg: pause physics, show countdown, keep rendering
+        if (partyActive) {
+          partyFrame++;
+
+          if (partyFrame === 90) partyCountdown = 2;
+          else if (partyFrame === 180) partyCountdown = 1;
+          else if (partyFrame === 240) {
+            partyCountdown = 0;
+            partyActive = false; // resume game
+          }
+
+          draw();
+          requestAnimationFrame(update);
+          return;
+        }
+
         if (!gameOver) {
           frame++;
 
@@ -790,8 +854,8 @@
           }
           pipes = pipes.filter((p) => p.x + pipeWidth > 0);
 
-          // bounds collisions
-          if (!gameOver && (birdY + birdRadius >= HEIGHT || birdY - birdRadius <= 0)) {
+          // bounds collisions (with hitbox radius)
+          if (!gameOver && (birdY + birdHitRadius >= HEIGHT || birdY - birdHitRadius <= 0)) {
             gameOver = true;
             playHitSound();
             if (gotNewBestThisRun) confettiTimer = 120;
@@ -800,10 +864,10 @@
           // pipe collisions + scoring
           for (const p of pipes) {
             const inX =
-              birdX + birdRadius > p.x &&
-              birdX - birdRadius < p.x + pipeWidth;
-            const hitTop = birdY - birdRadius < p.top;
-            const hitBottom = birdY + birdRadius > p.top + pipeGap;
+              birdX + birdHitRadius > p.x &&
+              birdX - birdHitRadius < p.x + pipeWidth;
+            const hitTop = birdY - birdHitRadius < p.top;
+            const hitBottom = birdY + birdHitRadius > p.top + pipeGap;
 
             if (!gameOver && inX && (hitTop || hitBottom)) {
               gameOver = true;
@@ -811,13 +875,24 @@
               if (gotNewBestThisRun) confettiTimer = 120;
             }
 
-            if (!p.passed && p.x + pipeWidth < birdX - birdRadius) {
+            if (!p.passed && p.x + pipeWidth < birdX - birdHitRadius) {
               p.passed = true;
               score++;
               if (score > best) {
                 best = score;
                 gotNewBestThisRun = true;
               }
+
+              // Easter egg: party at score 14 in Extremely Difficult mode
+              if (
+                currentMode === "cracked" &&
+                score === PARTY_TRIGGER_SCORE &&
+                !partyActive &&
+                !gameOver
+              ) {
+                triggerParty();
+              }
+
               playScoreSound();
               updateScoreDisplay();
             }
@@ -831,6 +906,7 @@
       function draw() {
         drawNYCSkylineBackground();
         drawPipes();
+        drawBirdShadow();
         drawBird();
         drawConfetti();
 
@@ -843,6 +919,24 @@
           ctx.lineWidth = 3;
           ctx.strokeText("CLICK / TAP / SPACE TO START", WIDTH / 2, HEIGHT / 2 - 60);
           ctx.fillText("CLICK / TAP / SPACE TO START", WIDTH / 2, HEIGHT / 2 - 60);
+        } else if (partyActive) {
+          ctx.font = '16px "Press Start 2P", system-ui, monospace';
+          ctx.fillStyle = "#ffffff";
+          ctx.strokeStyle = "rgba(0,0,0,0.9)";
+          ctx.lineWidth = 4;
+          ctx.strokeText("PARTYYYY!!!", WIDTH / 2, HEIGHT / 2 - 40);
+          ctx.fillText("PARTYYYY!!!", WIDTH / 2, HEIGHT / 2 - 40);
+
+          ctx.font = '10px "Press Start 2P", system-ui, monospace';
+          ctx.strokeText("SCORE 14 ON EXTREME", WIDTH / 2, HEIGHT / 2 - 10);
+          ctx.fillText("SCORE 14 ON EXTREME", WIDTH / 2, HEIGHT / 2 - 10);
+
+          if (partyCountdown > 0) {
+            ctx.font = '12px "Press Start 2P", system-ui, monospace';
+            const text = "RESUMING IN " + partyCountdown;
+            ctx.strokeText(text, WIDTH / 2, HEIGHT / 2 + 30);
+            ctx.fillText(text, WIDTH / 2, HEIGHT / 2 + 30);
+          }
         } else if (gameOver) {
           // main GAME OVER text
           ctx.font = '18px "Press Start 2P", system-ui, monospace';
