@@ -844,18 +844,18 @@
   <header>
     <div class="nav-inner">
       <div class="logo-block">
-        <div class="logo-name">ZOE FRIEDMAN</div>
-        <div class="logo-sub">Economics · Softball · Community</div>
+        <div class="logo-name" data-editable data-content-key="logoName">ZOE FRIEDMAN</div>
+        <div class="logo-sub" data-editable data-content-key="logoSub">Economics · Softball · Community</div>
       </div>
 
       <div class="nav-right">
         <nav class="nav-links">
-          <a href="#home" class="active">Home</a>
-          <a href="#stats">Stats</a>
-          <a href="#experience">Experience</a>
-          <a href="#contact">Contact</a>
-          <a href="gallery.html">Gallery</a>
-          <a href="projects.html">Projects</a>
+          <a href="#home" class="active" data-editable data-content-key="navHome">Home</a>
+          <a href="#stats" data-editable data-content-key="navStats">Stats</a>
+          <a href="#experience" data-editable data-content-key="navExperience">Experience</a>
+          <a href="#contact" data-editable data-content-key="navContact">Contact</a>
+          <a href="gallery.html" data-editable data-content-key="navGallery">Gallery</a>
+          <a href="projects.html" data-editable data-content-key="navProjects">Projects</a>
         </nav>
 
         <button id="theme-toggle" class="theme-toggle" type="button">
@@ -888,19 +888,19 @@
         </div>
         <div class="intro-grid">
           <div class="intro-block">
-            <div class="intro-label">School</div>
-            <div class="intro-value">Haverford College</div>
-            <div class="intro-sub">B.S. Economics · Class of 2029</div>
+            <div class="intro-label" data-editable data-content-key="introLabelSchool">School</div>
+            <div class="intro-value" data-editable data-content-key="introValueSchool">Haverford College</div>
+            <div class="intro-sub" data-editable data-content-key="introSubSchool">B.S. Economics · Class of 2029</div>
           </div>
           <div class="intro-block">
-            <div class="intro-label">On the field</div>
-            <div class="intro-value">Varsity Softball</div>
-            <div class="intro-sub">Competitive, team-first mindset</div>
+            <div class="intro-label" data-editable data-content-key="introLabelField">On the field</div>
+            <div class="intro-value" data-editable data-content-key="introValueField">Varsity Softball</div>
+            <div class="intro-sub" data-editable data-content-key="introSubField">Competitive, team-first mindset</div>
           </div>
           <div class="intro-block">
-            <div class="intro-label">Off the field</div>
-            <div class="intro-value">Founder &amp; Leader</div>
-            <div class="intro-sub">Finance &amp; community-driven initiatives</div>
+            <div class="intro-label" data-editable data-content-key="introLabelOffField">Off the field</div>
+            <div class="intro-value" data-editable data-content-key="introValueOffField">Founder &amp; Leader</div>
+            <div class="intro-sub" data-editable data-content-key="introSubOffField">Finance &amp; community-driven initiatives</div>
           </div>
         </div>
       </div>
@@ -909,7 +909,7 @@
     <!-- ABOUT -->
     <section id="about" class="fade-in">
       <div class="card section-card">
-        <div class="section-title"><span>About</span></div>
+        <div class="section-title"><span data-editable data-content-key="aboutTitle">About</span></div>
         <div class="about-grid">
           <div class="section-body">
             <p id="bio-primary" data-editable>
@@ -930,7 +930,7 @@
             <div class="about-photo-inner">
               <img src="images/zoe-headshot.jpeg" alt="Headshot of Zoe Friedman" />
             </div>
-            <div class="about-caption">
+            <div class="about-caption" data-editable data-content-key="aboutCaption">
               Zoe Friedman · Haverford College · Economics &amp; Softball
             </div>
           </div>
@@ -941,16 +941,31 @@
     <!-- STATS -->
     <section id="stats" class="fade-in">
       <div class="card section-card">
-        <div class="section-title"><span>Softball Stats</span></div>
+        <div class="section-title"><span data-editable data-content-key="statsTitle">Softball Stats</span></div>
         <div class="section-body">
-          <p>Key performance stats (current season):</p>
-         <div class="pill-row" style="margin-top:14px;">
-  <span class="pill" id="stat-avg">AVG: .000</span>
-  <span class="pill" id="stat-obp">OBP: .000</span>
-  <span class="pill" id="stat-slg">SLG: .000</span>
-  <span class="pill" id="stat-ops">OPS: .000</span>
-  <span class="pill" id="stat-fld">Fielding %: .000</span>
-</div>
+          <p data-editable data-content-key="statsIntro">Key performance stats (current season):</p>
+          <div class="pill-row" style="margin-top: 14px;">
+            <span class="pill" id="stat-avg">
+              <span class="pill-label" data-editable data-content-key="statLabelAvg">AVG:</span>
+              <span class="pill-value" data-editable data-stat-key="avg">.000</span>
+            </span>
+            <span class="pill" id="stat-obp">
+              <span class="pill-label" data-editable data-content-key="statLabelObp">OBP:</span>
+              <span class="pill-value" data-editable data-stat-key="obp">.000</span>
+            </span>
+            <span class="pill" id="stat-slg">
+              <span class="pill-label" data-editable data-content-key="statLabelSlg">SLG:</span>
+              <span class="pill-value" data-editable data-stat-key="slg">.000</span>
+            </span>
+            <span class="pill" id="stat-ops">
+              <span class="pill-label" data-editable data-content-key="statLabelOps">OPS:</span>
+              <span class="pill-value" data-editable data-stat-key="ops">.000</span>
+            </span>
+            <span class="pill" id="stat-fld">
+              <span class="pill-label" data-editable data-content-key="statLabelFld">Fielding %:</span>
+              <span class="pill-value" data-editable data-stat-key="fld">.000</span>
+            </span>
+          </div>
         </div>
       </div>
     </section>
@@ -958,17 +973,17 @@
     <!-- EXPERIENCE -->
     <section id="experience" class="fade-in">
       <div class="card section-card">
-        <div class="section-title"><span>Experience</span></div>
+        <div class="section-title"><span data-editable data-content-key="experienceTitle">Experience</span></div>
         <div class="section-body">
-          <p>Selected roles that highlight Zoe’s leadership and community focus:</p>
+          <p data-editable data-content-key="experienceIntro">Selected roles that highlight Zoe’s leadership and community focus:</p>
           <div class="timeline">
             <div class="timeline-item">
               <div class="timeline-badge"></div>
               <div>
-                <div class="timeline-role">
+                <div class="timeline-role" data-editable data-content-key="timelineRole1">
                   Student Ambassador — Strong Girls United Women
                 </div>
-                <div class="timeline-meta">
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta1">
                   Remote · Sep 2025 – Present · Part-time
                 </div>
               </div>
@@ -977,10 +992,10 @@
             <div class="timeline-item">
               <div class="timeline-badge"></div>
               <div>
-                <div class="timeline-role">
+                <div class="timeline-role" data-editable data-content-key="timelineRole2">
                   Founder — Haverford Private Equity &amp; Venture Capital
                 </div>
-                <div class="timeline-meta">
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta2">
                   Haverford, Pennsylvania · Sep 2025 – Present · Student leadership
                 </div>
               </div>
@@ -989,10 +1004,10 @@
             <div class="timeline-item">
               <div class="timeline-badge"></div>
               <div>
-                <div class="timeline-role">
+                <div class="timeline-role" data-editable data-content-key="timelineRole3">
                   Member — Haverford Finance Initiative
                 </div>
-                <div class="timeline-meta">
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta3">
                   Haverford, Pennsylvania · Aug 2025 – Present · On-site
                 </div>
               </div>
@@ -1001,10 +1016,10 @@
             <div class="timeline-item">
               <div class="timeline-badge"></div>
               <div>
-                <div class="timeline-role">
+                <div class="timeline-role" data-editable data-content-key="timelineRole4">
                   Softball Division Manager — West Side Sports
                 </div>
-                <div class="timeline-meta">
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta4">
                   New York, New York · Jun 2025 – Aug 2025 · Part-time
                 </div>
               </div>
@@ -1013,10 +1028,10 @@
             <div class="timeline-item">
               <div class="timeline-badge"></div>
               <div>
-                <div class="timeline-role">
+                <div class="timeline-role" data-editable data-content-key="timelineRole5">
                   Youth Advisory Council Member — Ronald McDonald House New York
                 </div>
-                <div class="timeline-meta">
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta5">
                   New York, New York · Sep 2024 – May 2025 · On-site
                 </div>
               </div>
@@ -1029,20 +1044,20 @@
     <!-- HIGHLIGHTS (still on page, not in nav) -->
     <section id="skills" class="fade-in">
       <div class="card section-card">
-        <div class="section-title"><span>Highlights</span></div>
+        <div class="section-title"><span data-editable data-content-key="highlightsTitle">Highlights</span></div>
         <div class="section-body">
-          <p>
+          <p data-editable data-content-key="highlightsIntro">
             A snapshot of the skills and strengths Zoe brings to her work on and off the field:
           </p>
           <div class="pill-row">
-            <span class="pill">Leadership</span>
-            <span class="pill">Team Building</span>
-            <span class="pill">Community Outreach</span>
-            <span class="pill">Youth Advocacy</span>
-            <span class="pill">Finance &amp; Investing</span>
-            <span class="pill">Project Coordination</span>
-            <span class="pill">Writing &amp; Communications</span>
-            <span class="pill">Varsity Softball</span>
+            <span class="pill" data-editable data-content-key="highlight1">Leadership</span>
+            <span class="pill" data-editable data-content-key="highlight2">Team Building</span>
+            <span class="pill" data-editable data-content-key="highlight3">Community Outreach</span>
+            <span class="pill" data-editable data-content-key="highlight4">Youth Advocacy</span>
+            <span class="pill" data-editable data-content-key="highlight5">Finance &amp; Investing</span>
+            <span class="pill" data-editable data-content-key="highlight6">Project Coordination</span>
+            <span class="pill" data-editable data-content-key="highlight7">Writing &amp; Communications</span>
+            <span class="pill" data-editable data-content-key="highlight8">Varsity Softball</span>
           </div>
         </div>
       </div>
@@ -1051,20 +1066,20 @@
     <!-- CONTACT -->
     <section id="contact" class="fade-in">
       <div class="card section-card">
-        <div class="section-title"><span>Contact</span></div>
+        <div class="section-title"><span data-editable data-content-key="contactTitle">Contact</span></div>
         <div class="section-body">
-          <p>
+          <p data-editable data-content-key="contactIntro">
             For opportunities, collaborations, or questions, feel free to reach out.
             Zoe is always excited to connect with people who care about leadership,
             finance, and community impact.
           </p>
           <div class="contact-links">
-            <p>Email:
-              <a href="mailto:Zfriedman@haverford.edu">Zfriedman@haverford.edu</a>
+            <p><span data-editable data-content-key="contactEmailLabel">Email:</span>
+              <a href="mailto:Zfriedman@haverford.edu" data-editable data-content-key="contactEmail">Zfriedman@haverford.edu</a>
             </p>
-            <p>LinkedIn:
+            <p><span data-editable data-content-key="contactLinkedInLabel">LinkedIn:</span>
               <a href="https://www.linkedin.com/in/zoe-f-329304378/" target="_blank" rel="noopener">
-                linkedin.com/in/zoe-f-329304378
+                <span data-editable data-content-key="contactLinkedIn">linkedin.com/in/zoe-f-329304378</span>
               </a>
             </p>
           </div>
