@@ -1192,6 +1192,10 @@
     const body = document.body;
     const root = document.documentElement;
 
+    // --- Cloudflare Worker Backend ---
+const API_BASE = ""; // same origin (zoefriedman.com)
+const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
+
     const STORAGE_KEYS = {
       settings: "zoe-settings",
       content: "zoe-content",
@@ -1366,11 +1370,54 @@
       updateStatus("Saved inline changes.");
       syncAdminForm();
     };
+async function loadContentFromServer() {
+  try {
+    const res = await fetch(`${API_BASE}/api/content`);
+    if (!res.ok) {
+      console.warn("Server content fetch failed, keeping local content");
+      return;
+    }
+
+    const data = await res.json();
+    content = { ...content, ...data };
+
+    saveContent();
+    applyContent();
+    syncAdminForm();
+    updateStatus("Loaded latest content from server.");
+  } catch (e) {
+    console.error("Failed loading server content:", e);
+  }
+}
+async function pushContentToServer() {
+  try {
+    const res = await fetch(`${API_BASE}/api/content`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${ADMIN_PASSWORD}`,
+      },
+      body: JSON.stringify(content),
+    });
+
+    if (!res.ok) {
+      console.error("Server update failed", await res.text());
+      updateStatus("Saved locally, but server update failed.");
+      return;
+    }
+
+    updateStatus("Saved to server successfully.");
+  } catch (e) {
+    console.error("Network error updating server", e);
+    updateStatus("Saved locally, but server update failed.");
+  }
+}
 
     // Initial paint
     applySettings(false);
     applyContent();
-
+// Load latest content from Worker (KV)
+loadContentFromServer();
     // year in footer
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1509,7 +1556,8 @@
       saveContent();
       applyContent();
       applySettings();
-      updateStatus("Saved to localStorage.");
+      updateStatus("Saving to server...");
+pushContentToServer();
     });
 
     document.getElementById("admin-reset")?.addEventListener("click", () => {
