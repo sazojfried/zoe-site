@@ -56,8 +56,9 @@
   "description": "Haverford College Economics student and varsity softball athlete."
 }
   </script>
-
-    // ========= Basic handles =========
+    // =========================
+    // Core DOM references
+    // =========================
     const body = document.body;
     const root = document.documentElement;
 
@@ -67,78 +68,11 @@
       adminSession: "zoe-admin-session",
     };
 
-    const ADMIN_PASSWORD_KEY = "zoe-admin-pass"; // stored in sessionStorage
+    // This must match your Cloudflare Worker secret ADMIN_PASSWORD
+    const ADMIN_PASSWORD = "zoe-admin";
 
-    // ========= Utilities =========
-    const normalizeText = (value) =>
-      (value || "").trim().replace(/\s+/g, " ");
+    const ADMIN_PASSWORD_KEY = "zoe-admin-pass";
 
-    const defaultSettings = () => ({
-      theme: body.classList.contains("theme-dark") ? "dark" : "light",
-      fontScale: 1,
-      reduceMotion: false,
-      developerMode: false,
-    });
-
-    // Cache stat value spans
-    const statValueEls = {
-      avg: document.querySelector(".pill-value[data-stat-key='avg']"),
-      obp: document.querySelector(".pill-value[data-stat-key='obp']"),
-      slg: document.querySelector(".pill-value[data-stat-key='slg']"),
-      ops: document.querySelector(".pill-value[data-stat-key='ops']"),
-      fld: document.querySelector(".pill-value[data-stat-key='fld']"),
-    };
-
-    const defaultContent = () => {
-      const base = {
-        introTagline: normalizeText(
-          document.getElementById("intro-tagline").textContent
-        ),
-        bioPrimary: normalizeText(
-          document.getElementById("bio-primary").textContent
-        ),
-        bioSecondary: normalizeText(
-          document.getElementById("bio-secondary").textContent
-        ),
-        lockedByAdmin: false,
-        stats: {
-          avg: normalizeText(statValueEls.avg?.textContent || ".000"),
-          obp: normalizeText(statValueEls.obp?.textContent || ".000"),
-          slg: normalizeText(statValueEls.slg?.textContent || ".000"),
-          ops: normalizeText(statValueEls.ops?.textContent || ".000"),
-          fld: normalizeText(statValueEls.fld?.textContent || ".000"),
-        },
-        // Bag of all other editable fields (by data-content-key)
-        fields: {},
-      };
-
-      document
-        .querySelectorAll("[data-editable][data-content-key]")
-        .forEach((el) => {
-          const key = el.getAttribute("data-content-key");
-          if (key && !(key in base.fields)) {
-            base.fields[key] = normalizeText(el.textContent);
-          }
-        });
-
-      return base;
-    };
-
-    const getStored = (key, fallbackFactory) => {
-      try {
-        const raw = localStorage.getItem(key);
-        return raw ? { ...fallbackFactory(), ...JSON.parse(raw) } : fallbackFactory();
-      } catch (e) {
-        console.warn("Failed to parse storage", e);
-        return fallbackFactory();
-      }
-    };
-
-    // ========= State =========
-    let settings = getStored(STORAGE_KEYS.settings, defaultSettings);
-    let content = getStored(STORAGE_KEYS.content, defaultContent);
-
-    // ========= DOM refs =========
     const toggleBtn = document.getElementById("theme-toggle");
     const fontSlider = document.getElementById("font-scale-control");
     const reduceMotionToggle = document.getElementById("reduce-motion-toggle");
@@ -167,9 +101,82 @@
       },
     };
 
-    // ========= Helpers =========
+    // Stat <span> elements that hold just the numeric values
+    const statValueEls = {
+      avg: document.querySelector('.pill-value[data-stat-key="avg"]'),
+      obp: document.querySelector('.pill-value[data-stat-key="obp"]'),
+      slg: document.querySelector('.pill-value[data-stat-key="slg"]'),
+      ops: document.querySelector('.pill-value[data-stat-key="ops"]'),
+      fld: document.querySelector('.pill-value[data-stat-key="fld"]'),
+    };
+
+    // =========================
+    // Helpers
+    // =========================
+    const normalizeText = (value) =>
+      (value || "").trim().replace(/\s+/g, " ");
+
+    const defaultSettings = () => ({
+      theme: body.classList.contains("theme-dark") ? "dark" : "light",
+      fontScale: 1,
+      reduceMotion: false,
+      developerMode: false,
+    });
+
+    const defaultContent = () => {
+      const base = {
+        introTagline: normalizeText(
+          document.getElementById("intro-tagline").textContent
+        ),
+        bioPrimary: normalizeText(
+          document.getElementById("bio-primary").textContent
+        ),
+        bioSecondary: normalizeText(
+          document.getElementById("bio-secondary").textContent
+        ),
+        lockedByAdmin: false,
+        stats: {
+          avg: normalizeText(statValueEls.avg?.textContent || ".000"),
+          obp: normalizeText(statValueEls.obp?.textContent || ".000"),
+          slg: normalizeText(statValueEls.slg?.textContent || ".000"),
+          ops: normalizeText(statValueEls.ops?.textContent || ".000"),
+          fld: normalizeText(statValueEls.fld?.textContent || ".000"),
+        },
+        // bag of all other editable text keyed by data-content-key
+        fields: {},
+      };
+
+      document
+        .querySelectorAll("[data-editable][data-content-key]")
+        .forEach((el) => {
+          const key = el.getAttribute("data-content-key");
+          if (!key) return;
+          if (!(key in base.fields)) {
+            base.fields[key] = normalizeText(el.textContent);
+          }
+        });
+
+      return base;
+    };
+
+    const getStored = (key, fallbackFactory) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw
+          ? { ...fallbackFactory(), ...JSON.parse(raw) }
+          : fallbackFactory();
+      } catch (e) {
+        console.warn("Failed to parse storage", e);
+        return fallbackFactory();
+      }
+    };
+
+    let settings = getStored(STORAGE_KEYS.settings, defaultSettings);
+    let content = getStored(STORAGE_KEYS.content, defaultContent);
+
     const saveSettings = () =>
       localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
+
     const saveContent = () =>
       localStorage.setItem(STORAGE_KEYS.content, JSON.stringify(content));
 
@@ -177,6 +184,9 @@
       if (adminStatus) adminStatus.textContent = message;
     };
 
+    // =========================
+    // Rendering functions
+    // =========================
     const renderStats = (stats) => {
       if (!stats) return;
       if (statValueEls.avg && stats.avg) statValueEls.avg.textContent = stats.avg;
@@ -184,6 +194,31 @@
       if (statValueEls.slg && stats.slg) statValueEls.slg.textContent = stats.slg;
       if (statValueEls.ops && stats.ops) statValueEls.ops.textContent = stats.ops;
       if (statValueEls.fld && stats.fld) statValueEls.fld.textContent = stats.fld;
+    };
+
+    const applyFieldsFromContent = () => {
+      const fields = (content && content.fields) || {};
+      document
+        .querySelectorAll("[data-editable][data-content-key]")
+        .forEach((el) => {
+          const key = el.getAttribute("data-content-key");
+          if (!key) return;
+          if (Object.prototype.hasOwnProperty.call(fields, key)) {
+            el.textContent = fields[key];
+          }
+        });
+    };
+
+    const applyContent = () => {
+      document.getElementById("intro-tagline").textContent =
+        content.introTagline;
+      document.getElementById("bio-primary").textContent =
+        content.bioPrimary;
+      document.getElementById("bio-secondary").textContent =
+        content.bioSecondary;
+
+      renderStats(content.stats || {});
+      applyFieldsFromContent();
     };
 
     const updateToggleLabel = () => {
@@ -220,30 +255,6 @@
       if (persist) saveSettings();
     };
 
-    const applyFieldsFromContent = () => {
-      const fields = (content && content.fields) || {};
-      document
-        .querySelectorAll("[data-editable][data-content-key]")
-        .forEach((el) => {
-          const key = el.getAttribute("data-content-key");
-          if (!key) return;
-          if (Object.prototype.hasOwnProperty.call(fields, key)) {
-            el.textContent = fields[key];
-          }
-        });
-    };
-
-    const applyContent = () => {
-      document.getElementById("intro-tagline").textContent =
-        content.introTagline;
-      document.getElementById("bio-primary").textContent = content.bioPrimary;
-      document.getElementById("bio-secondary").textContent =
-        content.bioSecondary;
-
-      renderStats(content.stats || {});
-      applyFieldsFromContent();
-    };
-
     const syncAdminForm = () => {
       if (!adminContent) return;
       adminFields.introTagline.value = content.introTagline;
@@ -255,12 +266,17 @@
       });
     };
 
-    // ========= Worker API =========
+    // =========================
+    // Worker API
+    // =========================
     async function loadContentFromServer() {
+      // If Zoe has explicitly overridden locally, don't auto-fetch
+      if (content.lockedByAdmin) return;
+
       try {
         const res = await fetch("/api/content");
         if (!res.ok) {
-          console.warn("Server content fetch failed, keeping local content");
+          console.warn("Server content fetch failed");
           return;
         }
 
@@ -268,14 +284,8 @@
         content = {
           ...content,
           ...data,
-          stats: {
-            ...(content.stats || {}),
-            ...(data.stats || {}),
-          },
-          fields: {
-            ...(content.fields || {}),
-            ...(data.fields || {}),
-          },
+          stats: { ...(content.stats || {}), ...(data.stats || {}) },
+          fields: { ...(content.fields || {}), ...(data.fields || {}) },
         };
 
         saveContent();
@@ -322,7 +332,9 @@
       }
     }
 
-    // ========= Inline dev-mode editing =========
+    // =========================
+    // Inline edit handler
+    // =========================
     const handleInlineEdit = () => {
       if (!settings.developerMode) return;
 
@@ -356,16 +368,20 @@
       syncAdminForm();
     };
 
-    // ========= Initial paint =========
+    // =========================
+    // Initial paint
+    // =========================
     applySettings(false);
     applyContent();
-    loadContentFromServer(); // pull latest from Worker if available
+    loadContentFromServer();
 
-    // ========= Footer year =========
+    // Year in footer
     document.getElementById("year").textContent =
       new Date().getFullYear();
 
-    // ========= Theme toggle =========
+    // =========================
+    // UI wiring – nav, theme, etc.
+    // =========================
     toggleBtn.addEventListener("click", () => {
       settings.theme = body.classList.contains("theme-dark")
         ? "light"
@@ -373,10 +389,11 @@
       applySettings();
     });
 
-    // ========= Mobile nav =========
-    document.getElementById("nav-toggle").addEventListener("click", () => {
-      body.classList.toggle("nav-open");
-    });
+    document
+      .getElementById("nav-toggle")
+      .addEventListener("click", () => {
+        body.classList.toggle("nav-open");
+      });
 
     document
       .querySelectorAll(".nav-links a[href^='#']")
@@ -386,7 +403,6 @@
         });
       });
 
-    // Smooth scroll
     document.querySelectorAll("a[href^='#']").forEach((link) => {
       link.addEventListener("click", function (e) {
         const id = this.getAttribute("href").slice(1);
@@ -401,7 +417,6 @@
       });
     });
 
-    // ========= Fade-in sections =========
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -417,7 +432,9 @@
       .querySelectorAll(".fade-in")
       .forEach((el) => observer.observe(el));
 
-    // ========= Admin panel =========
+    // =========================
+    // Admin panel logic
+    // =========================
     const setAdminOpen = (open) => {
       if (!adminPanel) return;
       adminPanel.classList.toggle("open", open);
@@ -440,7 +457,6 @@
     adminLauncher?.addEventListener("click", () => setAdminOpen(true));
     adminClose?.addEventListener("click", () => setAdminOpen(false));
 
-    // Restore previous admin session
     if (isAdminUnlocked()) {
       const savedPass = sessionStorage.getItem(ADMIN_PASSWORD_KEY) || "";
       unlockAdmin(savedPass);
@@ -453,8 +469,7 @@
         return;
       }
 
-      // This needs to match the Worker secret ADMIN_PASSWORD
-      if (pass === "zoe-admin") {
+      if (pass === ADMIN_PASSWORD) {
         sessionStorage.setItem(ADMIN_PASSWORD_KEY, pass);
         unlockAdmin(pass);
       } else {
@@ -463,10 +478,11 @@
     });
 
     adminPassword?.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") adminAuthBtn.click();
+      if (e.key === "Enter") {
+        adminAuthBtn.click();
+      }
     });
 
-    // ========= Admin controls for display settings =========
     fontSlider?.addEventListener("input", (e) => {
       settings.fontScale = Number(e.target.value);
       applySettings();
@@ -487,18 +503,17 @@
       applySettings();
     });
 
-    // ========= Inline edit listeners =========
     document
       .querySelectorAll("[data-editable]")
       .forEach((el) => {
         el.addEventListener("blur", handleInlineEdit);
       });
 
-    // ========= Admin save / reset =========
     document
       .getElementById("admin-save")
       ?.addEventListener("click", async () => {
         content = {
+          ...content,
           introTagline: normalizeText(adminFields.introTagline.value),
           bioPrimary: normalizeText(adminFields.bioPrimary.value),
           bioSecondary: normalizeText(adminFields.bioSecondary.value),
@@ -510,8 +525,6 @@
             ops: normalizeText(adminFields.stats.ops.value),
             fld: normalizeText(adminFields.stats.fld.value),
           },
-          // keep inline dev-mode edits
-          fields: content.fields || {},
         };
 
         settings = {
