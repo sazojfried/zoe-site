@@ -944,13 +944,28 @@
         <div class="section-title"><span data-editable data-content-key="statsTitle">Softball Stats</span></div>
         <div class="section-body">
           <p data-editable data-content-key="statsIntro">Key performance stats (current season):</p>
-         <div class="pill-row" style="margin-top:14px;">
-  <span class="pill" id="stat-avg">AVG: .000</span>
-  <span class="pill" id="stat-obp">OBP: .000</span>
-  <span class="pill" id="stat-slg">SLG: .000</span>
-  <span class="pill" id="stat-ops">OPS: .000</span>
-  <span class="pill" id="stat-fld">Fielding %: .000</span>
-</div>
+          <div class="pill-row" style="margin-top: 14px;">
+            <span class="pill" id="stat-avg">
+              <span class="pill-label" data-editable data-content-key="statLabelAvg">AVG:</span>
+              <span class="pill-value" data-editable data-stat-key="avg">.000</span>
+            </span>
+            <span class="pill" id="stat-obp">
+              <span class="pill-label" data-editable data-content-key="statLabelObp">OBP:</span>
+              <span class="pill-value" data-editable data-stat-key="obp">.000</span>
+            </span>
+            <span class="pill" id="stat-slg">
+              <span class="pill-label" data-editable data-content-key="statLabelSlg">SLG:</span>
+              <span class="pill-value" data-editable data-stat-key="slg">.000</span>
+            </span>
+            <span class="pill" id="stat-ops">
+              <span class="pill-label" data-editable data-content-key="statLabelOps">OPS:</span>
+              <span class="pill-value" data-editable data-stat-key="ops">.000</span>
+            </span>
+            <span class="pill" id="stat-fld">
+              <span class="pill-label" data-editable data-content-key="statLabelFld">Fielding %:</span>
+              <span class="pill-value" data-editable data-stat-key="fld">.000</span>
+            </span>
+          </div>
         </div>
       </div>
     </section>
@@ -1250,15 +1265,20 @@
 
     const fieldDefaults = getEditableDefaults();
 
+    const getStatValue = (key) => {
+      const el = document.querySelector(`[data-stat-key="${key}"]`);
+      return normalizeText(el?.textContent || "");
+    };
+
     const defaultContent = () => ({
       fields: { ...fieldDefaults },
       lockedByAdmin: false,
       stats: {
-        avg: normalizeText(document.getElementById("stat-avg").textContent.replace("AVG:", "")),
-        obp: normalizeText(document.getElementById("stat-obp").textContent.replace("OBP:", "")),
-        slg: normalizeText(document.getElementById("stat-slg").textContent.replace("SLG:", "")),
-        ops: normalizeText(document.getElementById("stat-ops").textContent.replace("OPS:", "")),
-        fld: normalizeText(document.getElementById("stat-fld").textContent.replace("Fielding %:", "")),
+        avg: getStatValue("avg"),
+        obp: getStatValue("obp"),
+        slg: getStatValue("slg"),
+        ops: getStatValue("ops"),
+        fld: getStatValue("fld"),
       },
     });
 
@@ -1325,17 +1345,12 @@
     };
 
     const renderStats = (stats) => {
-      const avgEl = document.getElementById("stat-avg");
-      const obpEl = document.getElementById("stat-obp");
-      const slgEl = document.getElementById("stat-slg");
-      const opsEl = document.getElementById("stat-ops");
-      const fldEl = document.getElementById("stat-fld");
-
-      if (avgEl && stats.avg) avgEl.textContent = "AVG: " + stats.avg;
-      if (obpEl && stats.obp) obpEl.textContent = "OBP: " + stats.obp;
-      if (slgEl && stats.slg) slgEl.textContent = "SLG: " + stats.slg;
-      if (opsEl && stats.ops) opsEl.textContent = "OPS: " + stats.ops;
-      if (fldEl && stats.fld) fldEl.textContent = "Fielding %: " + stats.fld;
+      document.querySelectorAll("[data-stat-key]").forEach((el) => {
+        const key = el.dataset.statKey;
+        if (stats[key] !== undefined) {
+          el.textContent = stats[key];
+        }
+      });
     };
 
     const saveSettings = () => localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
@@ -1349,6 +1364,14 @@
       const snapshot = {};
       document.querySelectorAll("[data-content-key]").forEach((el) => {
         snapshot[el.dataset.contentKey] = getEditableValue(el);
+      });
+      return snapshot;
+    };
+
+    const captureStats = () => {
+      const snapshot = {};
+      document.querySelectorAll("[data-stat-key]").forEach((el) => {
+        snapshot[el.dataset.statKey] = normalizeText(el.textContent);
       });
       return snapshot;
     };
@@ -1415,6 +1438,31 @@
 
     const setRemoteStatus = (message) => {
       if (remoteStatus) remoteStatus.textContent = message;
+    };
+
+    const loadPublishedContent = async () => {
+      const path = settings.remote?.path || defaultSettings().remote.path;
+      if (!path) return;
+      try {
+        const res = await fetch(path, { cache: "no-store" });
+        if (!res.ok) return;
+        const payload = await res.json();
+        if (payload.fields) {
+          content.fields = { ...fieldDefaults, ...payload.fields };
+        }
+        if (payload.stats) {
+          content.stats = { ...content.stats, ...payload.stats };
+        }
+        if (payload.lockedByAdmin !== undefined) {
+          content.lockedByAdmin = payload.lockedByAdmin;
+        }
+        saveContent();
+        applyContent();
+        syncAdminForm();
+        updateStatus("Loaded published content.");
+      } catch (err) {
+        console.warn("No published content found", err);
+      }
     };
 
     const githubHeaders = () => {
@@ -1515,9 +1563,11 @@
       content = {
         ...content,
         fields: captureEditableContent(),
+        stats: { ...content.stats, ...captureStats() },
         lockedByAdmin: true,
       };
       saveContent();
+      applyContent();
       updateStatus("Saved inline changes.");
       syncAdminForm();
     };
@@ -1525,6 +1575,8 @@
     // Initial paint
     applySettings(false);
     applyContent();
+    syncAdminForm();
+    loadPublishedContent();
 
     // year in footer
     document.getElementById("year").textContent = new Date().getFullYear();
