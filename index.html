@@ -1472,33 +1472,48 @@ loadContentFromServer();
 
     document.querySelectorAll(".fade-in").forEach((el) => observer.observe(el));
 
-    // Admin panel controls
+        // Admin panel controls
+    const ADMIN_PASSWORD_KEY = "zoe-admin-pass";
+
     const setAdminOpen = (open) => {
       if (!adminPanel) return;
       adminPanel.classList.toggle("open", open);
     };
 
-    const unlockAdmin = () => {
+    const unlockAdmin = (storedPass = "") => {
       sessionStorage.setItem(STORAGE_KEYS.adminSession, "true");
+      if (storedPass) {
+        sessionStorage.setItem(ADMIN_PASSWORD_KEY, storedPass);
+      }
       adminLocked.style.display = "none";
       adminContent.style.display = "block";
       syncAdminForm();
       updateStatus("Admin unlocked. Editing is live in this browser.");
     };
 
-    const isAdminUnlocked = () => sessionStorage.getItem(STORAGE_KEYS.adminSession) === "true";
+    const isAdminUnlocked = () =>
+      sessionStorage.getItem(STORAGE_KEYS.adminSession) === "true";
 
     adminLauncher?.addEventListener("click", () => setAdminOpen(true));
     adminClose?.addEventListener("click", () => setAdminOpen(false));
 
+    // Restore previous admin session + password if present
     if (isAdminUnlocked()) {
-      unlockAdmin();
+      const savedPass = sessionStorage.getItem(ADMIN_PASSWORD_KEY) || "";
+      unlockAdmin(savedPass);
     }
 
     adminAuthBtn?.addEventListener("click", () => {
       const pass = adminPassword.value.trim();
+      if (!pass) {
+        updateStatus("Please enter a password.");
+        return;
+      }
+
+      // NOTE: this must match the secret ADMIN_PASSWORD in your Worker
       if (pass === "zoe-admin") {
-        unlockAdmin();
+        sessionStorage.setItem(ADMIN_PASSWORD_KEY, pass);
+        unlockAdmin(pass);
       } else {
         updateStatus("Incorrect password. Try again.");
       }
@@ -1534,7 +1549,42 @@ loadContentFromServer();
       el.addEventListener("blur", handleInlineEdit);
     });
 
-    document.getElementById("admin-save")?.addEventListener("click", () => {
+    // Push current `content` object to the Worker KV via /api/content
+    async function pushContentToServer() {
+      const storedPass =
+        sessionStorage.getItem(ADMIN_PASSWORD_KEY) ||
+        (adminPassword.value || "").trim();
+
+      if (!storedPass) {
+        updateStatus(
+          "Saved locally, but missing admin password for server save."
+        );
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/content", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Must match expected `Bearer ${env.ADMIN_PASSWORD}` in the Worker
+            Authorization: `Bearer ${storedPass}`,
+          },
+          body: JSON.stringify(content),
+        });
+
+        if (!res.ok) {
+          throw new Error("Server responded " + res.status);
+        }
+
+        updateStatus("Saved locally and on server.");
+      } catch (err) {
+        console.error("pushContentToServer failed", err);
+        updateStatus("Saved locally, but server update failed.");
+      }
+    }
+
+    document.getElementById("admin-save")?.addEventListener("click", async () => {
       content = {
         introTagline: normalizeText(adminFields.introTagline.value),
         bioPrimary: normalizeText(adminFields.bioPrimary.value),
@@ -1561,7 +1611,7 @@ loadContentFromServer();
       applyContent();
       applySettings();
       updateStatus("Saving to server...");
-pushContentToServer();
+      await pushContentToServer();
     });
 
     document.getElementById("admin-reset")?.addEventListener("click", () => {
