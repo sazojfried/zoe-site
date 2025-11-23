@@ -881,8 +881,8 @@
     <div class="intro-card-wrapper fade-in">
       <div class="card intro-card">
         <div class="intro-heading">
-          <h1 data-editable data-content-key="heroName">ZOE FRIEDMAN</h1>
-          <p id="intro-tagline" data-editable data-content-key="introTagline">
+          <h1>ZOE FRIEDMAN</h1>
+          <p id="intro-tagline" data-editable>
             Haverford College Economics student &amp; varsity softball athlete
           </p>
         </div>
@@ -912,13 +912,13 @@
         <div class="section-title"><span data-editable data-content-key="aboutTitle">About</span></div>
         <div class="about-grid">
           <div class="section-body">
-            <p id="bio-primary" data-editable data-content-key="bioPrimary">
+            <p id="bio-primary" data-editable>
               Zoe Friedman is an <strong>Economics student at Haverford College</strong>
               passionate about leadership, women’s empowerment, and community-driven work.
               She blends analytical thinking with hands-on involvement across finance,
               nonprofit outreach, and athletics.
             </p>
-            <p id="bio-secondary" class="spaced" data-editable data-content-key="bioSecondary">
+            <p id="bio-secondary" class="spaced" data-editable>
               On campus, Zoe channels the same competitiveness she brings to
               the softball field into the classroom and new initiatives—from founding
               student organizations to supporting local and national nonprofits.
@@ -1171,43 +1171,6 @@
         </div>
       </div>
 
-      <div class="admin-section">
-        <h4>Remote publish (GitHub API)</h4>
-        <div class="admin-row">
-          <label for="remote-enabled">Enable remote saves</label>
-          <input id="remote-enabled" type="checkbox" />
-        </div>
-        <div class="admin-row">
-          <label for="remote-owner">Owner / org</label>
-          <input id="remote-owner" type="text" placeholder="zoe-friedman" />
-        </div>
-        <div class="admin-row">
-          <label for="remote-repo">Repo</label>
-          <input id="remote-repo" type="text" placeholder="zoe-site" />
-        </div>
-        <div class="admin-row">
-          <label for="remote-branch">Branch</label>
-          <input id="remote-branch" type="text" placeholder="main" />
-        </div>
-        <div class="admin-row">
-          <label for="remote-path">JSON path</label>
-          <input id="remote-path" type="text" placeholder="data/site-content.json" />
-        </div>
-        <div class="admin-row">
-          <label for="remote-token">GitHub token</label>
-          <input id="remote-token" type="password" placeholder="ghp_xxx" />
-        </div>
-        <div class="admin-alert">
-          Saves can be published for everyone if a GitHub token is provided. Token is stored locally
-          in this browser and used to write the JSON file in your repo.
-        </div>
-        <div class="admin-actions">
-          <button class="admin-button" id="remote-load" type="button">Load from GitHub</button>
-          <button class="admin-button primary" id="remote-save" type="button">Save &amp; publish</button>
-        </div>
-        <pre id="remote-status" class="code-block" aria-live="polite"></pre>
-      </div>
-
       <div class="admin-actions">
         <button class="admin-button primary" id="admin-save" type="button">Save changes</button>
         <button class="admin-button" id="admin-reset" type="button">Reset to defaults</button>
@@ -1240,45 +1203,21 @@
       fontScale: 1,
       reduceMotion: false,
       developerMode: false,
-      remote: {
-        enabled: false,
-        owner: "",
-        repo: "",
-        branch: "main",
-        path: "data/site-content.json",
-        token: "",
-        lastSha: "",
-      },
     });
 
     const normalizeText = (value) => (value || "").trim().replace(/\s+/g, " ");
 
-    const getEditableValue = (el) => (el.innerHTML || "").trim();
-
-    const getEditableDefaults = () => {
-      const map = {};
-      document.querySelectorAll("[data-content-key]").forEach((el) => {
-        map[el.dataset.contentKey] = getEditableValue(el);
-      });
-      return map;
-    };
-
-    const fieldDefaults = getEditableDefaults();
-
-    const getStatValue = (key) => {
-      const el = document.querySelector(`[data-stat-key="${key}"]`);
-      return normalizeText(el?.textContent || "");
-    };
-
     const defaultContent = () => ({
-      fields: { ...fieldDefaults },
+      introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
+      bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
+      bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
       lockedByAdmin: false,
       stats: {
-        avg: getStatValue("avg"),
-        obp: getStatValue("obp"),
-        slg: getStatValue("slg"),
-        ops: getStatValue("ops"),
-        fld: getStatValue("fld"),
+        avg: normalizeText(document.getElementById("stat-avg").textContent.replace("AVG:", "")),
+        obp: normalizeText(document.getElementById("stat-obp").textContent.replace("OBP:", "")),
+        slg: normalizeText(document.getElementById("stat-slg").textContent.replace("SLG:", "")),
+        ops: normalizeText(document.getElementById("stat-ops").textContent.replace("OPS:", "")),
+        fld: normalizeText(document.getElementById("stat-fld").textContent.replace("Fielding %:", "")),
       },
     });
 
@@ -1295,18 +1234,6 @@
     let settings = getStored(STORAGE_KEYS.settings, defaultSettings);
     let content = getStored(STORAGE_KEYS.content, defaultContent);
 
-    // Backward compatibility for earlier content format
-    if (!content.fields) {
-      content.fields = {
-        ...fieldDefaults,
-        introTagline: content.introTagline || fieldDefaults.introTagline,
-        bioPrimary: content.bioPrimary || fieldDefaults.bioPrimary,
-        bioSecondary: content.bioSecondary || fieldDefaults.bioSecondary,
-      };
-    }
-
-    settings.remote = { ...defaultSettings().remote, ...(settings.remote || {}) };
-
     const toggleBtn = document.getElementById("theme-toggle");
     const fontSlider = document.getElementById("font-scale-control");
     const reduceMotionToggle = document.getElementById("reduce-motion-toggle");
@@ -1321,15 +1248,6 @@
     const adminPassword = document.getElementById("admin-password");
     const adminAuthBtn = document.getElementById("admin-auth-btn");
     const devState = document.getElementById("dev-state");
-    const remoteEnabled = document.getElementById("remote-enabled");
-    const remoteOwner = document.getElementById("remote-owner");
-    const remoteRepo = document.getElementById("remote-repo");
-    const remoteBranch = document.getElementById("remote-branch");
-    const remotePath = document.getElementById("remote-path");
-    const remoteToken = document.getElementById("remote-token");
-    const remoteStatus = document.getElementById("remote-status");
-    const remoteLoadBtn = document.getElementById("remote-load");
-    const remoteSaveBtn = document.getElementById("remote-save");
 
     const adminFields = {
       introTagline: document.getElementById("admin-intro-tagline"),
@@ -1345,12 +1263,17 @@
     };
 
     const renderStats = (stats) => {
-      document.querySelectorAll("[data-stat-key]").forEach((el) => {
-        const key = el.dataset.statKey;
-        if (stats[key] !== undefined) {
-          el.textContent = stats[key];
-        }
-      });
+      const avgEl = document.getElementById("stat-avg");
+      const obpEl = document.getElementById("stat-obp");
+      const slgEl = document.getElementById("stat-slg");
+      const opsEl = document.getElementById("stat-ops");
+      const fldEl = document.getElementById("stat-fld");
+
+      if (avgEl && stats.avg) avgEl.textContent = "AVG: " + stats.avg;
+      if (obpEl && stats.obp) obpEl.textContent = "OBP: " + stats.obp;
+      if (slgEl && stats.slg) slgEl.textContent = "SLG: " + stats.slg;
+      if (opsEl && stats.ops) opsEl.textContent = "OPS: " + stats.ops;
+      if (fldEl && stats.fld) fldEl.textContent = "Fielding %: " + stats.fld;
     };
 
     const saveSettings = () => localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
@@ -1358,22 +1281,6 @@
 
     const updateToggleLabel = () => {
       toggleBtn.textContent = body.classList.contains("theme-dark") ? "Light mode" : "Dark mode";
-    };
-
-    const captureEditableContent = () => {
-      const snapshot = {};
-      document.querySelectorAll("[data-content-key]").forEach((el) => {
-        snapshot[el.dataset.contentKey] = getEditableValue(el);
-      });
-      return snapshot;
-    };
-
-    const captureStats = () => {
-      const snapshot = {};
-      document.querySelectorAll("[data-stat-key]").forEach((el) => {
-        snapshot[el.dataset.statKey] = normalizeText(el.textContent);
-      });
-      return snapshot;
     };
 
     const syncEditableState = () => {
@@ -1392,12 +1299,6 @@
       if (fontSlider) fontSlider.value = settings.fontScale;
       if (reduceMotionToggle) reduceMotionToggle.checked = !!settings.reduceMotion;
       if (devToggle) devToggle.checked = !!settings.developerMode;
-      if (remoteEnabled) remoteEnabled.checked = !!settings.remote?.enabled;
-      if (remoteOwner) remoteOwner.value = settings.remote?.owner || "";
-      if (remoteRepo) remoteRepo.value = settings.remote?.repo || "";
-      if (remoteBranch) remoteBranch.value = settings.remote?.branch || "main";
-      if (remotePath) remotePath.value = settings.remote?.path || "data/site-content.json";
-      if (remoteToken) remoteToken.value = settings.remote?.token || "";
 
       updateToggleLabel();
       syncEditableState();
@@ -1410,22 +1311,17 @@
     };
 
     const applyContent = () => {
-      const fields = { ...fieldDefaults, ...(content.fields || {}) };
-      document.querySelectorAll("[data-content-key]").forEach((el) => {
-        const key = el.dataset.contentKey;
-        if (fields[key] !== undefined) {
-          el.innerHTML = fields[key];
-        }
-      });
+      document.getElementById("intro-tagline").textContent = content.introTagline;
+      document.getElementById("bio-primary").textContent = content.bioPrimary;
+      document.getElementById("bio-secondary").textContent = content.bioSecondary;
       renderStats(content.stats || {});
     };
 
     const syncAdminForm = () => {
       if (!adminContent) return;
-      const fields = { ...fieldDefaults, ...(content.fields || {}) };
-      adminFields.introTagline.value = fields.introTagline || "";
-      adminFields.bioPrimary.value = fields.bioPrimary || "";
-      adminFields.bioSecondary.value = fields.bioSecondary || "";
+      adminFields.introTagline.value = content.introTagline;
+      adminFields.bioPrimary.value = content.bioPrimary;
+      adminFields.bioSecondary.value = content.bioSecondary;
 
       Object.keys(adminFields.stats).forEach((key) => {
         adminFields.stats[key].value = content.stats[key] || "";
@@ -1436,125 +1332,24 @@
       if (adminStatus) adminStatus.textContent = message;
     };
 
-    const setRemoteStatus = (message) => {
-      if (remoteStatus) remoteStatus.textContent = message;
-    };
-
-    const loadPublishedContent = async () => {
-      const path = settings.remote?.path || defaultSettings().remote.path;
-      if (!path) return;
+    const loadStatsFromApi = async () => {
+      if (content.lockedByAdmin) return; // honor manual overrides
       try {
-        const res = await fetch(path, { cache: "no-store" });
+        const res = await fetch("/api/stats");
         if (!res.ok) return;
-        const payload = await res.json();
-        if (payload.fields) {
-          content.fields = { ...fieldDefaults, ...payload.fields };
-        }
-        if (payload.stats) {
-          content.stats = { ...content.stats, ...payload.stats };
-        }
-        if (payload.lockedByAdmin !== undefined) {
-          content.lockedByAdmin = payload.lockedByAdmin;
-        }
-        saveContent();
-        applyContent();
-        syncAdminForm();
-        updateStatus("Loaded published content.");
-      } catch (err) {
-        console.warn("No published content found", err);
-      }
-    };
 
-    const githubHeaders = () => {
-      const headers = {
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      };
-      if (settings.remote?.token) {
-        headers.Authorization = `Bearer ${settings.remote.token}`;
-      }
-      return headers;
-    };
-
-    const loadFromGithub = async () => {
-      if (!settings.remote?.enabled) return;
-      if (!settings.remote.owner || !settings.remote.repo || !settings.remote.path) {
-        setRemoteStatus("Add owner, repo, and path to load.");
-        return;
-      }
-      try {
-        setRemoteStatus("Loading from GitHub…");
-        const url = `https://api.github.com/repos/${settings.remote.owner}/${settings.remote.repo}/contents/${settings.remote.path}?ref=${settings.remote.branch}`;
-        const res = await fetch(url, { headers: githubHeaders() });
-        if (!res.ok) {
-          setRemoteStatus(`GitHub load failed (${res.status}).`);
-          return;
-        }
         const data = await res.json();
-        settings.remote.lastSha = data.sha || settings.remote.lastSha;
-        const decoded = JSON.parse(atob(data.content));
-        if (decoded.fields) {
-          content.fields = { ...fieldDefaults, ...decoded.fields };
-        }
-        if (decoded.stats) {
-          content.stats = { ...content.stats, ...decoded.stats };
-        }
-        content.lockedByAdmin = true;
-        saveSettings();
-        saveContent();
-        applyContent();
-        syncAdminForm();
-        setRemoteStatus("Loaded remote content.");
-        updateStatus("Loaded content from GitHub.");
-      } catch (err) {
-        console.error("GitHub load error", err);
-        setRemoteStatus("Could not load from GitHub.");
-      }
-    };
-
-    const publishToGithub = async () => {
-      if (!settings.remote?.enabled) {
-        setRemoteStatus("Enable remote saves first.");
-        return;
-      }
-      if (!settings.remote.owner || !settings.remote.repo || !settings.remote.path || !settings.remote.token) {
-        setRemoteStatus("Owner, repo, path, and token are required.");
-        return;
-      }
-
-      const payload = {
-        fields: content.fields,
-        stats: content.stats,
-        lockedByAdmin: true,
-        updatedAt: new Date().toISOString(),
-      };
-
-      try {
-        setRemoteStatus("Publishing to GitHub…");
-        const url = `https://api.github.com/repos/${settings.remote.owner}/${settings.remote.repo}/contents/${settings.remote.path}`;
-        const body = {
-          message: "Update site content via admin panel",
-          content: btoa(JSON.stringify(payload, null, 2)),
-          branch: settings.remote.branch,
-          sha: settings.remote.lastSha || undefined,
+        content.stats = {
+          avg: data.avg || content.stats.avg,
+          obp: data.obp || content.stats.obp,
+          slg: data.slg || content.stats.slg,
+          ops: data.ops || content.stats.ops,
+          fld: data.fld || content.stats.fld,
         };
-        const res = await fetch(url, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", ...githubHeaders() },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) {
-          setRemoteStatus(`Publish failed (${res.status}).`);
-          return;
-        }
-        const data = await res.json();
-        settings.remote.lastSha = data.content?.sha || settings.remote.lastSha;
-        saveSettings();
-        setRemoteStatus("Saved to GitHub. Changes are live once the site rebuilds.");
-        updateStatus("Saved locally and pushed to GitHub.");
+        saveContent();
+        applyContent();
       } catch (err) {
-        console.error("GitHub publish error", err);
-        setRemoteStatus("Could not publish to GitHub.");
+        console.error("Failed to load stats", err);
       }
     };
 
@@ -1562,12 +1357,12 @@
       if (!settings.developerMode) return;
       content = {
         ...content,
-        fields: captureEditableContent(),
-        stats: { ...content.stats, ...captureStats() },
+        introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
+        bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
+        bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
         lockedByAdmin: true,
       };
       saveContent();
-      applyContent();
       updateStatus("Saved inline changes.");
       syncAdminForm();
     };
@@ -1575,8 +1370,6 @@
     // Initial paint
     applySettings(false);
     applyContent();
-    syncAdminForm();
-    loadPublishedContent();
 
     // year in footer
     document.getElementById("year").textContent = new Date().getFullYear();
@@ -1686,38 +1479,15 @@
       applySettings();
     });
 
-    const persistRemoteSettings = () => {
-      settings.remote = {
-        ...settings.remote,
-        enabled: remoteEnabled?.checked || false,
-        owner: remoteOwner?.value.trim() || "",
-        repo: remoteRepo?.value.trim() || "",
-        branch: remoteBranch?.value.trim() || "main",
-        path: remotePath?.value.trim() || "data/site-content.json",
-        token: remoteToken?.value || "",
-      };
-      saveSettings();
-      applySettings(false);
-    };
-
-    [remoteEnabled, remoteOwner, remoteRepo, remoteBranch, remotePath, remoteToken].forEach((input) => {
-      input?.addEventListener("change", persistRemoteSettings);
-      input?.addEventListener("blur", persistRemoteSettings);
-    });
-
     document.querySelectorAll("[data-editable]").forEach((el) => {
       el.addEventListener("blur", handleInlineEdit);
     });
 
     document.getElementById("admin-save")?.addEventListener("click", () => {
       content = {
-        ...content,
-        fields: {
-          ...content.fields,
-          introTagline: normalizeText(adminFields.introTagline.value),
-          bioPrimary: normalizeText(adminFields.bioPrimary.value),
-          bioSecondary: normalizeText(adminFields.bioSecondary.value),
-        },
+        introTagline: normalizeText(adminFields.introTagline.value),
+        bioPrimary: normalizeText(adminFields.bioPrimary.value),
+        bioSecondary: normalizeText(adminFields.bioSecondary.value),
         lockedByAdmin: true,
         stats: {
           avg: normalizeText(adminFields.stats.avg.value),
@@ -1734,7 +1504,6 @@
         fontScale: Number(fontSlider.value),
         reduceMotion: reduceMotionToggle.checked,
         developerMode: devToggle.checked,
-        remote: { ...settings.remote, token: remoteToken?.value || settings.remote.token },
       };
 
       saveContent();
@@ -1754,19 +1523,7 @@
       updateStatus("Reset to defaults for this browser.");
     });
 
-    remoteLoadBtn?.addEventListener("click", () => {
-      persistRemoteSettings();
-      loadFromGithub();
-    });
-
-    remoteSaveBtn?.addEventListener("click", () => {
-      persistRemoteSettings();
-      publishToGithub();
-    });
-
-    if (settings.remote.enabled) {
-      loadFromGithub();
-    }
+    loadStatsFromApi();
   </script>
 </body>
 </html>
