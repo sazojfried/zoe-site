@@ -1212,19 +1212,61 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
 
     const normalizeText = (value) => (value || "").trim().replace(/\s+/g, " ");
 
-    const defaultContent = () => ({
-      introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
-      bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
-      bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
-      lockedByAdmin: false,
-      stats: {
-        avg: normalizeText(document.getElementById("stat-avg").textContent.replace("AVG:", "")),
-        obp: normalizeText(document.getElementById("stat-obp").textContent.replace("OBP:", "")),
-        slg: normalizeText(document.getElementById("stat-slg").textContent.replace("SLG:", "")),
-        ops: normalizeText(document.getElementById("stat-ops").textContent.replace("OPS:", "")),
-        fld: normalizeText(document.getElementById("stat-fld").textContent.replace("Fielding %:", "")),
-      },
+    const defaultContent = () => {
+  const base = {
+    introTagline: normalizeText(
+      document.getElementById("intro-tagline").textContent
+    ),
+    bioPrimary: normalizeText(
+      document.getElementById("bio-primary").textContent
+    ),
+    bioSecondary: normalizeText(
+      document.getElementById("bio-secondary").textContent
+    ),
+    lockedByAdmin: false,
+    stats: {
+      avg: normalizeText(
+        document
+          .getElementById("stat-avg")
+          .textContent.replace("AVG:", "")
+      ),
+      obp: normalizeText(
+        document
+          .getElementById("stat-obp")
+          .textContent.replace("OBP:", "")
+      ),
+      slg: normalizeText(
+        document
+          .getElementById("stat-slg")
+          .textContent.replace("SLG:", "")
+      ),
+      ops: normalizeText(
+        document
+          .getElementById("stat-ops")
+          .textContent.replace("OPS:", "")
+      ),
+      fld: normalizeText(
+        document
+          .getElementById("stat-fld")
+          .textContent.replace("Fielding %:", "")
+      ),
+    },
+    // NEW: generic bag for all the other editable fields
+    fields: {},
+  };
+
+  // Initialize fields for all [data-editable][data-content-key] elements
+  document
+    .querySelectorAll("[data-editable][data-content-key]")
+    .forEach((el) => {
+      const key = el.getAttribute("data-content-key");
+      if (key && !(key in base.fields)) {
+        base.fields[key] = normalizeText(el.textContent);
+      }
     });
+
+  return base;
+};
 
     const getStored = (key, fallbackFactory) => {
       try {
@@ -1315,12 +1357,28 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
       if (persist) saveSettings();
     };
 
+    const applyFieldsFromContent = () => {
+  const fields = (content && content.fields) || {};
+  document
+    .querySelectorAll("[data-editable][data-content-key]")
+    .forEach((el) => {
+      const key = el.getAttribute("data-content-key");
+      if (!key) return;
+      if (Object.prototype.hasOwnProperty.call(fields, key)) {
+        el.textContent = fields[key];
+      }
+    });
+};
     const applyContent = () => {
-      document.getElementById("intro-tagline").textContent = content.introTagline;
-      document.getElementById("bio-primary").textContent = content.bioPrimary;
-      document.getElementById("bio-secondary").textContent = content.bioSecondary;
-      renderStats(content.stats || {});
-    };
+  document.getElementById("intro-tagline").textContent =
+    content.introTagline;
+  document.getElementById("bio-primary").textContent = content.bioPrimary;
+  document.getElementById("bio-secondary").textContent =
+    content.bioSecondary;
+
+  renderStats(content.stats || {});
+  applyFieldsFromContent();
+};
 
     const syncAdminForm = () => {
       if (!adminContent) return;
@@ -1337,40 +1395,68 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
       if (adminStatus) adminStatus.textContent = message;
     };
 
-    const loadStatsFromApi = async () => {
-      if (content.lockedByAdmin) return; // honor manual overrides
-      try {
-        const res = await fetch("/api/stats");
-        if (!res.ok) return;
+   const loadContentFromServer = async () => {
+  if (content.lockedByAdmin) return; // honor manual overrides
+  try {
+    const res = await fetch("/api/content");
+    if (!res.ok) return;
 
-        const data = await res.json();
-        content.stats = {
-          avg: data.avg || content.stats.avg,
-          obp: data.obp || content.stats.obp,
-          slg: data.slg || content.stats.slg,
-          ops: data.ops || content.stats.ops,
-          fld: data.fld || content.stats.fld,
-        };
-        saveContent();
-        applyContent();
-      } catch (err) {
-        console.error("Failed to load stats", err);
-      }
+    const data = await res.json();
+
+    content = {
+      ...content,
+      ...data,
+      stats: {
+        ...(content.stats || {}),
+        ...(data.stats || {}),
+      },
+      fields: {
+        ...(content.fields || {}),
+        ...(data.fields || {}),
+      },
     };
 
-    const handleInlineEdit = () => {
-      if (!settings.developerMode) return;
-      content = {
-        ...content,
-        introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
-        bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
-        bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
-        lockedByAdmin: true,
-      };
-      saveContent();
-      updateStatus("Saved inline changes.");
-      syncAdminForm();
-    };
+    saveContent();
+    applyContent();
+  } catch (err) {
+    console.error("Failed to load content from server", err);
+  }
+};
+
+  const handleInlineEdit = () => {
+  if (!settings.developerMode) return;
+
+  const updatedFields = { ...(content.fields || {}) };
+
+  // Capture all dev-mode editable fields keyed by data-content-key
+  document
+    .querySelectorAll("[data-editable][data-content-key]")
+    .forEach((el) => {
+      const key = el.getAttribute("data-content-key");
+      if (!key) return;
+      updatedFields[key] = normalizeText(el.textContent);
+    });
+
+  content = {
+    ...content,
+    introTagline: normalizeText(
+      document.getElementById("intro-tagline").textContent
+    ),
+    bioPrimary: normalizeText(
+      document.getElementById("bio-primary").textContent
+    ),
+    bioSecondary: normalizeText(
+      document.getElementById("bio-secondary").textContent
+    ),
+    lockedByAdmin: true,
+    fields: updatedFields,
+  };
+
+  saveContent();
+  updateStatus("Saved inline changes.");
+  syncAdminForm();
+};
+    
 async function loadContentFromServer() {
   try {
     const res = await fetch(`${API_BASE}/api/content`);
@@ -1585,34 +1671,36 @@ loadContentFromServer();
     }
 
     document.getElementById("admin-save")?.addEventListener("click", async () => {
-      content = {
-        introTagline: normalizeText(adminFields.introTagline.value),
-        bioPrimary: normalizeText(adminFields.bioPrimary.value),
-        bioSecondary: normalizeText(adminFields.bioSecondary.value),
-        lockedByAdmin: true,
-        stats: {
-          avg: normalizeText(adminFields.stats.avg.value),
-          obp: normalizeText(adminFields.stats.obp.value),
-          slg: normalizeText(adminFields.stats.slg.value),
-          ops: normalizeText(adminFields.stats.ops.value),
-          fld: normalizeText(adminFields.stats.fld.value),
-        },
-      };
+  content = {
+    introTagline: normalizeText(adminFields.introTagline.value),
+    bioPrimary: normalizeText(adminFields.bioPrimary.value),
+    bioSecondary: normalizeText(adminFields.bioSecondary.value),
+    lockedByAdmin: true,
+    stats: {
+      avg: normalizeText(adminFields.stats.avg.value),
+      obp: normalizeText(adminFields.stats.obp.value),
+      slg: normalizeText(adminFields.stats.slg.value),
+      ops: normalizeText(adminFields.stats.ops.value),
+      fld: normalizeText(adminFields.stats.fld.value),
+    },
+    // keep whatever inline edits were done in dev mode
+    fields: content.fields || {},
+  };
 
-      settings = {
-        ...settings,
-        theme: adminThemeSelect.value,
-        fontScale: Number(fontSlider.value),
-        reduceMotion: reduceMotionToggle.checked,
-        developerMode: devToggle.checked,
-      };
+  settings = {
+    ...settings,
+    theme: adminThemeSelect.value,
+    fontScale: Number(fontSlider.value),
+    reduceMotion: reduceMotionToggle.checked,
+    developerMode: devToggle.checked,
+  };
 
-      saveContent();
-      applyContent();
-      applySettings();
-      updateStatus("Saving to server...");
-      await pushContentToServer();
-    });
+  saveContent();
+  applyContent();
+  applySettings();
+  updateStatus("Saving to server...");
+  await pushContentToServer();
+});
 
     document.getElementById("admin-reset")?.addEventListener("click", () => {
       localStorage.removeItem(STORAGE_KEYS.content);
@@ -1625,7 +1713,7 @@ loadContentFromServer();
       updateStatus("Reset to defaults for this browser.");
     });
 
-    loadStatsFromApi();
+    loadContentFromServer();
   </script>
 </body>
 </html>
