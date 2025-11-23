@@ -1191,12 +1191,7 @@
   <script>
     const body = document.body;
     const root = document.documentElement;
-    
-// --- Cloudflare Worker Backend ---
-const API_BASE = ""; // same origin (zoefriedman.com)
-const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
 
-    
     const STORAGE_KEYS = {
       settings: "zoe-settings",
       content: "zoe-content",
@@ -1212,61 +1207,19 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
 
     const normalizeText = (value) => (value || "").trim().replace(/\s+/g, " ");
 
-    const defaultContent = () => {
-  const base = {
-    introTagline: normalizeText(
-      document.getElementById("intro-tagline").textContent
-    ),
-    bioPrimary: normalizeText(
-      document.getElementById("bio-primary").textContent
-    ),
-    bioSecondary: normalizeText(
-      document.getElementById("bio-secondary").textContent
-    ),
-    lockedByAdmin: false,
-    stats: {
-      avg: normalizeText(
-        document
-          .getElementById("stat-avg")
-          .textContent.replace("AVG:", "")
-      ),
-      obp: normalizeText(
-        document
-          .getElementById("stat-obp")
-          .textContent.replace("OBP:", "")
-      ),
-      slg: normalizeText(
-        document
-          .getElementById("stat-slg")
-          .textContent.replace("SLG:", "")
-      ),
-      ops: normalizeText(
-        document
-          .getElementById("stat-ops")
-          .textContent.replace("OPS:", "")
-      ),
-      fld: normalizeText(
-        document
-          .getElementById("stat-fld")
-          .textContent.replace("Fielding %:", "")
-      ),
-    },
-    // NEW: generic bag for all the other editable fields
-    fields: {},
-  };
-
-  // Initialize fields for all [data-editable][data-content-key] elements
-  document
-    .querySelectorAll("[data-editable][data-content-key]")
-    .forEach((el) => {
-      const key = el.getAttribute("data-content-key");
-      if (key && !(key in base.fields)) {
-        base.fields[key] = normalizeText(el.textContent);
-      }
+    const defaultContent = () => ({
+      introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
+      bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
+      bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
+      lockedByAdmin: false,
+      stats: {
+        avg: normalizeText(document.getElementById("stat-avg").textContent.replace("AVG:", "")),
+        obp: normalizeText(document.getElementById("stat-obp").textContent.replace("OBP:", "")),
+        slg: normalizeText(document.getElementById("stat-slg").textContent.replace("SLG:", "")),
+        ops: normalizeText(document.getElementById("stat-ops").textContent.replace("OPS:", "")),
+        fld: normalizeText(document.getElementById("stat-fld").textContent.replace("Fielding %:", "")),
+      },
     });
-
-  return base;
-};
 
     const getStored = (key, fallbackFactory) => {
       try {
@@ -1357,28 +1310,12 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
       if (persist) saveSettings();
     };
 
-    const applyFieldsFromContent = () => {
-  const fields = (content && content.fields) || {};
-  document
-    .querySelectorAll("[data-editable][data-content-key]")
-    .forEach((el) => {
-      const key = el.getAttribute("data-content-key");
-      if (!key) return;
-      if (Object.prototype.hasOwnProperty.call(fields, key)) {
-        el.textContent = fields[key];
-      }
-    });
-};
     const applyContent = () => {
-  document.getElementById("intro-tagline").textContent =
-    content.introTagline;
-  document.getElementById("bio-primary").textContent = content.bioPrimary;
-  document.getElementById("bio-secondary").textContent =
-    content.bioSecondary;
-
-  renderStats(content.stats || {});
-  applyFieldsFromContent();
-};
+      document.getElementById("intro-tagline").textContent = content.introTagline;
+      document.getElementById("bio-primary").textContent = content.bioPrimary;
+      document.getElementById("bio-secondary").textContent = content.bioSecondary;
+      renderStats(content.stats || {});
+    };
 
     const syncAdminForm = () => {
       if (!adminContent) return;
@@ -1395,118 +1332,44 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
       if (adminStatus) adminStatus.textContent = message;
     };
 
-   const loadContentFromServer = async () => {
-  if (content.lockedByAdmin) return; // honor manual overrides
-  try {
-    const res = await fetch("/api/content");
-    if (!res.ok) return;
+    const loadStatsFromApi = async () => {
+      if (content.lockedByAdmin) return; // honor manual overrides
+      try {
+        const res = await fetch("/api/stats");
+        if (!res.ok) return;
 
-    const data = await res.json();
-
-    content = {
-      ...content,
-      ...data,
-      stats: {
-        ...(content.stats || {}),
-        ...(data.stats || {}),
-      },
-      fields: {
-        ...(content.fields || {}),
-        ...(data.fields || {}),
-      },
+        const data = await res.json();
+        content.stats = {
+          avg: data.avg || content.stats.avg,
+          obp: data.obp || content.stats.obp,
+          slg: data.slg || content.stats.slg,
+          ops: data.ops || content.stats.ops,
+          fld: data.fld || content.stats.fld,
+        };
+        saveContent();
+        applyContent();
+      } catch (err) {
+        console.error("Failed to load stats", err);
+      }
     };
 
-    saveContent();
-    applyContent();
-  } catch (err) {
-    console.error("Failed to load content from server", err);
-  }
-};
+    const handleInlineEdit = () => {
+      if (!settings.developerMode) return;
+      content = {
+        ...content,
+        introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
+        bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
+        bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
+        lockedByAdmin: true,
+      };
+      saveContent();
+      updateStatus("Saved inline changes.");
+      syncAdminForm();
+    };
 
-  const handleInlineEdit = () => {
-  if (!settings.developerMode) return;
-
-  const updatedFields = { ...(content.fields || {}) };
-
-  // Capture all dev-mode editable fields keyed by data-content-key
-  document
-    .querySelectorAll("[data-editable][data-content-key]")
-    .forEach((el) => {
-      const key = el.getAttribute("data-content-key");
-      if (!key) return;
-      updatedFields[key] = normalizeText(el.textContent);
-    });
-
-  content = {
-    ...content,
-    introTagline: normalizeText(
-      document.getElementById("intro-tagline").textContent
-    ),
-    bioPrimary: normalizeText(
-      document.getElementById("bio-primary").textContent
-    ),
-    bioSecondary: normalizeText(
-      document.getElementById("bio-secondary").textContent
-    ),
-    lockedByAdmin: true,
-    fields: updatedFields,
-  };
-
-  saveContent();
-  updateStatus("Saved inline changes.");
-  syncAdminForm();
-};
-    
-async function loadContentFromServer() {
-  try {
-    const res = await fetch(`${API_BASE}/api/content`);
-    if (!res.ok) {
-      console.warn("Server content fetch failed, keeping local content");
-      return;
-    }
-
-    const data = await res.json();
-    content = { ...content, ...data };
-
-    saveContent();
-    applyContent();
-    syncAdminForm();
-    updateStatus("Loaded latest content from server.");
-  } catch (e) {
-    console.error("Failed loading server content:", e);
-  }
-}
-async function pushContentToServer() {
-  try {
-    const res = await fetch(`${API_BASE}/api/content`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${ADMIN_PASSWORD}`,
-      },
-      body: JSON.stringify(content),
-    });
-
-    if (!res.ok) {
-      console.error("Server update failed", await res.text());
-      updateStatus("Saved locally, but server update failed.");
-      return;
-    }
-
-    updateStatus("Saved to server successfully.");
-  } catch (e) {
-    console.error("Network error updating server", e);
-    updateStatus("Saved locally, but server update failed.");
-  }
-}
-
-    
     // Initial paint
     applySettings(false);
     applyContent();
-    // Load latest content from Worker (KV)
-loadContentFromServer();
-
 
     // year in footer
     document.getElementById("year").textContent = new Date().getFullYear();
@@ -1558,48 +1421,33 @@ loadContentFromServer();
 
     document.querySelectorAll(".fade-in").forEach((el) => observer.observe(el));
 
-        // Admin panel controls
-    const ADMIN_PASSWORD_KEY = "zoe-admin-pass";
-
+    // Admin panel controls
     const setAdminOpen = (open) => {
       if (!adminPanel) return;
       adminPanel.classList.toggle("open", open);
     };
 
-    const unlockAdmin = (storedPass = "") => {
+    const unlockAdmin = () => {
       sessionStorage.setItem(STORAGE_KEYS.adminSession, "true");
-      if (storedPass) {
-        sessionStorage.setItem(ADMIN_PASSWORD_KEY, storedPass);
-      }
       adminLocked.style.display = "none";
       adminContent.style.display = "block";
       syncAdminForm();
       updateStatus("Admin unlocked. Editing is live in this browser.");
     };
 
-    const isAdminUnlocked = () =>
-      sessionStorage.getItem(STORAGE_KEYS.adminSession) === "true";
+    const isAdminUnlocked = () => sessionStorage.getItem(STORAGE_KEYS.adminSession) === "true";
 
     adminLauncher?.addEventListener("click", () => setAdminOpen(true));
     adminClose?.addEventListener("click", () => setAdminOpen(false));
 
-    // Restore previous admin session + password if present
     if (isAdminUnlocked()) {
-      const savedPass = sessionStorage.getItem(ADMIN_PASSWORD_KEY) || "";
-      unlockAdmin(savedPass);
+      unlockAdmin();
     }
 
     adminAuthBtn?.addEventListener("click", () => {
       const pass = adminPassword.value.trim();
-      if (!pass) {
-        updateStatus("Please enter a password.");
-        return;
-      }
-
-      // NOTE: this must match the secret ADMIN_PASSWORD in your Worker
       if (pass === "zoe-admin") {
-        sessionStorage.setItem(ADMIN_PASSWORD_KEY, pass);
-        unlockAdmin(pass);
+        unlockAdmin();
       } else {
         updateStatus("Incorrect password. Try again.");
       }
@@ -1635,72 +1483,34 @@ loadContentFromServer();
       el.addEventListener("blur", handleInlineEdit);
     });
 
-    // Push current `content` object to the Worker KV via /api/content
-    async function pushContentToServer() {
-      const storedPass =
-        sessionStorage.getItem(ADMIN_PASSWORD_KEY) ||
-        (adminPassword.value || "").trim();
+    document.getElementById("admin-save")?.addEventListener("click", () => {
+      content = {
+        introTagline: normalizeText(adminFields.introTagline.value),
+        bioPrimary: normalizeText(adminFields.bioPrimary.value),
+        bioSecondary: normalizeText(adminFields.bioSecondary.value),
+        lockedByAdmin: true,
+        stats: {
+          avg: normalizeText(adminFields.stats.avg.value),
+          obp: normalizeText(adminFields.stats.obp.value),
+          slg: normalizeText(adminFields.stats.slg.value),
+          ops: normalizeText(adminFields.stats.ops.value),
+          fld: normalizeText(adminFields.stats.fld.value),
+        },
+      };
 
-      if (!storedPass) {
-        updateStatus(
-          "Saved locally, but missing admin password for server save."
-        );
-        return;
-      }
+      settings = {
+        ...settings,
+        theme: adminThemeSelect.value,
+        fontScale: Number(fontSlider.value),
+        reduceMotion: reduceMotionToggle.checked,
+        developerMode: devToggle.checked,
+      };
 
-      try {
-        const res = await fetch("/api/content", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // Must match expected `Bearer ${env.ADMIN_PASSWORD}` in the Worker
-            Authorization: `Bearer ${storedPass}`,
-          },
-          body: JSON.stringify(content),
-        });
-
-        if (!res.ok) {
-          throw new Error("Server responded " + res.status);
-        }
-
-        updateStatus("Saved locally and on server.");
-      } catch (err) {
-        console.error("pushContentToServer failed", err);
-        updateStatus("Saved locally, but server update failed.");
-      }
-    }
-
-    document.getElementById("admin-save")?.addEventListener("click", async () => {
-  content = {
-    introTagline: normalizeText(adminFields.introTagline.value),
-    bioPrimary: normalizeText(adminFields.bioPrimary.value),
-    bioSecondary: normalizeText(adminFields.bioSecondary.value),
-    lockedByAdmin: true,
-    stats: {
-      avg: normalizeText(adminFields.stats.avg.value),
-      obp: normalizeText(adminFields.stats.obp.value),
-      slg: normalizeText(adminFields.stats.slg.value),
-      ops: normalizeText(adminFields.stats.ops.value),
-      fld: normalizeText(adminFields.stats.fld.value),
-    },
-    // keep whatever inline edits were done in dev mode
-    fields: content.fields || {},
-  };
-
-  settings = {
-    ...settings,
-    theme: adminThemeSelect.value,
-    fontScale: Number(fontSlider.value),
-    reduceMotion: reduceMotionToggle.checked,
-    developerMode: devToggle.checked,
-  };
-
-  saveContent();
-  applyContent();
-  applySettings();
-  updateStatus("Saving to server...");
-  await pushContentToServer();
-});
+      saveContent();
+      applyContent();
+      applySettings();
+      updateStatus("Saved to localStorage.");
+    });
 
     document.getElementById("admin-reset")?.addEventListener("click", () => {
       localStorage.removeItem(STORAGE_KEYS.content);
@@ -1713,7 +1523,7 @@ loadContentFromServer();
       updateStatus("Reset to defaults for this browser.");
     });
 
-    loadContentFromServer();
+    loadStatsFromApi();
   </script>
 </body>
 </html>
