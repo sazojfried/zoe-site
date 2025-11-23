@@ -56,22 +56,1230 @@
   "description": "Haverford College Economics student and varsity softball athlete."
 }
   </script>
-    // =========================
-    // Core DOM references
-    // =========================
+
+  <style>
+    :root {
+      --red: #b31b1b;              /* Haverford-ish red */
+      --red-soft: #f97373;
+      --bg-page: #f4f5f7;
+      --bg-elevated: #ffffff;
+      --bg-card: #ffffff;
+      --border-subtle: #e2e4ea;
+      --text-main: #141414;
+      --text-muted: #666a73;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.14);
+      --font-scale: 1;
+    }
+
+    /* Dark theme overrides */
+    body.theme-dark {
+      --bg-page: #050509;
+      --bg-elevated: rgba(5, 5, 9, 0.96);
+      --bg-card: #11121a;
+      --border-subtle: #26283a;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3b4;
+      --shadow-soft: 0 22px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    body.reduce-motion *,
+    body.reduce-motion *::before,
+    body.reduce-motion *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    body.reduce-motion .hero {
+      background-attachment: scroll;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      font-size: calc(16px * var(--font-scale));
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Top nav */
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .nav-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .logo-block {
+      text-align: left;
+      font-size: calc(var(--font-scale) * 13px);
+      line-height: 1.2;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .logo-name {
+      font-size: calc(var(--font-scale) * 18px);
+      letter-spacing: 0.18em;
+    }
+
+    .logo-sub {
+      font-size: calc(var(--font-scale) * 11px);
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      font-size: calc(var(--font-scale) * 13px);
+      align-items: center;
+    }
+
+    .nav-links a {
+      position: relative;
+      padding-bottom: 4px;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a.active,
+    .nav-links a:hover {
+      color: var(--red-soft);
+    }
+
+    .nav-links a.active::after,
+    .nav-links a:hover::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: 0 auto;
+      width: 80%;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--red-soft);
+    }
+
+    /* Theme toggle button */
+
+    .theme-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      font-size: calc(var(--font-scale) * 11px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease,
+        border-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(179, 27, 27, 0.09);
+      color: var(--text-main);
+      border-color: var(--red-soft);
+      transform: translateY(-1px);
+    }
+
+    /* Hamburger */
+
+    .nav-toggle {
+      display: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--text-muted);
+      transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+    }
+
+    .nav-toggle span + span {
+      margin-top: 3px;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+    }
+
+    body.nav-open .nav-toggle span:nth-child(2) {
+      opacity: 0;
+    }
+
+    body.nav-open .nav-toggle span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+    }
+
+    @media (max-width: 780px) {
+      .nav-inner {
+        align-items: center;
+      }
+
+      .nav-right {
+        gap: 8px;
+      }
+
+      .nav-links {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: 10px 18px 12px;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        font-size: calc(var(--font-scale) * 13px);
+      }
+
+      body.nav-open .nav-links {
+        display: flex;
+      }
+
+      .theme-toggle {
+        font-size: calc(var(--font-scale) * 10px);
+        padding: 5px 10px;
+      }
+
+      .nav-toggle {
+        display: inline-flex;
+      }
+    }
+
+    /* Admin & developer controls */
+
+    .admin-launcher {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 30;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      font-size: calc(var(--font-scale) * 12px);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      transition: transform 0.15s ease, box-shadow 0.2s ease,
+        background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .admin-launcher:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+      border-color: var(--red-soft);
+    }
+
+    .admin-panel {
+      position: fixed;
+      right: 18px;
+      bottom: 68px;
+      width: min(420px, calc(100% - 24px));
+      max-height: 80vh;
+      overflow: auto;
+      z-index: 40;
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+      display: none;
+      padding: 16px;
+    }
+
+    .admin-panel.open {
+      display: block;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .admin-title {
+      font-size: calc(var(--font-scale) * 14px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .admin-close {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: calc(var(--font-scale) * 16px);
+    }
+
+    .admin-section {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .admin-section h4 {
+      font-size: calc(var(--font-scale) * 13px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .admin-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: calc(var(--font-scale) * 12px);
+    }
+
+    .admin-row label {
+      flex: 1;
+      color: var(--text-muted);
+    }
+
+    .admin-row input[type="text"],
+    .admin-row input[type="number"],
+    .admin-row input[type="password"],
+    .admin-row textarea,
+    .admin-row select {
+      flex: 1.1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: calc(var(--font-scale) * 12px);
+    }
+
+    .admin-row textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .admin-row input[type="range"] {
+      flex: 1.2;
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .admin-button {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      cursor: pointer;
+      font-size: calc(var(--font-scale) * 12px);
+      color: var(--text-main);
+    }
+
+    .admin-button.primary {
+      background: var(--red-soft);
+      border-color: var(--red-soft);
+      color: #fff;
+    }
+
+    .admin-alert {
+      font-size: calc(var(--font-scale) * 12px);
+      color: var(--text-muted);
+      margin: 6px 0 0;
+    }
+
+    .dev-pill {
+      display: none;
+      margin-left: 10px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(179, 27, 27, 0.12);
+      color: var(--red);
+      font-size: calc(var(--font-scale) * 11px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    body.developer-mode .dev-pill,
+    body.developer-mode [data-dev-only] {
+      display: inline-flex;
+    }
+
+    [data-dev-only] {
+      display: none;
+      gap: 6px;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: calc(var(--font-scale) * 11px);
+      margin-top: 6px;
+    }
+
+    body.developer-mode [data-editable] {
+      outline: 1px dashed var(--red-soft);
+      outline-offset: 4px;
+    }
+
+    /* HERO – fixed background image */
+
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      min-height: 340px;
+      overflow: visible;
+      border-bottom: 1px solid var(--border-subtle);
+      background-image:
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.45)),
+        url("images/zoe-softball.jpg");
+      background-size: cover;
+      background-position: center 40%;
+      background-attachment: fixed;
+    }
+
+    /* Main content */
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 18px 40px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-subtle);
+      transition: background-color 0.25s ease, border-color 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    /* Intro stats card that overlaps hero */
+
+    .intro-card-wrapper {
+      margin-top: -40px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .intro-card-wrapper::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      left: 0;
+      right: 0;
+      height: 160px;
+      background: linear-gradient(
+        180deg,
+        rgba(244, 245, 247, 0) 0%,
+        rgba(244, 245, 247, 1) 90%
+      );
+      z-index: -1;
+    }
+
+    body.theme-dark .intro-card-wrapper::before {
+      background: linear-gradient(
+        180deg,
+        rgba(5, 5, 9, 0) 0%,
+        rgba(5, 5, 9, 1) 90%
+      );
+    }
+
+    .intro-card {
+      padding: 30px 26px 26px;
+    }
+
+    .intro-heading {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .intro-heading h1 {
+      font-size: calc(var(--font-scale) * 22px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .intro-heading p {
+      font-size: calc(var(--font-scale) * 13px);
+      color: var(--text-muted);
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+      font-size: calc(var(--font-scale) * 13px);
+    }
+
+    @media (max-width: 780px) {
+      .intro-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .intro-block {
+      text-align: center;
+      padding: 10px 6px;
+    }
+
+    .intro-label {
+      font-size: calc(var(--font-scale) * 11px);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .intro-value {
+      font-size: calc(var(--font-scale) * 16px);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .intro-sub {
+      font-size: calc(var(--font-scale) * 12px);
+      color: var(--text-muted);
+    }
+
+    /* Sections */
+
+    section {
+      margin-bottom: 24px;
+    }
+
+    .section-card {
+      padding: 22px 22px 24px;
+    }
+
+    .section-title {
+      font-size: calc(var(--font-scale) * 16px);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: var(--red-soft);
+    }
+
+    .section-title span {
+      border-bottom: 2px solid var(--red-soft);
+      padding-bottom: 3px;
+    }
+
+    .section-body {
+      font-size: calc(var(--font-scale) * 14px);
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+
+    .section-body .spaced {
+      margin-top: 10px;
+      display: block;
+    }
+
+    /* About layout with headshot */
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 780px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .about-photo {
+      text-align: center;
+    }
+
+    .about-photo-inner {
+      display: inline-block;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 3px solid var(--red);
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    body.theme-dark .about-photo-inner {
+      box-shadow: 0 16px 30px rgba(0, 0, 0, 0.85);
+    }
+
+    .about-photo img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 260px;
+      object-fit: cover;
+    }
+
+    .about-caption {
+      font-size: calc(var(--font-scale) * 12px);
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* Experience timeline */
+
+    .timeline {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: calc(var(--font-scale) * 13px);
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .timeline-badge {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--red-soft);
+      margin-top: 5px;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 4px rgba(179, 27, 27, 0.2);
+    }
+
+    .timeline-role {
+      font-weight: 600;
+    }
+
+    .timeline-meta {
+      color: var(--text-muted);
+      font-size: calc(var(--font-scale) * 12px);
+      margin-top: 2px;
+    }
+
+    /* Skills as pills */
+
+    .pill-row {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      font-size: calc(var(--font-scale) * 12px);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d6d8e0;
+      background: #f8f9fc;
+      color: #333746;
+    }
+
+    body.theme-dark .pill {
+      border-color: #3b3f58;
+      background: #181a27;
+      color: #e5e7f5;
+    }
+
+    /* Contact */
+
+    .contact-links {
+      margin-top: 8px;
+      font-size: calc(var(--font-scale) * 14px);
+    }
+
+    .contact-links a {
+      color: var(--red-soft);
+      font-weight: 500;
+    }
+
+    .contact-links a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: calc(var(--font-scale) * 11px);
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    /* Fade-in animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-in.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---------- Mobile tweaks (iPhone friendly) ---------- */
+    @media (max-width: 768px) {
+      .logo-name {
+        font-size: calc(var(--font-scale) * 16px);
+        letter-spacing: 0.14em;
+      }
+
+      .logo-sub {
+        font-size: calc(var(--font-scale) * 10px);
+      }
+
+      .intro-card-wrapper {
+        margin-top: -30px;
+      }
+
+      .intro-heading h1 {
+        font-size: calc(var(--font-scale) * 18px);
+      }
+
+      .section-card {
+        padding: 18px 16px 20px;
+      }
+
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .about-photo img {
+        max-width: 220px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        font-size: calc(14px * var(--font-scale));
+      }
+
+      .page {
+        padding: 0 14px 32px;
+      }
+    }
+
+    /* ---------- iPhone Hero Fix ---------- */
+    @media (max-width: 780px) {
+      .hero {
+        height: 45vh !important;
+        min-height: 240px !important;
+        background-attachment: scroll !important;
+        background-position: center top !important;
+        background-size: cover !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero {
+        height: 38vh !important;
+        min-height: 200px !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="theme-dark">
+  <!-- NAV -->
+  <header>
+    <div class="nav-inner">
+      <div class="logo-block">
+        <div class="logo-name" data-editable data-content-key="logoName">ZOE FRIEDMAN</div>
+        <div class="logo-sub" data-editable data-content-key="logoSub">Economics · Softball · Community</div>
+      </div>
+
+      <div class="nav-right">
+        <nav class="nav-links">
+          <a href="#home" class="active" data-editable data-content-key="navHome">Home</a>
+          <a href="#stats" data-editable data-content-key="navStats">Stats</a>
+          <a href="#experience" data-editable data-content-key="navExperience">Experience</a>
+          <a href="#contact" data-editable data-content-key="navContact">Contact</a>
+          <a href="gallery.html" data-editable data-content-key="navGallery">Gallery</a>
+          <a href="projects.html" data-editable data-content-key="navProjects">Projects</a>
+        </nav>
+
+        <button id="theme-toggle" class="theme-toggle" type="button">
+          Light mode
+        </button>
+
+        <span class="dev-pill">DEV MODE</span>
+
+        <button id="nav-toggle" class="nav-toggle" type="button" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO IMAGE (fixed background) -->
+  <section class="hero" id="home" aria-label="Zoe Friedman in softball action"></section>
+
+  <main class="page">
+    <!-- INTRO CARD -->
+    <div class="intro-card-wrapper fade-in">
+      <div class="card intro-card">
+        <div class="intro-heading">
+          <h1>ZOE FRIEDMAN</h1>
+          <p id="intro-tagline" data-editable>
+            Haverford College Economics student &amp; varsity softball athlete
+          </p>
+        </div>
+        <div class="intro-grid">
+          <div class="intro-block">
+            <div class="intro-label" data-editable data-content-key="introLabelSchool">School</div>
+            <div class="intro-value" data-editable data-content-key="introValueSchool">Haverford College</div>
+            <div class="intro-sub" data-editable data-content-key="introSubSchool">B.S. Economics · Class of 2029</div>
+          </div>
+          <div class="intro-block">
+            <div class="intro-label" data-editable data-content-key="introLabelField">On the field</div>
+            <div class="intro-value" data-editable data-content-key="introValueField">Varsity Softball</div>
+            <div class="intro-sub" data-editable data-content-key="introSubField">Competitive, team-first mindset</div>
+          </div>
+          <div class="intro-block">
+            <div class="intro-label" data-editable data-content-key="introLabelOffField">Off the field</div>
+            <div class="intro-value" data-editable data-content-key="introValueOffField">Founder &amp; Leader</div>
+            <div class="intro-sub" data-editable data-content-key="introSubOffField">Finance &amp; community-driven initiatives</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <section id="about" class="fade-in">
+      <div class="card section-card">
+        <div class="section-title"><span data-editable data-content-key="aboutTitle">About</span></div>
+        <div class="about-grid">
+          <div class="section-body">
+            <p id="bio-primary" data-editable>
+              Zoe Friedman is an <strong>Economics student at Haverford College</strong>
+              passionate about leadership, women’s empowerment, and community-driven work.
+              She blends analytical thinking with hands-on involvement across finance,
+              nonprofit outreach, and athletics.
+            </p>
+            <p id="bio-secondary" class="spaced" data-editable>
+              On campus, Zoe channels the same competitiveness she brings to
+              the softball field into the classroom and new initiatives—from founding
+              student organizations to supporting local and national nonprofits.
+              She leads with empathy, teamwork, and a focus on giving others
+              opportunities to grow.
+            </p>
+          </div>
+          <div class="about-photo">
+            <div class="about-photo-inner">
+              <img src="images/zoe-headshot.jpeg" alt="Headshot of Zoe Friedman" />
+            </div>
+            <div class="about-caption" data-editable data-content-key="aboutCaption">
+              Zoe Friedman · Haverford College · Economics &amp; Softball
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section id="stats" class="fade-in">
+      <div class="card section-card">
+        <div class="section-title"><span data-editable data-content-key="statsTitle">Softball Stats</span></div>
+        <div class="section-body">
+          <p data-editable data-content-key="statsIntro">Key performance stats (current season):</p>
+          <div class="pill-row" style="margin-top: 14px;">
+            <span class="pill" id="stat-avg">
+              <span class="pill-label" data-editable data-content-key="statLabelAvg">AVG:</span>
+              <span class="pill-value" data-editable data-stat-key="avg">.000</span>
+            </span>
+            <span class="pill" id="stat-obp">
+              <span class="pill-label" data-editable data-content-key="statLabelObp">OBP:</span>
+              <span class="pill-value" data-editable data-stat-key="obp">.000</span>
+            </span>
+            <span class="pill" id="stat-slg">
+              <span class="pill-label" data-editable data-content-key="statLabelSlg">SLG:</span>
+              <span class="pill-value" data-editable data-stat-key="slg">.000</span>
+            </span>
+            <span class="pill" id="stat-ops">
+              <span class="pill-label" data-editable data-content-key="statLabelOps">OPS:</span>
+              <span class="pill-value" data-editable data-stat-key="ops">.000</span>
+            </span>
+            <span class="pill" id="stat-fld">
+              <span class="pill-label" data-editable data-content-key="statLabelFld">Fielding %:</span>
+              <span class="pill-value" data-editable data-stat-key="fld">.000</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="fade-in">
+      <div class="card section-card">
+        <div class="section-title"><span data-editable data-content-key="experienceTitle">Experience</span></div>
+        <div class="section-body">
+          <p data-editable data-content-key="experienceIntro">Selected roles that highlight Zoe’s leadership and community focus:</p>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-badge"></div>
+              <div>
+                <div class="timeline-role" data-editable data-content-key="timelineRole1">
+                  Student Ambassador — Strong Girls United Women
+                </div>
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta1">
+                  Remote · Sep 2025 – Present · Part-time
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-badge"></div>
+              <div>
+                <div class="timeline-role" data-editable data-content-key="timelineRole2">
+                  Founder — Haverford Private Equity &amp; Venture Capital
+                </div>
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta2">
+                  Haverford, Pennsylvania · Sep 2025 – Present · Student leadership
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-badge"></div>
+              <div>
+                <div class="timeline-role" data-editable data-content-key="timelineRole3">
+                  Member — Haverford Finance Initiative
+                </div>
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta3">
+                  Haverford, Pennsylvania · Aug 2025 – Present · On-site
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-badge"></div>
+              <div>
+                <div class="timeline-role" data-editable data-content-key="timelineRole4">
+                  Softball Division Manager — West Side Sports
+                </div>
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta4">
+                  New York, New York · Jun 2025 – Aug 2025 · Part-time
+                </div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-badge"></div>
+              <div>
+                <div class="timeline-role" data-editable data-content-key="timelineRole5">
+                  Youth Advisory Council Member — Ronald McDonald House New York
+                </div>
+                <div class="timeline-meta" data-editable data-content-key="timelineMeta5">
+                  New York, New York · Sep 2024 – May 2025 · On-site
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HIGHLIGHTS (still on page, not in nav) -->
+    <section id="skills" class="fade-in">
+      <div class="card section-card">
+        <div class="section-title"><span data-editable data-content-key="highlightsTitle">Highlights</span></div>
+        <div class="section-body">
+          <p data-editable data-content-key="highlightsIntro">
+            A snapshot of the skills and strengths Zoe brings to her work on and off the field:
+          </p>
+          <div class="pill-row">
+            <span class="pill" data-editable data-content-key="highlight1">Leadership</span>
+            <span class="pill" data-editable data-content-key="highlight2">Team Building</span>
+            <span class="pill" data-editable data-content-key="highlight3">Community Outreach</span>
+            <span class="pill" data-editable data-content-key="highlight4">Youth Advocacy</span>
+            <span class="pill" data-editable data-content-key="highlight5">Finance &amp; Investing</span>
+            <span class="pill" data-editable data-content-key="highlight6">Project Coordination</span>
+            <span class="pill" data-editable data-content-key="highlight7">Writing &amp; Communications</span>
+            <span class="pill" data-editable data-content-key="highlight8">Varsity Softball</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="fade-in">
+      <div class="card section-card">
+        <div class="section-title"><span data-editable data-content-key="contactTitle">Contact</span></div>
+        <div class="section-body">
+          <p data-editable data-content-key="contactIntro">
+            For opportunities, collaborations, or questions, feel free to reach out.
+            Zoe is always excited to connect with people who care about leadership,
+            finance, and community impact.
+          </p>
+          <div class="contact-links">
+            <p><span data-editable data-content-key="contactEmailLabel">Email:</span>
+              <a href="mailto:Zfriedman@haverford.edu" data-editable data-content-key="contactEmail">Zfriedman@haverford.edu</a>
+            </p>
+            <p><span data-editable data-content-key="contactLinkedInLabel">LinkedIn:</span>
+              <a href="https://www.linkedin.com/in/zoe-f-329304378/" target="_blank" rel="noopener">
+                <span data-editable data-content-key="contactLinkedIn">linkedin.com/in/zoe-f-329304378</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button class="admin-launcher" id="admin-launcher" type="button">Admin</button>
+
+  <div class="admin-panel" id="admin-panel" aria-live="polite">
+    <div class="admin-header">
+      <div class="admin-title">Site Admin</div>
+      <button class="admin-close" id="admin-close" type="button" aria-label="Close admin">×</button>
+    </div>
+
+    <div id="admin-locked">
+      <div class="admin-row">
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" placeholder="Enter admin password" />
+      </div>
+      <div class="admin-actions">
+        <button class="admin-button primary" id="admin-auth-btn" type="button">Unlock</button>
+      </div>
+      <div class="admin-alert">Client-side lock for quick edits. Default password: "zoe-admin".</div>
+    </div>
+
+    <div id="admin-content" style="display: none;">
+      <div class="admin-section">
+        <h4>Display</h4>
+        <div class="admin-row">
+          <label for="admin-theme">Theme</label>
+          <select id="admin-theme">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+        <div class="admin-row">
+          <label for="font-scale-control">Font size</label>
+          <input id="font-scale-control" type="range" min="0.9" max="1.2" step="0.05" />
+        </div>
+        <div class="admin-row">
+          <label for="reduce-motion-toggle">Reduce motion</label>
+          <input id="reduce-motion-toggle" type="checkbox" />
+        </div>
+        <div class="admin-row">
+          <label for="developer-mode-toggle">Developer mode</label>
+          <input id="developer-mode-toggle" type="checkbox" />
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h4>Bio & intro</h4>
+        <div class="admin-row">
+          <label for="admin-intro-tagline">Tagline</label>
+          <textarea id="admin-intro-tagline"></textarea>
+        </div>
+        <div class="admin-row">
+          <label for="admin-bio-primary">Bio paragraph 1</label>
+          <textarea id="admin-bio-primary"></textarea>
+        </div>
+        <div class="admin-row">
+          <label for="admin-bio-secondary">Bio paragraph 2</label>
+          <textarea id="admin-bio-secondary"></textarea>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h4>Softball stats</h4>
+        <div class="admin-row">
+          <label for="admin-stat-avg">AVG</label>
+          <input id="admin-stat-avg" type="text" />
+        </div>
+        <div class="admin-row">
+          <label for="admin-stat-obp">OBP</label>
+          <input id="admin-stat-obp" type="text" />
+        </div>
+        <div class="admin-row">
+          <label for="admin-stat-slg">SLG</label>
+          <input id="admin-stat-slg" type="text" />
+        </div>
+        <div class="admin-row">
+          <label for="admin-stat-ops">OPS</label>
+          <input id="admin-stat-ops" type="text" />
+        </div>
+        <div class="admin-row">
+          <label for="admin-stat-fld">Fielding %</label>
+          <input id="admin-stat-fld" type="text" />
+        </div>
+      </div>
+
+      <div class="admin-actions">
+        <button class="admin-button primary" id="admin-save" type="button">Save changes</button>
+        <button class="admin-button" id="admin-reset" type="button">Reset to defaults</button>
+      </div>
+
+      <div class="admin-alert" id="admin-status">Changes saved locally in your browser.</div>
+      <div data-dev-only>
+        <strong>Developer view:</strong>
+        <span id="dev-state"></span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © <span id="year"></span> Zoe Friedman. All rights reserved.
+  </footer>
+
+  <script>
     const body = document.body;
     const root = document.documentElement;
+    
+// --- Cloudflare Worker Backend ---
+const API_BASE = ""; // same origin (zoefriedman.com)
+const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
 
+    
     const STORAGE_KEYS = {
       settings: "zoe-settings",
       content: "zoe-content",
       adminSession: "zoe-admin-session",
     };
 
-    // This must match your Cloudflare Worker secret ADMIN_PASSWORD
-    const ADMIN_PASSWORD = "zoe-admin";
+    const defaultSettings = () => ({
+      theme: body.classList.contains("theme-dark") ? "dark" : "light",
+      fontScale: 1,
+      reduceMotion: false,
+      developerMode: false,
+    });
 
-    const ADMIN_PASSWORD_KEY = "zoe-admin-pass";
+    const normalizeText = (value) => (value || "").trim().replace(/\s+/g, " ");
+
+    const defaultContent = () => {
+  const base = {
+    introTagline: normalizeText(
+      document.getElementById("intro-tagline").textContent
+    ),
+    bioPrimary: normalizeText(
+      document.getElementById("bio-primary").textContent
+    ),
+    bioSecondary: normalizeText(
+      document.getElementById("bio-secondary").textContent
+    ),
+    lockedByAdmin: false,
+    stats: {
+      avg: normalizeText(
+        document
+          .getElementById("stat-avg")
+          .textContent.replace("AVG:", "")
+      ),
+      obp: normalizeText(
+        document
+          .getElementById("stat-obp")
+          .textContent.replace("OBP:", "")
+      ),
+      slg: normalizeText(
+        document
+          .getElementById("stat-slg")
+          .textContent.replace("SLG:", "")
+      ),
+      ops: normalizeText(
+        document
+          .getElementById("stat-ops")
+          .textContent.replace("OPS:", "")
+      ),
+      fld: normalizeText(
+        document
+          .getElementById("stat-fld")
+          .textContent.replace("Fielding %:", "")
+      ),
+    },
+    // NEW: generic bag for all the other editable fields
+    fields: {},
+  };
+
+  // Initialize fields for all [data-editable][data-content-key] elements
+  document
+    .querySelectorAll("[data-editable][data-content-key]")
+    .forEach((el) => {
+      const key = el.getAttribute("data-content-key");
+      if (key && !(key in base.fields)) {
+        base.fields[key] = normalizeText(el.textContent);
+      }
+    });
+
+  return base;
+};
+
+    const getStored = (key, fallbackFactory) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? { ...fallbackFactory(), ...JSON.parse(raw) } : fallbackFactory();
+      } catch (e) {
+        console.warn("Failed to parse storage", e);
+        return fallbackFactory();
+      }
+    };
+
+    let settings = getStored(STORAGE_KEYS.settings, defaultSettings);
+    let content = getStored(STORAGE_KEYS.content, defaultContent);
 
     const toggleBtn = document.getElementById("theme-toggle");
     const fontSlider = document.getElementById("font-scale-control");
@@ -101,130 +1309,25 @@
       },
     };
 
-    // Stat <span> elements that hold just the numeric values
-    const statValueEls = {
-      avg: document.querySelector('.pill-value[data-stat-key="avg"]'),
-      obp: document.querySelector('.pill-value[data-stat-key="obp"]'),
-      slg: document.querySelector('.pill-value[data-stat-key="slg"]'),
-      ops: document.querySelector('.pill-value[data-stat-key="ops"]'),
-      fld: document.querySelector('.pill-value[data-stat-key="fld"]'),
-    };
-
-    // =========================
-    // Helpers
-    // =========================
-    const normalizeText = (value) =>
-      (value || "").trim().replace(/\s+/g, " ");
-
-    const defaultSettings = () => ({
-      theme: body.classList.contains("theme-dark") ? "dark" : "light",
-      fontScale: 1,
-      reduceMotion: false,
-      developerMode: false,
-    });
-
-    const defaultContent = () => {
-      const base = {
-        introTagline: normalizeText(
-          document.getElementById("intro-tagline").textContent
-        ),
-        bioPrimary: normalizeText(
-          document.getElementById("bio-primary").textContent
-        ),
-        bioSecondary: normalizeText(
-          document.getElementById("bio-secondary").textContent
-        ),
-        lockedByAdmin: false,
-        stats: {
-          avg: normalizeText(statValueEls.avg?.textContent || ".000"),
-          obp: normalizeText(statValueEls.obp?.textContent || ".000"),
-          slg: normalizeText(statValueEls.slg?.textContent || ".000"),
-          ops: normalizeText(statValueEls.ops?.textContent || ".000"),
-          fld: normalizeText(statValueEls.fld?.textContent || ".000"),
-        },
-        // bag of all other editable text keyed by data-content-key
-        fields: {},
-      };
-
-      document
-        .querySelectorAll("[data-editable][data-content-key]")
-        .forEach((el) => {
-          const key = el.getAttribute("data-content-key");
-          if (!key) return;
-          if (!(key in base.fields)) {
-            base.fields[key] = normalizeText(el.textContent);
-          }
-        });
-
-      return base;
-    };
-
-    const getStored = (key, fallbackFactory) => {
-      try {
-        const raw = localStorage.getItem(key);
-        return raw
-          ? { ...fallbackFactory(), ...JSON.parse(raw) }
-          : fallbackFactory();
-      } catch (e) {
-        console.warn("Failed to parse storage", e);
-        return fallbackFactory();
-      }
-    };
-
-    let settings = getStored(STORAGE_KEYS.settings, defaultSettings);
-    let content = getStored(STORAGE_KEYS.content, defaultContent);
-
-    const saveSettings = () =>
-      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
-
-    const saveContent = () =>
-      localStorage.setItem(STORAGE_KEYS.content, JSON.stringify(content));
-
-    const updateStatus = (message) => {
-      if (adminStatus) adminStatus.textContent = message;
-    };
-
-    // =========================
-    // Rendering functions
-    // =========================
     const renderStats = (stats) => {
-      if (!stats) return;
-      if (statValueEls.avg && stats.avg) statValueEls.avg.textContent = stats.avg;
-      if (statValueEls.obp && stats.obp) statValueEls.obp.textContent = stats.obp;
-      if (statValueEls.slg && stats.slg) statValueEls.slg.textContent = stats.slg;
-      if (statValueEls.ops && stats.ops) statValueEls.ops.textContent = stats.ops;
-      if (statValueEls.fld && stats.fld) statValueEls.fld.textContent = stats.fld;
+      const avgEl = document.getElementById("stat-avg");
+      const obpEl = document.getElementById("stat-obp");
+      const slgEl = document.getElementById("stat-slg");
+      const opsEl = document.getElementById("stat-ops");
+      const fldEl = document.getElementById("stat-fld");
+
+      if (avgEl && stats.avg) avgEl.textContent = "AVG: " + stats.avg;
+      if (obpEl && stats.obp) obpEl.textContent = "OBP: " + stats.obp;
+      if (slgEl && stats.slg) slgEl.textContent = "SLG: " + stats.slg;
+      if (opsEl && stats.ops) opsEl.textContent = "OPS: " + stats.ops;
+      if (fldEl && stats.fld) fldEl.textContent = "Fielding %: " + stats.fld;
     };
 
-    const applyFieldsFromContent = () => {
-      const fields = (content && content.fields) || {};
-      document
-        .querySelectorAll("[data-editable][data-content-key]")
-        .forEach((el) => {
-          const key = el.getAttribute("data-content-key");
-          if (!key) return;
-          if (Object.prototype.hasOwnProperty.call(fields, key)) {
-            el.textContent = fields[key];
-          }
-        });
-    };
-
-    const applyContent = () => {
-      document.getElementById("intro-tagline").textContent =
-        content.introTagline;
-      document.getElementById("bio-primary").textContent =
-        content.bioPrimary;
-      document.getElementById("bio-secondary").textContent =
-        content.bioSecondary;
-
-      renderStats(content.stats || {});
-      applyFieldsFromContent();
-    };
+    const saveSettings = () => localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
+    const saveContent = () => localStorage.setItem(STORAGE_KEYS.content, JSON.stringify(content));
 
     const updateToggleLabel = () => {
-      toggleBtn.textContent = body.classList.contains("theme-dark")
-        ? "Light mode"
-        : "Dark mode";
+      toggleBtn.textContent = body.classList.contains("theme-dark") ? "Light mode" : "Dark mode";
     };
 
     const syncEditableState = () => {
@@ -241,8 +1344,7 @@
 
       if (adminThemeSelect) adminThemeSelect.value = settings.theme;
       if (fontSlider) fontSlider.value = settings.fontScale;
-      if (reduceMotionToggle)
-        reduceMotionToggle.checked = !!settings.reduceMotion;
+      if (reduceMotionToggle) reduceMotionToggle.checked = !!settings.reduceMotion;
       if (devToggle) devToggle.checked = !!settings.developerMode;
 
       updateToggleLabel();
@@ -255,6 +1357,29 @@
       if (persist) saveSettings();
     };
 
+    const applyFieldsFromContent = () => {
+  const fields = (content && content.fields) || {};
+  document
+    .querySelectorAll("[data-editable][data-content-key]")
+    .forEach((el) => {
+      const key = el.getAttribute("data-content-key");
+      if (!key) return;
+      if (Object.prototype.hasOwnProperty.call(fields, key)) {
+        el.textContent = fields[key];
+      }
+    });
+};
+    const applyContent = () => {
+  document.getElementById("intro-tagline").textContent =
+    content.introTagline;
+  document.getElementById("bio-primary").textContent = content.bioPrimary;
+  document.getElementById("bio-secondary").textContent =
+    content.bioSecondary;
+
+  renderStats(content.stats || {});
+  applyFieldsFromContent();
+};
+
     const syncAdminForm = () => {
       if (!adminContent) return;
       adminFields.introTagline.value = content.introTagline;
@@ -266,143 +1391,145 @@
       });
     };
 
-    // =========================
-    // Worker API
-    // =========================
-    async function loadContentFromServer() {
-      // If Zoe has explicitly overridden locally, don't auto-fetch
-      if (content.lockedByAdmin) return;
-
-      try {
-        const res = await fetch("/api/content");
-        if (!res.ok) {
-          console.warn("Server content fetch failed");
-          return;
-        }
-
-        const data = await res.json();
-        content = {
-          ...content,
-          ...data,
-          stats: { ...(content.stats || {}), ...(data.stats || {}) },
-          fields: { ...(content.fields || {}), ...(data.fields || {}) },
-        };
-
-        saveContent();
-        applyContent();
-        syncAdminForm();
-        updateStatus("Loaded latest content from server.");
-      } catch (e) {
-        console.error("Failed loading server content:", e);
-      }
-    }
-
-    async function pushContentToServer() {
-      const storedPass =
-        sessionStorage.getItem(ADMIN_PASSWORD_KEY) ||
-        (adminPassword.value || "").trim();
-
-      if (!storedPass) {
-        updateStatus(
-          "Saved locally, but missing admin password for server save."
-        );
-        return;
-      }
-
-      try {
-        const res = await fetch("/api/content", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${storedPass}`, // must match Worker
-          },
-          body: JSON.stringify(content),
-        });
-
-        if (!res.ok) {
-          console.error("Server update failed", await res.text());
-          updateStatus("Saved locally, but server update failed.");
-          return;
-        }
-
-        updateStatus("Saved locally and on server.");
-      } catch (e) {
-        console.error("Network error updating server", e);
-        updateStatus("Saved locally, but server update failed.");
-      }
-    }
-
-    // =========================
-    // Inline edit handler
-    // =========================
-    const handleInlineEdit = () => {
-      if (!settings.developerMode) return;
-
-      const updatedFields = { ...(content.fields || {}) };
-
-      document
-        .querySelectorAll("[data-editable][data-content-key]")
-        .forEach((el) => {
-          const key = el.getAttribute("data-content-key");
-          if (!key) return;
-          updatedFields[key] = normalizeText(el.textContent);
-        });
-
-      content = {
-        ...content,
-        introTagline: normalizeText(
-          document.getElementById("intro-tagline").textContent
-        ),
-        bioPrimary: normalizeText(
-          document.getElementById("bio-primary").textContent
-        ),
-        bioSecondary: normalizeText(
-          document.getElementById("bio-secondary").textContent
-        ),
-        lockedByAdmin: true,
-        fields: updatedFields,
-      };
-
-      saveContent();
-      updateStatus("Saved inline changes.");
-      syncAdminForm();
+    const updateStatus = (message) => {
+      if (adminStatus) adminStatus.textContent = message;
     };
 
-    // =========================
+   const loadContentFromServer = async () => {
+  if (content.lockedByAdmin) return; // honor manual overrides
+  try {
+    const res = await fetch("/api/content");
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    content = {
+      ...content,
+      ...data,
+      stats: {
+        ...(content.stats || {}),
+        ...(data.stats || {}),
+      },
+      fields: {
+        ...(content.fields || {}),
+        ...(data.fields || {}),
+      },
+    };
+
+    saveContent();
+    applyContent();
+  } catch (err) {
+    console.error("Failed to load content from server", err);
+  }
+};
+
+  const handleInlineEdit = () => {
+  if (!settings.developerMode) return;
+
+  const updatedFields = { ...(content.fields || {}) };
+
+  // Capture all dev-mode editable fields keyed by data-content-key
+  document
+    .querySelectorAll("[data-editable][data-content-key]")
+    .forEach((el) => {
+      const key = el.getAttribute("data-content-key");
+      if (!key) return;
+      updatedFields[key] = normalizeText(el.textContent);
+    });
+
+  content = {
+    ...content,
+    introTagline: normalizeText(
+      document.getElementById("intro-tagline").textContent
+    ),
+    bioPrimary: normalizeText(
+      document.getElementById("bio-primary").textContent
+    ),
+    bioSecondary: normalizeText(
+      document.getElementById("bio-secondary").textContent
+    ),
+    lockedByAdmin: true,
+    fields: updatedFields,
+  };
+
+  saveContent();
+  updateStatus("Saved inline changes.");
+  syncAdminForm();
+};
+    
+async function loadContentFromServer() {
+  try {
+    const res = await fetch(`${API_BASE}/api/content`);
+    if (!res.ok) {
+      console.warn("Server content fetch failed, keeping local content");
+      return;
+    }
+
+    const data = await res.json();
+    content = { ...content, ...data };
+
+    saveContent();
+    applyContent();
+    syncAdminForm();
+    updateStatus("Loaded latest content from server.");
+  } catch (e) {
+    console.error("Failed loading server content:", e);
+  }
+}
+async function pushContentToServer() {
+  try {
+    const res = await fetch(`${API_BASE}/api/content`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${ADMIN_PASSWORD}`,
+      },
+      body: JSON.stringify(content),
+    });
+
+    if (!res.ok) {
+      console.error("Server update failed", await res.text());
+      updateStatus("Saved locally, but server update failed.");
+      return;
+    }
+
+    updateStatus("Saved to server successfully.");
+  } catch (e) {
+    console.error("Network error updating server", e);
+    updateStatus("Saved locally, but server update failed.");
+  }
+}
+
+    
     // Initial paint
-    // =========================
     applySettings(false);
     applyContent();
-    loadContentFromServer();
+    // Load latest content from Worker (KV)
+loadContentFromServer();
 
-    // Year in footer
-    document.getElementById("year").textContent =
-      new Date().getFullYear();
 
-    // =========================
-    // UI wiring – nav, theme, etc.
-    // =========================
+    // year in footer
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Theme toggle
     toggleBtn.addEventListener("click", () => {
-      settings.theme = body.classList.contains("theme-dark")
-        ? "light"
-        : "dark";
+      settings.theme = body.classList.contains("theme-dark") ? "light" : "dark";
       applySettings();
     });
 
-    document
-      .getElementById("nav-toggle")
-      .addEventListener("click", () => {
-        body.classList.toggle("nav-open");
-      });
+    // Hamburger toggle
+    document.getElementById("nav-toggle").addEventListener("click", () => {
+      body.classList.toggle("nav-open");
+    });
 
-    document
-      .querySelectorAll(".nav-links a[href^='#']")
-      .forEach((link) => {
-        link.addEventListener("click", () => {
-          body.classList.remove("nav-open");
-        });
+    // Close mobile nav on link tap
+    document.querySelectorAll(".nav-links a[href^='#']").forEach((link) => {
+      link.addEventListener("click", () => {
+        body.classList.remove("nav-open");
       });
+    });
 
+    // smooth scroll for internal anchors on this page
     document.querySelectorAll("a[href^='#']").forEach((link) => {
       link.addEventListener("click", function (e) {
         const id = this.getAttribute("href").slice(1);
@@ -417,6 +1544,7 @@
       });
     });
 
+    // Fade-in on scroll
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -428,13 +1556,11 @@
       { threshold: 0.1 }
     );
 
-    document
-      .querySelectorAll(".fade-in")
-      .forEach((el) => observer.observe(el));
+    document.querySelectorAll(".fade-in").forEach((el) => observer.observe(el));
 
-    // =========================
-    // Admin panel logic
-    // =========================
+        // Admin panel controls
+    const ADMIN_PASSWORD_KEY = "zoe-admin-pass";
+
     const setAdminOpen = (open) => {
       if (!adminPanel) return;
       adminPanel.classList.toggle("open", open);
@@ -457,6 +1583,7 @@
     adminLauncher?.addEventListener("click", () => setAdminOpen(true));
     adminClose?.addEventListener("click", () => setAdminOpen(false));
 
+    // Restore previous admin session + password if present
     if (isAdminUnlocked()) {
       const savedPass = sessionStorage.getItem(ADMIN_PASSWORD_KEY) || "";
       unlockAdmin(savedPass);
@@ -469,7 +1596,8 @@
         return;
       }
 
-      if (pass === ADMIN_PASSWORD) {
+      // NOTE: this must match the secret ADMIN_PASSWORD in your Worker
+      if (pass === "zoe-admin") {
         sessionStorage.setItem(ADMIN_PASSWORD_KEY, pass);
         unlockAdmin(pass);
       } else {
@@ -503,57 +1631,89 @@
       applySettings();
     });
 
-    document
-      .querySelectorAll("[data-editable]")
-      .forEach((el) => {
-        el.addEventListener("blur", handleInlineEdit);
-      });
+    document.querySelectorAll("[data-editable]").forEach((el) => {
+      el.addEventListener("blur", handleInlineEdit);
+    });
 
-    document
-      .getElementById("admin-save")
-      ?.addEventListener("click", async () => {
-        content = {
-          ...content,
-          introTagline: normalizeText(adminFields.introTagline.value),
-          bioPrimary: normalizeText(adminFields.bioPrimary.value),
-          bioSecondary: normalizeText(adminFields.bioSecondary.value),
-          lockedByAdmin: true,
-          stats: {
-            avg: normalizeText(adminFields.stats.avg.value),
-            obp: normalizeText(adminFields.stats.obp.value),
-            slg: normalizeText(adminFields.stats.slg.value),
-            ops: normalizeText(adminFields.stats.ops.value),
-            fld: normalizeText(adminFields.stats.fld.value),
+    // Push current `content` object to the Worker KV via /api/content
+    async function pushContentToServer() {
+      const storedPass =
+        sessionStorage.getItem(ADMIN_PASSWORD_KEY) ||
+        (adminPassword.value || "").trim();
+
+      if (!storedPass) {
+        updateStatus(
+          "Saved locally, but missing admin password for server save."
+        );
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/content", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Must match expected `Bearer ${env.ADMIN_PASSWORD}` in the Worker
+            Authorization: `Bearer ${storedPass}`,
           },
-        };
+          body: JSON.stringify(content),
+        });
 
-        settings = {
-          ...settings,
-          theme: adminThemeSelect.value,
-          fontScale: Number(fontSlider.value),
-          reduceMotion: reduceMotionToggle.checked,
-          developerMode: devToggle.checked,
-        };
+        if (!res.ok) {
+          throw new Error("Server responded " + res.status);
+        }
 
-        saveContent();
-        applyContent();
-        applySettings();
-        updateStatus("Saving to server...");
-        await pushContentToServer();
-      });
+        updateStatus("Saved locally and on server.");
+      } catch (err) {
+        console.error("pushContentToServer failed", err);
+        updateStatus("Saved locally, but server update failed.");
+      }
+    }
 
-    document
-      .getElementById("admin-reset")
-      ?.addEventListener("click", () => {
-        localStorage.removeItem(STORAGE_KEYS.content);
-        localStorage.removeItem(STORAGE_KEYS.settings);
-        settings = defaultSettings();
-        content = defaultContent();
-        applyContent();
-        applySettings();
-        syncAdminForm();
-        updateStatus("Reset to defaults for this browser.");
-      });
+    document.getElementById("admin-save")?.addEventListener("click", async () => {
+  content = {
+    introTagline: normalizeText(adminFields.introTagline.value),
+    bioPrimary: normalizeText(adminFields.bioPrimary.value),
+    bioSecondary: normalizeText(adminFields.bioSecondary.value),
+    lockedByAdmin: true,
+    stats: {
+      avg: normalizeText(adminFields.stats.avg.value),
+      obp: normalizeText(adminFields.stats.obp.value),
+      slg: normalizeText(adminFields.stats.slg.value),
+      ops: normalizeText(adminFields.stats.ops.value),
+      fld: normalizeText(adminFields.stats.fld.value),
+    },
+    // keep whatever inline edits were done in dev mode
+    fields: content.fields || {},
+  };
+
+  settings = {
+    ...settings,
+    theme: adminThemeSelect.value,
+    fontScale: Number(fontSlider.value),
+    reduceMotion: reduceMotionToggle.checked,
+    developerMode: devToggle.checked,
+  };
+
+  saveContent();
+  applyContent();
+  applySettings();
+  updateStatus("Saving to server...");
+  await pushContentToServer();
+});
+
+    document.getElementById("admin-reset")?.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEYS.content);
+      localStorage.removeItem(STORAGE_KEYS.settings);
+      settings = defaultSettings();
+      content = defaultContent();
+      applyContent();
+      applySettings();
+      syncAdminForm();
+      updateStatus("Reset to defaults for this browser.");
+    });
+
+    loadContentFromServer();
   </script>
 </body>
 </html>
