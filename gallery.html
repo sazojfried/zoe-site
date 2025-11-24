@@ -293,14 +293,23 @@
 
     /* ADMIN PANEL */
     .admin-banner {
-      max-width: 1040px;
-      margin: 20px auto 0;
-      padding: 0 18px;
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      width: calc(100% - 36px);
+      max-width: 340px;
+      padding: 14px 16px;
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
       color: var(--text-muted);
       font-size: 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      box-shadow: var(--shadow-soft);
+      z-index: 30;
     }
 
     .admin-toggle {
@@ -308,21 +317,28 @@
       border: 1px solid var(--border-subtle);
       background: var(--bg-card);
       color: var(--text-main);
-      padding: 8px 14px;
-      font-weight: 600;
+      padding: 10px 16px;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.1s ease, border-color 0.2s ease;
+      letter-spacing: 0.04em;
+      transition: transform 0.1s ease, border-color 0.2s ease,
+        box-shadow 0.2s ease;
     }
 
     .admin-toggle:hover {
       transform: translateY(-1px);
       border-color: var(--red-soft);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
     }
 
     .admin-panel {
       display: none;
-      max-width: 1040px;
-      margin: 12px auto 28px;
+      position: fixed;
+      bottom: 90px;
+      right: 18px;
+      width: min(520px, calc(100% - 36px));
+      max-height: calc(100vh - 140px);
+      overflow: auto;
       padding: 18px;
       border: 1px solid var(--border-subtle);
       border-radius: 16px;
@@ -330,10 +346,26 @@
       box-shadow: var(--shadow-soft);
       gap: 16px;
       color: var(--text-main);
+      z-index: 30;
     }
 
     .admin-panel.active {
       display: grid;
+    }
+
+    @media (max-width: 540px) {
+      .admin-panel {
+        right: 12px;
+        bottom: 86px;
+        width: calc(100% - 24px);
+        max-height: calc(100vh - 120px);
+      }
+
+      .admin-banner {
+        right: 12px;
+        bottom: 12px;
+        width: calc(100% - 24px);
+      }
     }
 
     .admin-grid {
@@ -512,28 +544,12 @@
         <label for="admin-password">Password</label>
         <input id="admin-password" type="password" autocomplete="off" placeholder="samandzoe" />
         <button id="admin-unlock" type="button">Unlock</button>
-        <h3>GitHub access</h3>
         <p class="admin-note">
-          Provide a GitHub personal access token (with <code>contents:write</code>
-          scope), the repository owner/name, and target branch. These details stay in
-          your browser and are required to write uploads to the repository.
+          Repository updates target the default <code>zoe-friedman/zoe-site</code>
+          repository on the <code>main</code> branch. You will be prompted for a
+          GitHub personal access token (with <code>contents:write</code> scope)
+          when attempting to upload or save changes.
         </p>
-        <div class="admin-inline">
-          <div>
-            <label for="repo-owner">Owner</label>
-            <input id="repo-owner" type="text" placeholder="e.g. zoe-friedman" />
-          </div>
-          <div>
-            <label for="repo-name">Repository</label>
-            <input id="repo-name" type="text" placeholder="zoe-site" />
-          </div>
-          <div>
-            <label for="repo-branch">Branch</label>
-            <input id="repo-branch" type="text" placeholder="main" />
-          </div>
-        </div>
-        <label for="repo-token">Personal access token</label>
-        <input id="repo-token" type="password" autocomplete="off" placeholder="ghp_..." />
       </div>
 
       <div class="admin-card">
@@ -626,11 +642,12 @@
     const adminToggle = document.getElementById("admin-toggle");
     const adminPasswordInput = document.getElementById("admin-password");
     const adminUnlockBtn = document.getElementById("admin-unlock");
-
-    const repoOwner = document.getElementById("repo-owner");
-    const repoName = document.getElementById("repo-name");
-    const repoBranch = document.getElementById("repo-branch");
-    const repoToken = document.getElementById("repo-token");
+    const REPO_CONFIG = {
+      owner: "zoe-friedman",
+      repo: "zoe-site",
+      branch: "main"
+    };
+    let cachedToken = "";
 
     const uploadFile = document.getElementById("upload-file");
     const uploadAlt = document.getElementById("upload-alt");
@@ -641,11 +658,6 @@
     let galleryItems = [];
     let latestSha = "";
     let adminUnlocked = false;
-    repoName.value = "zoe-site";
-    repoBranch.value = "main";
-
-    let galleryItems = [];
-    let latestSha = "";
 
     function logStatus(message) {
       const stamp = new Date().toLocaleTimeString();
@@ -754,29 +766,31 @@
     }
 
     function collectRepoSettings() {
+      if (!cachedToken) {
+        cachedToken =
+          prompt(
+            "Enter a GitHub personal access token with contents:write scope to save gallery changes"
+          )?.trim() || "";
+      }
+
       return {
-        owner: "zoe-friedman",
-        repo: "zoe-site",
-        branch: "main",
-        token: ADMIN_PASSWORD
+        ...REPO_CONFIG,
+        token: cachedToken
       };
     }
 
     function ensureUnlocked() {
       if (!adminUnlocked) {
         logStatus("Enter the admin password to enable actions.");
+        return false;
       }
-      return adminUnlocked;
-        owner: repoOwner.value.trim(),
-        repo: repoName.value.trim(),
-        branch: repoBranch.value.trim() || "main",
-        token: repoToken.value.trim()
-      };
+      return true;
     }
 
     function validateSettings(settings) {
-      if (!settings.owner || !settings.repo || !settings.token) {
-        logStatus("Provide owner, repository, and a personal access token.");
+      if (!settings.token) {
+        cachedToken = "";
+        logStatus("Provide a GitHub personal access token when prompted.");
         return false;
       }
       return true;
@@ -923,15 +937,12 @@
     uploadSubmit.addEventListener("click", async () => {
       if (!ensureUnlocked()) return;
       const settings = collectRepoSettings();
-    uploadSubmit.addEventListener("click", async () => {
-      const settings = collectRepoSettings();
       if (!validateSettings(settings)) return;
       await uploadImage(settings);
     });
 
     saveOrderBtn.addEventListener("click", async () => {
       if (!ensureUnlocked()) return;
-      const settings = collectRepoSettings();
       const settings = collectRepoSettings();
       if (!validateSettings(settings)) return;
 
