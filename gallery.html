@@ -505,6 +505,13 @@
   <section id="admin-panel" class="admin-panel">
     <div class="admin-grid">
       <div class="admin-card">
+        <h3>Admin access</h3>
+        <p class="admin-note">
+          Enter the admin password to unlock uploads and reordering.
+        </p>
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" autocomplete="off" placeholder="samandzoe" />
+        <button id="admin-unlock" type="button">Unlock</button>
         <h3>GitHub access</h3>
         <p class="admin-note">
           Provide a GitHub personal access token (with <code>contents:write</code>
@@ -578,6 +585,8 @@
   </footer>
 
   <script>
+    const ADMIN_PASSWORD = "samandzoe";
+
     // Footer year
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -615,6 +624,8 @@
     const statusLog = document.getElementById("status-log");
     const adminPanel = document.getElementById("admin-panel");
     const adminToggle = document.getElementById("admin-toggle");
+    const adminPasswordInput = document.getElementById("admin-password");
+    const adminUnlockBtn = document.getElementById("admin-unlock");
 
     const repoOwner = document.getElementById("repo-owner");
     const repoName = document.getElementById("repo-name");
@@ -627,6 +638,9 @@
     const uploadSubmit = document.getElementById("upload-submit");
     const saveOrderBtn = document.getElementById("save-order");
 
+    let galleryItems = [];
+    let latestSha = "";
+    let adminUnlocked = false;
     repoName.value = "zoe-site";
     repoBranch.value = "main";
 
@@ -741,6 +755,18 @@
 
     function collectRepoSettings() {
       return {
+        owner: "zoe-friedman",
+        repo: "zoe-site",
+        branch: "main",
+        token: ADMIN_PASSWORD
+      };
+    }
+
+    function ensureUnlocked() {
+      if (!adminUnlocked) {
+        logStatus("Enter the admin password to enable actions.");
+      }
+      return adminUnlocked;
         owner: repoOwner.value.trim(),
         repo: repoName.value.trim(),
         branch: repoBranch.value.trim() || "main",
@@ -884,6 +910,19 @@
         : "Open admin menu";
     });
 
+    adminUnlockBtn.addEventListener("click", () => {
+      const value = adminPasswordInput.value.trim();
+      adminUnlocked = value === ADMIN_PASSWORD;
+      if (adminUnlocked) {
+        logStatus("Admin unlocked. Uploading and reordering enabled.");
+      } else {
+        logStatus("Incorrect password. Try again.");
+      }
+    });
+
+    uploadSubmit.addEventListener("click", async () => {
+      if (!ensureUnlocked()) return;
+      const settings = collectRepoSettings();
     uploadSubmit.addEventListener("click", async () => {
       const settings = collectRepoSettings();
       if (!validateSettings(settings)) return;
@@ -891,6 +930,8 @@
     });
 
     saveOrderBtn.addEventListener("click", async () => {
+      if (!ensureUnlocked()) return;
+      const settings = collectRepoSettings();
       const settings = collectRepoSettings();
       if (!validateSettings(settings)) return;
 
