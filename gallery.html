@@ -512,6 +512,28 @@
         <label for="admin-password">Password</label>
         <input id="admin-password" type="password" autocomplete="off" placeholder="samandzoe" />
         <button id="admin-unlock" type="button">Unlock</button>
+        <h3>GitHub access</h3>
+        <p class="admin-note">
+          Provide a GitHub personal access token (with <code>contents:write</code>
+          scope), the repository owner/name, and target branch. These details stay in
+          your browser and are required to write uploads to the repository.
+        </p>
+        <div class="admin-inline">
+          <div>
+            <label for="repo-owner">Owner</label>
+            <input id="repo-owner" type="text" placeholder="e.g. zoe-friedman" />
+          </div>
+          <div>
+            <label for="repo-name">Repository</label>
+            <input id="repo-name" type="text" placeholder="zoe-site" />
+          </div>
+          <div>
+            <label for="repo-branch">Branch</label>
+            <input id="repo-branch" type="text" placeholder="main" />
+          </div>
+        </div>
+        <label for="repo-token">Personal access token</label>
+        <input id="repo-token" type="password" autocomplete="off" placeholder="ghp_..." />
       </div>
 
       <div class="admin-card">
@@ -605,6 +627,11 @@
     const adminPasswordInput = document.getElementById("admin-password");
     const adminUnlockBtn = document.getElementById("admin-unlock");
 
+    const repoOwner = document.getElementById("repo-owner");
+    const repoName = document.getElementById("repo-name");
+    const repoBranch = document.getElementById("repo-branch");
+    const repoToken = document.getElementById("repo-token");
+
     const uploadFile = document.getElementById("upload-file");
     const uploadAlt = document.getElementById("upload-alt");
     const uploadName = document.getElementById("upload-name");
@@ -614,6 +641,11 @@
     let galleryItems = [];
     let latestSha = "";
     let adminUnlocked = false;
+    repoName.value = "zoe-site";
+    repoBranch.value = "main";
+
+    let galleryItems = [];
+    let latestSha = "";
 
     function logStatus(message) {
       const stamp = new Date().toLocaleTimeString();
@@ -735,6 +767,19 @@
         logStatus("Enter the admin password to enable actions.");
       }
       return adminUnlocked;
+        owner: repoOwner.value.trim(),
+        repo: repoName.value.trim(),
+        branch: repoBranch.value.trim() || "main",
+        token: repoToken.value.trim()
+      };
+    }
+
+    function validateSettings(settings) {
+      if (!settings.owner || !settings.repo || !settings.token) {
+        logStatus("Provide owner, repository, and a personal access token.");
+        return false;
+      }
+      return true;
     }
 
     async function getGalleryContent(settings) {
@@ -878,12 +923,17 @@
     uploadSubmit.addEventListener("click", async () => {
       if (!ensureUnlocked()) return;
       const settings = collectRepoSettings();
+    uploadSubmit.addEventListener("click", async () => {
+      const settings = collectRepoSettings();
+      if (!validateSettings(settings)) return;
       await uploadImage(settings);
     });
 
     saveOrderBtn.addEventListener("click", async () => {
       if (!ensureUnlocked()) return;
       const settings = collectRepoSettings();
+      const settings = collectRepoSettings();
+      if (!validateSettings(settings)) return;
 
       try {
         const currentRemoteItems = await getGalleryContent(settings);
