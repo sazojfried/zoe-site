@@ -1109,7 +1109,7 @@
     
 <!--
 <div class="intro-card">
-  Password = zoe-admin
+  Password = samandzoe
 </div>
 -->
 
@@ -1420,9 +1420,9 @@
     const body = document.body;
     const root = document.documentElement;
 
-    // --- Cloudflare Worker Backend ---
+// --- Cloudflare Worker Backend ---
 const API_BASE = ""; // same origin (zoefriedman.com)
-const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
+const ADMIN_PASSWORD = "samandzoe"; // update your Worker secret if needed
 
     const STORAGE_KEYS = {
       settings: "zoe-settings",
@@ -1775,7 +1775,7 @@ loadContentFromServer();
 
     adminAuthBtn?.addEventListener("click", () => {
       const pass = adminPassword.value.trim();
-      if (pass === "zoe-admin") {
+      if (pass === "samandzoe") {
         unlockAdmin();
       } else {
         updateStatus("Incorrect password. Try again.");

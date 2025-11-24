@@ -291,6 +291,157 @@
       display: block;
     }
 
+    /* ADMIN PANEL */
+    .admin-banner {
+      max-width: 1040px;
+      margin: 20px auto 0;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .admin-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
+      padding: 8px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.2s ease;
+    }
+
+    .admin-toggle:hover {
+      transform: translateY(-1px);
+      border-color: var(--red-soft);
+    }
+
+    .admin-panel {
+      display: none;
+      max-width: 1040px;
+      margin: 12px auto 28px;
+      padding: 18px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      background: var(--bg-elevated);
+      box-shadow: var(--shadow-soft);
+      gap: 16px;
+      color: var(--text-main);
+    }
+
+    .admin-panel.active {
+      display: grid;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .admin-card {
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--bg-card);
+    }
+
+    .admin-card h3 {
+      margin-bottom: 8px;
+      font-size: 15px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .admin-card label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .admin-card input,
+    .admin-card textarea,
+    .admin-card button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      font-size: 13px;
+    }
+
+    .admin-card button {
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      transition: transform 0.1s ease, border-color 0.2s ease,
+        background-color 0.2s ease;
+    }
+
+    .admin-card button:hover {
+      transform: translateY(-1px);
+      border-color: var(--red-soft);
+      background: rgba(179, 27, 27, 0.08);
+    }
+
+    .admin-inline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .admin-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .status-log {
+      font-size: 12px;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px dashed var(--border-subtle);
+      max-height: 140px;
+      overflow: auto;
+    }
+
+    .draggable-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .draggable-list li {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .draggable-list li.dragging {
+      opacity: 0.6;
+    }
+
+    .drag-handle {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+  
     footer {
       text-align: center;
       padding: 20px;
@@ -341,27 +492,70 @@
     <p>A collection of moments from softball, campus life, and community work.</p>
   </div>
 
+  <div class="admin-banner">
+    <button id="admin-toggle" class="admin-toggle" type="button">
+      Open admin menu
+    </button>
+    <span class="admin-note"
+      >Admins can upload new photos directly to the repository and drag to rearrange
+      gallery order.</span
+    >
+  </div>
+
+  <section id="admin-panel" class="admin-panel">
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>Admin access</h3>
+        <p class="admin-note">
+          Enter the admin password to unlock uploads and reordering.
+        </p>
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" autocomplete="off" placeholder="samandzoe" />
+        <button id="admin-unlock" type="button">Unlock</button>
+      </div>
+
+      <div class="admin-card">
+        <h3>Upload new photo</h3>
+        <div>
+          <label for="upload-file">Image file</label>
+          <input id="upload-file" type="file" accept="image/*" />
+        </div>
+        <div class="admin-inline">
+          <div>
+            <label for="upload-alt">Alt text</label>
+            <input id="upload-alt" type="text" placeholder="Softball action" />
+          </div>
+          <div>
+            <label for="upload-name">File name (optional)</label>
+            <input id="upload-name" type="text" placeholder="softball-swing.jpg" />
+          </div>
+        </div>
+        <button id="upload-submit" type="button">Upload to repo</button>
+        <p class="admin-note">
+          The selected image will be committed to the <code>images/</code> folder and added to
+          <code>gallery-data.json</code> in the chosen branch.
+        </p>
+      </div>
+
+      <div class="admin-card">
+        <h3>Reorder gallery</h3>
+        <p class="admin-note">
+          Drag items to change their order, then save to update
+          <code>gallery-data.json</code> in the repository.
+        </p>
+        <ul id="order-list" class="draggable-list"></ul>
+        <button id="save-order" type="button">Save order to repo</button>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <h3>Status</h3>
+      <div id="status-log" class="status-log">Idle.</div>
+    </div>
+  </section>
+
   <!-- GALLERY -->
   <div class="gallery">
-    <div class="gallery-item">
-      <img src="images/zoe-softball.jpg" alt="Softball action" />
-    </div>
-
-    <div class="gallery-item">
-      <img src="images/zoe-headshot.jpeg" alt="Zoe headshot" />
-    </div>
-
-    <div class="gallery-item">
-      <img src="images/zoe1.jpg" alt="Zoe photo 1" />
-    </div>
-
-    <div class="gallery-item">
-      <img src="images/zoe2.jpg" alt="Zoe photo 2" />
-    </div>
-
-    <div class="gallery-item">
-      <img src="images/zoe3.jpg" alt="Zoe photo 3" />
-    </div>
   </div>
 
   <footer>
@@ -369,6 +563,8 @@
   </footer>
 
   <script>
+    const ADMIN_PASSWORD = "samandzoe";
+
     // Footer year
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -399,6 +595,318 @@
         body.classList.remove("nav-open");
       });
     });
+
+    // Gallery data
+    const galleryContainer = document.querySelector(".gallery");
+    const orderList = document.getElementById("order-list");
+    const statusLog = document.getElementById("status-log");
+    const adminPanel = document.getElementById("admin-panel");
+    const adminToggle = document.getElementById("admin-toggle");
+    const adminPasswordInput = document.getElementById("admin-password");
+    const adminUnlockBtn = document.getElementById("admin-unlock");
+
+    const uploadFile = document.getElementById("upload-file");
+    const uploadAlt = document.getElementById("upload-alt");
+    const uploadName = document.getElementById("upload-name");
+    const uploadSubmit = document.getElementById("upload-submit");
+    const saveOrderBtn = document.getElementById("save-order");
+
+    let galleryItems = [];
+    let latestSha = "";
+    let adminUnlocked = false;
+
+    function logStatus(message) {
+      const stamp = new Date().toLocaleTimeString();
+      statusLog.textContent = `${stamp}: ${message}`;
+    }
+
+    function renderGallery() {
+      galleryContainer.innerHTML = "";
+      galleryItems.forEach(item => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "gallery-item";
+
+        const img = document.createElement("img");
+        img.src = item.src;
+        img.alt = item.alt || "Gallery image";
+
+        wrapper.appendChild(img);
+        galleryContainer.appendChild(wrapper);
+      });
+    }
+
+    function renderOrderList() {
+      orderList.innerHTML = "";
+      galleryItems.forEach((item, index) => {
+        const li = document.createElement("li");
+        li.draggable = true;
+        li.dataset.index = index;
+
+        const icon = document.createElement("span");
+        icon.className = "drag-handle";
+        icon.textContent = "⋮⋮";
+
+        const text = document.createElement("span");
+        text.textContent = item.alt || item.src;
+
+        li.appendChild(icon);
+        li.appendChild(text);
+        orderList.appendChild(li);
+      });
+
+      attachDragHandlers();
+    }
+
+    function attachDragHandlers() {
+      let dragged;
+
+      orderList.querySelectorAll("li").forEach(li => {
+        li.addEventListener("dragstart", e => {
+          dragged = li;
+          li.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
+        });
+
+        li.addEventListener("dragend", () => {
+          li.classList.remove("dragging");
+        });
+      });
+
+      orderList.addEventListener("dragover", e => {
+        e.preventDefault();
+        const draggingItem = orderList.querySelector(".dragging");
+        const afterElement = getDragAfterElement(orderList, e.clientY);
+        if (!afterElement) {
+          orderList.appendChild(draggingItem);
+        } else {
+          orderList.insertBefore(draggingItem, afterElement);
+        }
+      });
+    }
+
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
+
+      return draggableElements.reduce(
+        (closest, child) => {
+          const box = child.getBoundingClientRect();
+          const offset = y - box.top - box.height / 2;
+          if (offset < 0 && offset > closest.offset) {
+            return { offset, element: child };
+          }
+          return closest;
+        },
+        { offset: Number.NEGATIVE_INFINITY, element: null }
+      ).element;
+    }
+
+    async function loadGalleryData() {
+      try {
+        const response = await fetch("gallery-data.json", { cache: "no-store" });
+        if (!response.ok) throw new Error("Unable to load gallery data");
+        galleryItems = await response.json();
+        logStatus("Loaded gallery-data.json");
+      } catch (err) {
+        galleryItems = [
+          { src: "images/zoe-softball.jpg", alt: "Softball action" },
+          { src: "images/zoe-headshot.jpeg", alt: "Zoe headshot" },
+          { src: "images/zoe1.jpg", alt: "Zoe photo 1" },
+          { src: "images/zoe2.jpg", alt: "Zoe photo 2" },
+          { src: "images/zoe3.jpg", alt: "Zoe photo 3" }
+        ];
+        logStatus("Loaded fallback gallery data");
+      }
+
+      renderGallery();
+      renderOrderList();
+    }
+
+    function collectRepoSettings() {
+      return {
+        owner: "zoe-friedman",
+        repo: "zoe-site",
+        branch: "main",
+        token: ADMIN_PASSWORD
+      };
+    }
+
+    function ensureUnlocked() {
+      if (!adminUnlocked) {
+        logStatus("Enter the admin password to enable actions.");
+      }
+      return adminUnlocked;
+    }
+
+    async function getGalleryContent(settings) {
+      const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json?ref=${settings.branch}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${settings.token}` }
+      });
+      if (!response.ok) {
+        throw new Error("Unable to read gallery-data.json from repository");
+      }
+      const json = await response.json();
+      latestSha = json.sha;
+      const decoded = atob(json.content.replace(/\n/g, ""));
+      return JSON.parse(decoded);
+    }
+
+    async function commitGalleryData(settings, updatedItems, message) {
+      const contentString = JSON.stringify(updatedItems, null, 2) + "\n";
+      const content = btoa(unescape(encodeURIComponent(contentString)));
+
+      const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json`;
+      const payload = {
+        message,
+        content,
+        sha: latestSha || undefined,
+        branch: settings.branch
+      };
+
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${settings.token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to write gallery-data.json");
+      }
+
+      const result = await response.json();
+      latestSha = result.content.sha;
+    }
+
+    async function uploadImage(settings) {
+      const file = uploadFile.files[0];
+      if (!file) {
+        logStatus("Choose an image before uploading.");
+        return;
+      }
+
+      const targetName = (uploadName.value.trim() || file.name).replace(/\s+/g, "-");
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64 = reader.result.split(",")[1];
+          const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/images/${targetName}`;
+
+          const payload = {
+            message: `Add gallery image ${targetName}`,
+            content: base64,
+            branch: settings.branch
+          };
+
+          const response = await fetch(url, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${settings.token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            throw new Error("Image upload failed. Check token scope and branch.");
+          }
+
+          logStatus(`Uploaded ${targetName} to repository.`);
+
+          const updatedItems = [...galleryItems, {
+            src: `images/${targetName}`,
+            alt: uploadAlt.value.trim() || targetName
+          }];
+
+          await refreshLatestSha(settings);
+          await commitGalleryData(settings, updatedItems, `Add ${targetName} to gallery-data.json`);
+          galleryItems = updatedItems;
+          renderGallery();
+          renderOrderList();
+
+          logStatus("Image added to gallery-data.json");
+        } catch (err) {
+          logStatus(err.message);
+        }
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function readOrderFromList() {
+      const items = [];
+      orderList.querySelectorAll("li").forEach(li => {
+        const index = parseInt(li.dataset.index, 10);
+        items.push(galleryItems[index]);
+      });
+      return items;
+    }
+
+    async function refreshLatestSha(settings) {
+      const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json?ref=${settings.branch}`;
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${settings.token}` }
+      });
+      if (!response.ok) {
+        throw new Error("Unable to refresh gallery-data.json sha");
+      }
+      const json = await response.json();
+      latestSha = json.sha;
+      return json.sha;
+    }
+
+    adminToggle.addEventListener("click", () => {
+      adminPanel.classList.toggle("active");
+      adminToggle.textContent = adminPanel.classList.contains("active")
+        ? "Hide admin menu"
+        : "Open admin menu";
+    });
+
+    adminUnlockBtn.addEventListener("click", () => {
+      const value = adminPasswordInput.value.trim();
+      adminUnlocked = value === ADMIN_PASSWORD;
+      if (adminUnlocked) {
+        logStatus("Admin unlocked. Uploading and reordering enabled.");
+      } else {
+        logStatus("Incorrect password. Try again.");
+      }
+    });
+
+    uploadSubmit.addEventListener("click", async () => {
+      if (!ensureUnlocked()) return;
+      const settings = collectRepoSettings();
+      await uploadImage(settings);
+    });
+
+    saveOrderBtn.addEventListener("click", async () => {
+      if (!ensureUnlocked()) return;
+      const settings = collectRepoSettings();
+
+      try {
+        const currentRemoteItems = await getGalleryContent(settings);
+        galleryItems = readOrderFromList();
+
+        // ensure we keep in sync if remote changed size
+        if (currentRemoteItems.length !== galleryItems.length) {
+          galleryItems = currentRemoteItems;
+          renderOrderList();
+          logStatus("Remote gallery data changed. Reloaded latest order.");
+          return;
+        }
+
+        await commitGalleryData(settings, galleryItems, "Reorder gallery images");
+        renderGallery();
+        renderOrderList();
+        logStatus("Saved new order to repository.");
+      } catch (err) {
+        logStatus(err.message);
+      }
+    });
+
+    loadGalleryData();
   </script>
 </body>
 </html>
