@@ -1486,19 +1486,29 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
 
     const normalizeText = (value) => (value || "").trim().replace(/\s+/g, " ");
 
-    const defaultContent = () => ({
-      introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
-      bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
-      bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
-      lockedByAdmin: false,
-      stats: {
-        avg: normalizeText(document.getElementById("stat-avg").textContent.replace("AVG:", "")),
-        obp: normalizeText(document.getElementById("stat-obp").textContent.replace("OBP:", "")),
-        slg: normalizeText(document.getElementById("stat-slg").textContent.replace("SLG:", "")),
-        ops: normalizeText(document.getElementById("stat-ops").textContent.replace("OPS:", "")),
-        fld: normalizeText(document.getElementById("stat-fld").textContent.replace("Fielding %:", "")),
-      },
-    });
+    const defaultContent = () => {
+      const defaultFields = {};
+      document.querySelectorAll("[data-content-key]").forEach((el) => {
+        const key = el.getAttribute("data-content-key");
+        if (!key) return;
+        defaultFields[key] = normalizeText(el.textContent);
+      });
+
+      return {
+        introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
+        bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
+        bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
+        lockedByAdmin: false,
+        stats: {
+          avg: normalizeText(document.getElementById("stat-avg").textContent.replace("AVG:", "")),
+          obp: normalizeText(document.getElementById("stat-obp").textContent.replace("OBP:", "")),
+          slg: normalizeText(document.getElementById("stat-slg").textContent.replace("SLG:", "")),
+          ops: normalizeText(document.getElementById("stat-ops").textContent.replace("OPS:", "")),
+          fld: normalizeText(document.getElementById("stat-fld").textContent.replace("Fielding %:", "")),
+        },
+        fields: defaultFields,
+      };
+    };
 
     const getStored = (key, fallbackFactory) => {
       try {
@@ -1598,6 +1608,25 @@ const adminContentFieldNodes = document.querySelectorAll(
       document.getElementById("bio-primary").textContent = content.bioPrimary;
       document.getElementById("bio-secondary").textContent = content.bioSecondary;
       renderStats(content.stats || {});
+
+      const fields = content.fields || {};
+      document.querySelectorAll("[data-content-key]").forEach((el) => {
+        const key = el.getAttribute("data-content-key");
+        if (!key || fields[key] == null) return;
+
+        const value = fields[key];
+        el.textContent = value;
+
+        if (key === "contactEmail" && el.tagName === "A") {
+          const cleanEmail = value.replace(/^mailto:/i, "");
+          el.setAttribute("href", `mailto:${cleanEmail}`);
+        }
+
+        if (key === "contactLinkedIn" && el.tagName === "A") {
+          const href = value.startsWith("http") ? value : `https://${value}`;
+          el.setAttribute("href", href);
+        }
+      });
     };
 
    const syncAdminForm = () => {
@@ -1650,11 +1679,20 @@ const adminContentFieldNodes = document.querySelectorAll(
 
     const handleInlineEdit = () => {
       if (!settings.developerMode) return;
+
+      const inlineFields = {};
+      document.querySelectorAll("[data-content-key]").forEach((el) => {
+        const key = el.getAttribute("data-content-key");
+        if (!key) return;
+        inlineFields[key] = normalizeText(el.textContent);
+      });
+
       content = {
         ...content,
         introTagline: normalizeText(document.getElementById("intro-tagline").textContent),
         bioPrimary: normalizeText(document.getElementById("bio-primary").textContent),
         bioSecondary: normalizeText(document.getElementById("bio-secondary").textContent),
+        fields: inlineFields,
         lockedByAdmin: true,
       };
       saveContent();
