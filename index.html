@@ -1478,7 +1478,7 @@ const ADMIN_PASSWORD = "zoe-admin"; // must match your Worker secret
     };
 
     const defaultSettings = () => ({
-      theme: body.classList.contains("theme-dark") ? "dark" : "light",
+      theme: "dark",
       fontScale: 1,
       reduceMotion: false,
       developerMode: false,
@@ -1851,11 +1851,15 @@ loadContentFromServer();
   };
 
   // 4. Display settings
+  const selectedTheme = adminThemeSelect?.value || settings.theme;
+  const selectedFontScale = Number(fontSlider?.value ?? settings.fontScale);
+  const reduceMotion = reduceMotionToggle?.checked ?? settings.reduceMotion;
+
   settings = {
     ...settings,
-    theme: adminThemeSelect.value,
-    fontScale: Number(fontSlider.value),
-    reduceMotion: reduceMotionToggle.checked,
+    theme: selectedTheme,
+    fontScale: selectedFontScale,
+    reduceMotion,
   };
 
   saveContent();
