@@ -803,7 +803,7 @@
       const payload = {
         message,
         content,
-        sha: latestSha || undefined,
+        sha: latestSha,
         branch: settings.branch
       };
 
@@ -979,6 +979,7 @@
         }
 
         galleryItems = proposedItems;
+        await refreshLatestSha(settings);
         await commitGalleryData(settings, galleryItems, "Update gallery images");
         renderGallery();
         logStatus("Saved new order to repository.");
