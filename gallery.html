@@ -453,6 +453,13 @@
       color: #fff;
     }
 
+    .admin-button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
     .admin-button:hover {
       transform: translateY(-1px);
       border-color: var(--red-soft);
@@ -678,17 +685,24 @@
       setGalleryBusy(anyBusy);
     }
 
-    function startPublishProgress(durationMs = 25000) {
+    function startPublishProgress(durationMs = 60000) {
       if (!adminProgressBar) return;
 
-      // reset bar
       adminProgressBar.style.transition = "none";
       adminProgressBar.style.width = "0%";
       void adminProgressBar.offsetWidth; // force reflow
 
-      // animate to full over duration
       adminProgressBar.style.transition = `width ${durationMs}ms linear`;
+      adminProgressBar.style.width = "80%";
+    }
+
+    function completePublishProgress() {
+      if (!adminProgressBar) return;
+      adminProgressBar.style.transition = "width 300ms ease-out";
       adminProgressBar.style.width = "100%";
+      setTimeout(() => {
+        resetPublishProgress();
+      }, 400);
     }
 
     function resetPublishProgress() {
@@ -995,12 +1009,12 @@
           const updated = await waitForSiteUpdate(contentString);
 
           if (updated) {
+            completePublishProgress();
             logStatus("Ready. New photo is live on the site.");
           } else {
             logStatus("Photo saved, but the site may still be updating. Try refreshing in a bit.");
+            resetPublishProgress();
           }
-
-          resetPublishProgress();
         } catch (err) {
           resetPublishProgress();
           logStatus(err.message, true);
@@ -1122,12 +1136,12 @@
         const updated = await waitForSiteUpdate(contentString);
 
         if (updated) {
+          completePublishProgress();
           logStatus("Ready. Changes are live on the site.");
         } else {
           logStatus("Changes saved, but the site may still be updating. Try refreshing in a bit.");
+          resetPublishProgress();
         }
-
-        resetPublishProgress();
       } catch (err) {
         resetPublishProgress();
         logStatus(err.message, true);
