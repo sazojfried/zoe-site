@@ -272,6 +272,7 @@
     }
 
     .gallery-item {
+      position: relative;
       overflow: hidden;
       border-radius: 14px;
       box-shadow: var(--shadow-soft);
@@ -289,6 +290,33 @@
       height: 100%;
       object-fit: cover;
       display: block;
+    }
+
+    .gallery-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      border: none;
+      background: rgba(179, 27, 27, 0.92);
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+      opacity: 0.92;
+      transition: transform 0.12s ease, box-shadow 0.18s ease, opacity 0.12s ease;
+    }
+
+    .gallery-delete:hover {
+      transform: scale(1.08);
+      opacity: 1;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
     }
 
     /* ADMIN PANEL */
@@ -523,6 +551,7 @@
 
   <script>
     const ADMIN_PASSWORD = "samandzoe";
+    const TOKEN_STORAGE_KEY = "gallery-pat";
 
     // Footer year
     document.getElementById("year").textContent = new Date().getFullYear();
@@ -569,7 +598,7 @@
       repo: "zoe-site",
       branch: "main"
     };
-    let cachedToken = "";
+    let cachedToken = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
 
     const uploadFile = document.getElementById("upload-file");
     const uploadAlt = document.getElementById("upload-alt");
@@ -586,6 +615,13 @@
       console.log(message);
     }
 
+    function setCachedToken(token) {
+      cachedToken = token;
+      if (token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      }
+    }
+
     function renderGallery() {
       galleryContainer.innerHTML = "";
       galleryItems.forEach((item, index) => {
@@ -597,11 +633,32 @@
         img.src = item.src;
         img.alt = item.alt || "Gallery image";
 
+        if (adminUnlocked) {
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "gallery-delete";
+          deleteBtn.type = "button";
+          deleteBtn.textContent = "×";
+          deleteBtn.setAttribute("aria-label", "Delete image");
+          deleteBtn.setAttribute("draggable", "false");
+          deleteBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            deleteGalleryItem(index);
+          });
+          wrapper.appendChild(deleteBtn);
+        }
+
         wrapper.appendChild(img);
         galleryContainer.appendChild(wrapper);
       });
 
       if (adminUnlocked) enableGalleryDrag();
+    }
+
+    function deleteGalleryItem(index) {
+      if (!ensureUnlocked()) return;
+      galleryItems.splice(index, 1);
+      renderGallery();
     }
 
     function enableGalleryDrag() {
@@ -683,10 +740,14 @@
 
     function collectRepoSettings() {
       if (!cachedToken) {
-        cachedToken =
+        const providedToken =
           prompt(
             "Enter a GitHub personal access token with contents:write scope to save gallery changes"
           )?.trim() || "";
+
+        if (providedToken) {
+          setCachedToken(providedToken);
+        }
       }
 
       return {
@@ -705,7 +766,6 @@
 
     function validateSettings(settings) {
       if (!settings.token) {
-        cachedToken = "";
         logStatus("Provide a GitHub personal access token when prompted.");
         return false;
       }
@@ -891,16 +951,17 @@
 
       try {
         const currentRemoteItems = await getGalleryContent(settings);
-        galleryItems = readOrderFromGallery();
+        const proposedItems = readOrderFromGallery();
+        const hasChanges =
+          JSON.stringify(currentRemoteItems) !== JSON.stringify(proposedItems);
 
-        if (currentRemoteItems.length !== galleryItems.length) {
-          galleryItems = currentRemoteItems;
-          renderGallery();
-          logStatus("Remote gallery data changed. Reloaded latest order.");
+        if (!hasChanges) {
+          logStatus("No changes to save.");
           return;
         }
 
-        await commitGalleryData(settings, galleryItems, "Reorder gallery images");
+        galleryItems = proposedItems;
+        await commitGalleryData(settings, galleryItems, "Update gallery images");
         renderGallery();
         logStatus("Saved new order to repository.");
       } catch (err) {
@@ -910,7 +971,6 @@
 
     adminResetBtn?.addEventListener("click", () => {
       if (!ensureUnlocked()) return;
-      cachedToken = "";
       loadGalleryData();
       logStatus("Reloaded gallery data.");
     });
