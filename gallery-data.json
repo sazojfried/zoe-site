@@ -1,7 +1,22 @@
 [
-  { "src": "images/zoe-softball.jpg", "alt": "Softball action" },
-  { "src": "images/zoe-headshot.jpeg", "alt": "Zoe headshot" },
-  { "src": "images/zoe1.jpg", "alt": "Zoe photo 1" },
-  { "src": "images/zoe2.jpg", "alt": "Zoe photo 2" },
-  { "src": "images/zoe3.jpg", "alt": "Zoe photo 3" }
+  {
+    "src": "images/zoe-headshot.jpeg",
+    "alt": "Zoe headshot"
+  },
+  {
+    "src": "images/zoe1.jpg",
+    "alt": "Zoe photo 1"
+  },
+  {
+    "src": "images/zoe-softball.jpg",
+    "alt": "Softball action"
+  },
+  {
+    "src": "images/zoe2.jpg",
+    "alt": "Zoe photo 2"
+  },
+  {
+    "src": "images/zoe3.jpg",
+    "alt": "Zoe photo 3"
+  }
 ]
