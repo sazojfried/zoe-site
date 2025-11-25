@@ -465,6 +465,24 @@
       margin-top: 6px;
     }
 
+    #admin-progress-wrapper {
+      position: relative;
+      width: 100%;
+      height: 4px;
+      margin-top: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.25);
+      overflow: hidden;
+    }
+
+    #admin-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--red-soft);
+      transition: width 0.2s linear;
+    }
+
     .admin-hidden {
       display: none;
     }
@@ -548,6 +566,9 @@
       <button class="admin-button" id="admin-reset" type="button">Reset changes</button>
     </div>
     <div id="admin-status" class="admin-alert"></div>
+    <div id="admin-progress-wrapper">
+      <div id="admin-progress-bar"></div>
+    </div>
   </section>
 
   <div class="admin-hidden" aria-hidden="true">
@@ -615,6 +636,8 @@
     };
     let cachedToken = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
     const adminStatusEl = document.getElementById("admin-status");
+    const adminProgressWrapper = document.getElementById("admin-progress-wrapper");
+    const adminProgressBar = document.getElementById("admin-progress-bar");
 
     const uploadFile = document.getElementById("upload-file");
     const uploadAlt = document.getElementById("upload-alt");
@@ -663,6 +686,26 @@
       } else if (!anyBusy) {
         logStatus("Ready.");
       }
+    }
+
+    function startPublishProgress(durationMs = 25000) {
+      if (!adminProgressBar) return;
+
+      // reset bar
+      adminProgressBar.style.transition = "none";
+      adminProgressBar.style.width = "0%";
+      void adminProgressBar.offsetWidth; // force reflow
+
+      // animate to full over duration
+      adminProgressBar.style.transition = `width ${durationMs}ms linear`;
+      adminProgressBar.style.width = "100%";
+
+      // after it finishes, collapse back to 0
+      setTimeout(() => {
+        if (!adminProgressBar) return;
+        adminProgressBar.style.transition = "width 400ms ease-out";
+        adminProgressBar.style.width = "0%";
+      }, durationMs + 400);
     }
 
     function setCachedToken(token) {
@@ -927,8 +970,8 @@
           );
           galleryItems = updatedItems;
           renderGallery();
-
-          logStatus("Image added to gallery-data.json");
+          startPublishProgress();
+          logStatus("Photo uploaded. Site may take ~30 seconds to update for everyone.");
         } catch (err) {
           logStatus(err.message, true);
         } finally {
@@ -1036,7 +1079,8 @@
         galleryItems = proposedItems;
         await commitGalleryData(settings, galleryItems, "Update gallery images", sha);
         renderGallery();
-        logStatus("Saved new order to repository.");
+        startPublishProgress();
+        logStatus("Changes saved. Site may take ~30 seconds to update for everyone.");
       } catch (err) {
         logStatus(err.message, true);
       } finally {
