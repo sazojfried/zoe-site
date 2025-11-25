@@ -230,10 +230,13 @@
     }
 
     .admin-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .admin-close {
@@ -275,19 +278,19 @@
     }
 
     .admin-row label {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 500;
       color: var(--text-muted);
     }
 
     .admin-row input[type="text"],
     .admin-row input[type="password"] {
-      padding: 10px 12px;
+      padding: 10px;
       border-radius: 10px;
       border: 1px solid var(--border-subtle);
       background: var(--bg-card);
       color: var(--text-main);
-      font-size: 14px;
+      font-size: 13px;
       outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
@@ -301,20 +304,24 @@
 
     .admin-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 4px;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
     }
 
     .admin-button {
+      flex: 1;
       padding: 10px 12px;
       border-radius: 12px;
       border: 1px solid var(--border-subtle);
       background: var(--bg-card);
       color: var(--text-main);
       font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: background-color 0.2s ease, border-color 0.2s ease,
-        color 0.2s ease, transform 0.1s ease;
+      transition: transform 0.15s ease, border-color 0.2s ease,
+        background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .admin-button.primary {
@@ -326,6 +333,7 @@
     .admin-button:hover {
       transform: translateY(-1px);
       border-color: var(--red-soft);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
     }
 
     .admin-alert {
