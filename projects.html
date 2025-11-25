@@ -169,6 +169,170 @@
       transform: translateY(-1px);
     }
 
+    /* Admin floating panel */
+    .admin-launcher {
+      position: fixed;
+      right: 16px;
+      bottom: 18px;
+      z-index: 30;
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      font-weight: 600;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease,
+        background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .admin-launcher:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.18);
+      border-color: var(--red-soft);
+    }
+
+    .admin-panel {
+      position: fixed;
+      right: 16px;
+      bottom: 80px;
+      width: min(440px, calc(100% - 32px));
+      max-height: min(660px, calc(100vh - 120px));
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      transform: translateY(16px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-panel.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+    }
+
+    .admin-title {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .admin-close {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+      border-radius: 8px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .admin-close:hover {
+      background: rgba(179, 27, 27, 0.08);
+      color: var(--text-main);
+    }
+
+    .admin-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+    }
+
+    .admin-section p {
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .admin-section:last-child {
+      border-bottom: none;
+    }
+
+    .admin-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .admin-row label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .admin-row input[type="text"],
+    .admin-row input[type="password"] {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .admin-row input:focus,
+    .admin-row textarea:focus,
+    .admin-row select:focus {
+      border-color: var(--red-soft);
+      box-shadow: 0 0 0 3px rgba(179, 27, 27, 0.1);
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .admin-button {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease,
+        color 0.2s ease, transform 0.1s ease;
+    }
+
+    .admin-button.primary {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    .admin-button:hover {
+      transform: translateY(-1px);
+      border-color: var(--red-soft);
+    }
+
+    .admin-alert {
+      margin-top: 6px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
     .nav-toggle {
       display: none;
       width: 32px;
@@ -1700,7 +1864,96 @@
   loop();
   tick();
 })();
-       
+
+  </script>
+
+  <button class="admin-launcher" id="admin-launcher" type="button">Admin</button>
+
+  <div class="admin-panel" id="admin-panel" aria-live="polite">
+    <div class="admin-header">
+      <div class="admin-title">Projects Admin</div>
+      <button class="admin-close" id="admin-close" type="button" aria-label="Close admin">×</button>
+    </div>
+
+    <div id="admin-locked">
+      <div class="admin-row">
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" placeholder="Enter admin password" />
+      </div>
+      <div class="admin-actions">
+        <button class="admin-button primary" id="admin-auth-btn" type="button">Unlock</button>
+      </div>
+      <div class="admin-alert" id="admin-status">Client-side lock for quick edits.</div>
+    </div>
+
+    <div id="admin-content" style="display: none;">
+      <div class="admin-section">
+        <p>Sorry, Zo - gotta edit this one manually.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const ADMIN_PASSWORD = "samandzoe";
+      const STORAGE_KEY = "zoe-projects-admin-session";
+
+      const adminPanel = document.getElementById("admin-panel");
+      const adminLauncher = document.getElementById("admin-launcher");
+      const adminClose = document.getElementById("admin-close");
+      const adminLocked = document.getElementById("admin-locked");
+      const adminContent = document.getElementById("admin-content");
+      const adminPassword = document.getElementById("admin-password");
+      const adminAuthBtn = document.getElementById("admin-auth-btn");
+      const adminStatus = document.getElementById("admin-status");
+
+      if (!adminPanel) return;
+
+      const setAdminOpen = (open) => {
+        adminPanel.classList.toggle("open", open);
+        if (open && adminPassword) {
+          adminPassword.focus();
+        }
+      };
+
+      const unlockAdmin = () => {
+        sessionStorage.setItem(STORAGE_KEY, "true");
+        if (adminLocked) adminLocked.style.display = "none";
+        if (adminContent) adminContent.style.display = "block";
+        if (adminStatus) adminStatus.textContent = "";
+      };
+
+      const isUnlocked = () => sessionStorage.getItem(STORAGE_KEY) === "true";
+
+      if (isUnlocked()) {
+        unlockAdmin();
+      }
+
+      adminLauncher?.addEventListener("click", () => setAdminOpen(true));
+      adminClose?.addEventListener("click", () => setAdminOpen(false));
+
+      adminAuthBtn?.addEventListener("click", () => {
+        const pass = adminPassword?.value.trim() || "";
+        if (pass === ADMIN_PASSWORD) {
+          unlockAdmin();
+          if (adminPassword) adminPassword.value = "";
+        } else if (adminStatus) {
+          adminStatus.textContent = "Incorrect password.";
+        }
+      });
+
+      adminPassword?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          adminAuthBtn?.click();
+        }
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          setAdminOpen(false);
+        }
+      });
+    })();
   </script>
 </body>
 </html>
