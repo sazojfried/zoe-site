@@ -676,16 +676,6 @@
       if (adminResetBtn) adminResetBtn.disabled = anyBusy;
 
       setGalleryBusy(anyBusy);
-
-      if (busy) {
-        if (type === "save") {
-          logStatus("Saving changes to GitHub…");
-        } else if (type === "upload") {
-          logStatus("Uploading photo and updating gallery…");
-        }
-      } else if (!anyBusy) {
-        logStatus("Ready.");
-      }
     }
 
     function startPublishProgress(durationMs = 25000) {
@@ -699,13 +689,39 @@
       // animate to full over duration
       adminProgressBar.style.transition = `width ${durationMs}ms linear`;
       adminProgressBar.style.width = "100%";
+    }
 
-      // after it finishes, collapse back to 0
-      setTimeout(() => {
-        if (!adminProgressBar) return;
-        adminProgressBar.style.transition = "width 400ms ease-out";
-        adminProgressBar.style.width = "0%";
-      }, durationMs + 400);
+    function resetPublishProgress() {
+      if (!adminProgressBar) return;
+      adminProgressBar.style.transition = "width 300ms ease-out";
+      adminProgressBar.style.width = "0%";
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function waitForSiteUpdate(expectedContent, timeoutMs = 60000, intervalMs = 3000) {
+      const deadline = Date.now() + timeoutMs;
+
+      while (Date.now() < deadline) {
+        try {
+          // Hit the deployed site, not the GitHub API
+          const res = await fetch("gallery-data.json?cb=" + Date.now(), { cache: "no-store" });
+          if (res.ok) {
+            const text = await res.text();
+            if (text.trim() === expectedContent.trim()) {
+              return true; // deployment is live from this browser’s point of view
+            }
+          }
+        } catch (e) {
+          // ignore and retry
+        }
+
+        await sleep(intervalMs);
+      }
+
+      return false; // timed out waiting
     }
 
     function setCachedToken(token) {
@@ -970,9 +986,23 @@
           );
           galleryItems = updatedItems;
           renderGallery();
+
+          const contentString = JSON.stringify(galleryItems, null, 2) + "\n";
+
           startPublishProgress();
-          logStatus("Photo uploaded. Site may take ~30 seconds to update for everyone.");
+          logStatus("Photo uploaded. Waiting for site to publish…");
+
+          const updated = await waitForSiteUpdate(contentString);
+
+          if (updated) {
+            logStatus("Ready. New photo is live on the site.");
+          } else {
+            logStatus("Photo saved, but the site may still be updating. Try refreshing in a bit.");
+          }
+
+          resetPublishProgress();
         } catch (err) {
+          resetPublishProgress();
           logStatus(err.message, true);
         } finally {
           setBusyState("upload", false);
@@ -1077,11 +1107,29 @@
         }
 
         galleryItems = proposedItems;
+
+        // Build the JSON string that will be deployed
+        const contentString = JSON.stringify(galleryItems, null, 2) + "\n";
+
+        // Commit to GitHub (source of truth)
         await commitGalleryData(settings, galleryItems, "Update gallery images", sha);
         renderGallery();
+
+        // Start publishing phase
         startPublishProgress();
-        logStatus("Changes saved. Site may take ~30 seconds to update for everyone.");
+        logStatus("Changes saved. Waiting for site to publish…");
+
+        const updated = await waitForSiteUpdate(contentString);
+
+        if (updated) {
+          logStatus("Ready. Changes are live on the site.");
+        } else {
+          logStatus("Changes saved, but the site may still be updating. Try refreshing in a bit.");
+        }
+
+        resetPublishProgress();
       } catch (err) {
+        resetPublishProgress();
         logStatus(err.message, true);
       } finally {
         setBusyState("save", false);
