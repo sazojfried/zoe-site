@@ -278,6 +278,29 @@
       border: 1px solid var(--border-subtle);
       background: var(--bg-card);
       transition: transform 0.2s ease;
+      position: relative;
+    }
+
+    .gallery-delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: none;
+      background: var(--red);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    }
+
+    .admin-mode .gallery-delete {
+      display: inline-flex;
     }
 
     .gallery-item:hover {
@@ -292,186 +315,143 @@
     }
 
     /* ADMIN PANEL */
-    .admin-banner {
+    .admin-launcher {
       position: fixed;
-      bottom: 18px;
       right: 18px;
-      width: calc(100% - 36px);
-      max-width: 340px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      color: var(--text-muted);
-      font-size: 12px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      box-shadow: var(--shadow-soft);
+      bottom: 18px;
       z-index: 30;
-    }
-
-    .admin-toggle {
-      border-radius: 999px;
+      padding: 10px 14px;
+      border-radius: 12px;
       border: 1px solid var(--border-subtle);
-      background: var(--bg-card);
+      background: var(--bg-elevated);
       color: var(--text-main);
-      padding: 10px 16px;
-      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       cursor: pointer;
-      letter-spacing: 0.04em;
-      transition: transform 0.1s ease, border-color 0.2s ease,
-        box-shadow 0.2s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      transition: transform 0.15s ease, box-shadow 0.2s ease,
+        background-color 0.25s ease, border-color 0.25s ease;
     }
 
-    .admin-toggle:hover {
+    .admin-launcher:hover {
       transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
       border-color: var(--red-soft);
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
     }
 
     .admin-panel {
-      display: none;
       position: fixed;
-      bottom: 90px;
       right: 18px;
-      width: min(520px, calc(100% - 36px));
-      max-height: calc(100vh - 140px);
+      bottom: 68px;
+      width: min(420px, calc(100% - 24px));
+      max-height: 80vh;
       overflow: auto;
-      padding: 18px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
+      z-index: 40;
       background: var(--bg-elevated);
-      box-shadow: var(--shadow-soft);
-      gap: 16px;
       color: var(--text-main);
-      z-index: 30;
-    }
-
-    .admin-panel.active {
-      display: grid;
-    }
-
-    @media (max-width: 540px) {
-      .admin-panel {
-        right: 12px;
-        bottom: 86px;
-        width: calc(100% - 24px);
-        max-height: calc(100vh - 120px);
-      }
-
-      .admin-banner {
-        right: 12px;
-        bottom: 12px;
-        width: calc(100% - 24px);
-      }
-    }
-
-    .admin-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .admin-card {
+      border-radius: 14px;
       border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 12px;
-      background: var(--bg-card);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+      display: none;
+      padding: 16px;
     }
 
-    .admin-card h3 {
-      margin-bottom: 8px;
-      font-size: 15px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .admin-card label {
+    .admin-panel.open {
       display: block;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .admin-title {
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .admin-close {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .admin-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .admin-row label {
       font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 4px;
     }
 
-    .admin-card input,
-    .admin-card textarea,
-    .admin-card button {
-      width: 100%;
+    .admin-row input[type="password"] {
       padding: 10px;
       border-radius: 10px;
       border: 1px solid var(--border-subtle);
-      background: var(--bg-elevated);
+      background: var(--bg-card);
       color: var(--text-main);
       font-size: 13px;
     }
 
-    .admin-card button {
+    .admin-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .admin-button {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-main);
       cursor: pointer;
       font-weight: 600;
-      letter-spacing: 0.03em;
-      transition: transform 0.1s ease, border-color 0.2s ease,
-        background-color 0.2s ease;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: transform 0.15s ease, border-color 0.2s ease,
+        background-color 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .admin-card button:hover {
+    .admin-button.primary {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .admin-button:hover {
       transform: translateY(-1px);
       border-color: var(--red-soft);
-      background: rgba(179, 27, 27, 0.08);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
     }
 
-    .admin-inline {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .admin-note {
+    .admin-alert {
       font-size: 12px;
       color: var(--text-muted);
-      line-height: 1.5;
+      margin-top: 6px;
     }
 
-    .status-log {
-      font-size: 12px;
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0.05);
-      border: 1px dashed var(--border-subtle);
-      max-height: 140px;
-      overflow: auto;
+    .admin-hidden {
+      display: none;
     }
 
     .draggable-list {
       list-style: none;
       padding: 0;
       margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .draggable-list li {
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-subtle);
-      background: var(--bg-elevated);
-      cursor: grab;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .draggable-list li.dragging {
-      opacity: 0.6;
-    }
-
-    .drag-handle {
-      font-size: 16px;
-      color: var(--text-muted);
     }
   
     footer {
@@ -524,73 +504,37 @@
     <p>A collection of moments from softball, campus life, and community work.</p>
   </div>
 
-  <div class="admin-banner">
-    <button id="admin-toggle" class="admin-toggle" type="button">
-      Open admin menu
-    </button>
-    <span class="admin-note"
-      >Admins can upload new photos directly to the repository and drag to rearrange
-      gallery order.</span
-    >
-  </div>
+  <button class="admin-launcher" id="admin-launcher" type="button">Admin</button>
 
-  <section id="admin-panel" class="admin-panel">
-    <div class="admin-grid">
-      <div class="admin-card">
-        <h3>Admin access</h3>
-        <p class="admin-note">
-          Enter the admin password to unlock uploads and reordering.
-        </p>
-        <label for="admin-password">Password</label>
-        <input id="admin-password" type="password" autocomplete="off" placeholder="samandzoe" />
-        <button id="admin-unlock" type="button">Unlock</button>
-        <p class="admin-note">
-          Repository updates target the default <code>zoe-friedman/zoe-site</code>
-          repository on the <code>main</code> branch. You will be prompted for a
-          GitHub personal access token (with <code>contents:write</code> scope)
-          when attempting to upload or save changes.
-        </p>
-      </div>
-
-      <div class="admin-card">
-        <h3>Upload new photo</h3>
-        <div>
-          <label for="upload-file">Image file</label>
-          <input id="upload-file" type="file" accept="image/*" />
-        </div>
-        <div class="admin-inline">
-          <div>
-            <label for="upload-alt">Alt text</label>
-            <input id="upload-alt" type="text" placeholder="Softball action" />
-          </div>
-          <div>
-            <label for="upload-name">File name (optional)</label>
-            <input id="upload-name" type="text" placeholder="softball-swing.jpg" />
-          </div>
-        </div>
-        <button id="upload-submit" type="button">Upload to repo</button>
-        <p class="admin-note">
-          The selected image will be committed to the <code>images/</code> folder and added to
-          <code>gallery-data.json</code> in the chosen branch.
-        </p>
-      </div>
-
-      <div class="admin-card">
-        <h3>Reorder gallery</h3>
-        <p class="admin-note">
-          Drag items to change their order, then save to update
-          <code>gallery-data.json</code> in the repository.
-        </p>
-        <ul id="order-list" class="draggable-list"></ul>
-        <button id="save-order" type="button">Save order to repo</button>
-      </div>
+  <section id="admin-panel" class="admin-panel" aria-live="polite">
+    <div class="admin-header">
+      <div class="admin-title">Gallery Admin</div>
+      <button class="admin-close" id="admin-close" type="button" aria-label="Close admin">×</button>
     </div>
 
-    <div class="admin-card">
-      <h3>Status</h3>
-      <div id="status-log" class="status-log">Idle.</div>
+    <div id="admin-locked">
+      <div class="admin-row">
+        <label for="admin-password">Password</label>
+        <input id="admin-password" type="password" autocomplete="off" placeholder="Enter admin password" />
+      </div>
+      <div class="admin-actions">
+        <button class="admin-button primary" id="admin-auth-btn" type="button">Unlock</button>
+      </div>
+      <div class="admin-alert">Client-side lock for quick edits.</div>
+    </div>
+
+    <div id="admin-actions" class="admin-actions" style="display: none;">
+      <button class="admin-button primary" id="admin-save" type="button">Save changes</button>
+      <button class="admin-button" id="admin-upload" type="button">Upload photo</button>
+      <button class="admin-button" id="admin-reset" type="button">Reset changes</button>
     </div>
   </section>
+
+  <div class="admin-hidden" aria-hidden="true">
+    <input id="upload-file" type="file" accept="image/*" />
+    <input id="upload-alt" type="text" />
+    <input id="upload-name" type="text" />
+  </div>
 
   <!-- GALLERY -->
   <div class="gallery">
@@ -636,100 +580,98 @@
 
     // Gallery data
     const galleryContainer = document.querySelector(".gallery");
-    const orderList = document.getElementById("order-list");
-    const statusLog = document.getElementById("status-log");
     const adminPanel = document.getElementById("admin-panel");
-    const adminToggle = document.getElementById("admin-toggle");
+    const adminLauncher = document.getElementById("admin-launcher");
+    const adminClose = document.getElementById("admin-close");
+    const adminLocked = document.getElementById("admin-locked");
+    const adminActionsContainer = document.getElementById("admin-actions");
     const adminPasswordInput = document.getElementById("admin-password");
-    const adminUnlockBtn = document.getElementById("admin-unlock");
+    const adminAuthBtn = document.getElementById("admin-auth-btn");
+    const TOKEN_STORAGE_KEY = "galleryAdminToken";
     const REPO_CONFIG = {
       owner: "zoe-friedman",
       repo: "zoe-site",
       branch: "main"
     };
-    let cachedToken = "";
+    let cachedToken = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
 
     const uploadFile = document.getElementById("upload-file");
     const uploadAlt = document.getElementById("upload-alt");
     const uploadName = document.getElementById("upload-name");
-    const uploadSubmit = document.getElementById("upload-submit");
-    const saveOrderBtn = document.getElementById("save-order");
+    const adminUploadBtn = document.getElementById("admin-upload");
+    const adminSaveBtn = document.getElementById("admin-save");
+    const adminResetBtn = document.getElementById("admin-reset");
 
     let galleryItems = [];
     let latestSha = "";
     let adminUnlocked = false;
 
     function logStatus(message) {
-      const stamp = new Date().toLocaleTimeString();
-      statusLog.textContent = `${stamp}: ${message}`;
+      console.log(message);
     }
 
     function renderGallery() {
       galleryContainer.innerHTML = "";
-      galleryItems.forEach(item => {
+      galleryItems.forEach((item, index) => {
         const wrapper = document.createElement("div");
         wrapper.className = "gallery-item";
+        wrapper.dataset.index = index;
 
         const img = document.createElement("img");
         img.src = item.src;
         img.alt = item.alt || "Gallery image";
 
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "gallery-delete";
+        deleteBtn.type = "button";
+        deleteBtn.textContent = "×";
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          deleteGalleryItem(index);
+        });
+
         wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
         galleryContainer.appendChild(wrapper);
       });
+
+      if (adminUnlocked) enableGalleryDrag();
     }
 
-    function renderOrderList() {
-      orderList.innerHTML = "";
-      galleryItems.forEach((item, index) => {
-        const li = document.createElement("li");
-        li.draggable = true;
-        li.dataset.index = index;
+    function enableGalleryDrag() {
+      const items = galleryContainer.querySelectorAll(".gallery-item");
+      galleryContainer.removeEventListener("dragover", handleGalleryDragOver);
+      galleryContainer.addEventListener("dragover", handleGalleryDragOver);
 
-        const icon = document.createElement("span");
-        icon.className = "drag-handle";
-        icon.textContent = "⋮⋮";
-
-        const text = document.createElement("span");
-        text.textContent = item.alt || item.src;
-
-        li.appendChild(icon);
-        li.appendChild(text);
-        orderList.appendChild(li);
-      });
-
-      attachDragHandlers();
-    }
-
-    function attachDragHandlers() {
-      let dragged;
-
-      orderList.querySelectorAll("li").forEach(li => {
-        li.addEventListener("dragstart", e => {
-          dragged = li;
-          li.classList.add("dragging");
-          e.dataTransfer.effectAllowed = "move";
+      items.forEach(item => {
+        item.setAttribute("draggable", "true");
+        item.addEventListener("dragstart", () => {
+          item.classList.add("dragging");
         });
 
-        li.addEventListener("dragend", () => {
-          li.classList.remove("dragging");
+        item.addEventListener("dragend", () => {
+          item.classList.remove("dragging");
+          updateOrderFromGallery();
+          renderGallery();
         });
-      });
-
-      orderList.addEventListener("dragover", e => {
-        e.preventDefault();
-        const draggingItem = orderList.querySelector(".dragging");
-        const afterElement = getDragAfterElement(orderList, e.clientY);
-        if (!afterElement) {
-          orderList.appendChild(draggingItem);
-        } else {
-          orderList.insertBefore(draggingItem, afterElement);
-        }
       });
     }
 
-    function getDragAfterElement(container, y) {
-      const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
+    function handleGalleryDragOver(e) {
+      e.preventDefault();
+      const draggingItem = galleryContainer.querySelector(".dragging");
+      if (!draggingItem) return;
+
+      const afterElement = getGalleryDragAfterElement(e.clientY);
+      if (!afterElement) {
+        galleryContainer.appendChild(draggingItem);
+      } else {
+        galleryContainer.insertBefore(draggingItem, afterElement);
+      }
+    }
+
+    function getGalleryDragAfterElement(y) {
+      const draggableElements = [...galleryContainer.querySelectorAll(".gallery-item:not(.dragging)")];
 
       return draggableElements.reduce(
         (closest, child) => {
@@ -742,6 +684,15 @@
         },
         { offset: Number.NEGATIVE_INFINITY, element: null }
       ).element;
+    }
+
+    function updateOrderFromGallery() {
+      const reordered = [];
+      galleryContainer.querySelectorAll(".gallery-item").forEach(item => {
+        const index = parseInt(item.dataset.index, 10);
+        reordered.push(galleryItems[index]);
+      });
+      galleryItems = reordered;
     }
 
     async function loadGalleryData() {
@@ -762,15 +713,19 @@
       }
 
       renderGallery();
-      renderOrderList();
     }
 
     function collectRepoSettings() {
       if (!cachedToken) {
-        cachedToken =
+        const entered =
           prompt(
             "Enter a GitHub personal access token with contents:write scope to save gallery changes"
-          )?.trim() || "";
+          )?.trim();
+
+        if (entered) {
+          cachedToken = entered;
+          localStorage.setItem(TOKEN_STORAGE_KEY, cachedToken);
+        }
       }
 
       return {
@@ -789,7 +744,6 @@
 
     function validateSettings(settings) {
       if (!settings.token) {
-        cachedToken = "";
         logStatus("Provide a GitHub personal access token when prompted.");
         return false;
       }
@@ -884,7 +838,6 @@
           await commitGalleryData(settings, updatedItems, `Add ${targetName} to gallery-data.json`);
           galleryItems = updatedItems;
           renderGallery();
-          renderOrderList();
 
           logStatus("Image added to gallery-data.json");
         } catch (err) {
@@ -895,10 +848,10 @@
       reader.readAsDataURL(file);
     }
 
-    function readOrderFromList() {
+    function readOrderFromGallery() {
       const items = [];
-      orderList.querySelectorAll("li").forEach(li => {
-        const index = parseInt(li.dataset.index, 10);
+      galleryContainer.querySelectorAll(".gallery-item").forEach(item => {
+        const index = parseInt(item.dataset.index, 10);
         items.push(galleryItems[index]);
       });
       return items;
@@ -917,55 +870,118 @@
       return json.sha;
     }
 
-    adminToggle.addEventListener("click", () => {
-      adminPanel.classList.toggle("active");
-      adminToggle.textContent = adminPanel.classList.contains("active")
-        ? "Hide admin menu"
-        : "Open admin menu";
-    });
+    const setAdminOpen = (open) => {
+      if (!adminPanel || !adminLauncher) return;
+      adminPanel.classList.toggle("open", open);
+      adminLauncher.setAttribute("aria-expanded", open ? "true" : "false");
+    };
 
-    adminUnlockBtn.addEventListener("click", () => {
+    adminLauncher?.addEventListener("click", () => setAdminOpen(true));
+    adminClose?.addEventListener("click", () => setAdminOpen(false));
+
+    adminAuthBtn?.addEventListener("click", () => {
       const value = adminPasswordInput.value.trim();
       adminUnlocked = value === ADMIN_PASSWORD;
+      body.classList.toggle("admin-mode", adminUnlocked);
       if (adminUnlocked) {
+        adminLocked.style.display = "none";
+        adminActionsContainer.style.display = "flex";
+        setAdminOpen(true);
+        renderGallery();
         logStatus("Admin unlocked. Uploading and reordering enabled.");
       } else {
         logStatus("Incorrect password. Try again.");
       }
     });
 
-    uploadSubmit.addEventListener("click", async () => {
+    adminPasswordInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        adminAuthBtn.click();
+      }
+    });
+
+    adminUploadBtn?.addEventListener("click", () => {
       if (!ensureUnlocked()) return;
+      uploadFile.value = "";
+      uploadFile.click();
+    });
+
+    uploadFile?.addEventListener("change", async () => {
+      if (!uploadFile.files[0]) return;
+      if (!ensureUnlocked()) return;
+      uploadAlt.value =
+        prompt("Enter alt text for the photo", uploadFile.files[0].name) ||
+        uploadFile.files[0].name;
+      uploadName.value =
+        (prompt(
+          "Optional: enter a file name (leave blank to use the selected name)",
+          uploadFile.files[0].name
+        ) || "").trim();
+
       const settings = collectRepoSettings();
       if (!validateSettings(settings)) return;
       await uploadImage(settings);
     });
 
-    saveOrderBtn.addEventListener("click", async () => {
+    adminSaveBtn?.addEventListener("click", async () => {
       if (!ensureUnlocked()) return;
       const settings = collectRepoSettings();
       if (!validateSettings(settings)) return;
 
       try {
         const currentRemoteItems = await getGalleryContent(settings);
-        galleryItems = readOrderFromList();
+        galleryItems = readOrderFromGallery();
 
-        // ensure we keep in sync if remote changed size
         if (currentRemoteItems.length !== galleryItems.length) {
           galleryItems = currentRemoteItems;
-          renderOrderList();
+          renderGallery();
           logStatus("Remote gallery data changed. Reloaded latest order.");
           return;
         }
 
         await commitGalleryData(settings, galleryItems, "Reorder gallery images");
         renderGallery();
-        renderOrderList();
         logStatus("Saved new order to repository.");
       } catch (err) {
         logStatus(err.message);
       }
     });
+
+    adminResetBtn?.addEventListener("click", () => {
+      if (!ensureUnlocked()) return;
+      loadGalleryData();
+      logStatus("Reloaded gallery data.");
+    });
+
+    async function deleteGalleryItem(index) {
+      if (!ensureUnlocked()) return;
+
+      const currentItems = readOrderFromGallery();
+      const target = currentItems[index];
+      if (!target) return;
+
+      const confirmed = confirm("Delete this photo from the gallery? This removes it from gallery-data.json.");
+      if (!confirmed) return;
+
+      const updatedItems = currentItems.filter((_, i) => i !== index);
+      galleryItems = updatedItems;
+      renderGallery();
+
+      const settings = collectRepoSettings();
+      if (!validateSettings(settings)) return;
+
+      try {
+        await refreshLatestSha(settings);
+        await commitGalleryData(
+          settings,
+          updatedItems,
+          `Remove gallery image ${target.alt || target.src || index}`
+        );
+        logStatus("Deleted image and updated gallery-data.json.");
+      } catch (err) {
+        logStatus(err.message);
+      }
+    }
 
     loadGalleryData();
   </script>
