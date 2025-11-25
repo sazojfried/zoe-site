@@ -1,15 +1,15 @@
 [
   {
-    "src": "images/zoe-softball.jpg",
-    "alt": "Softball action"
-  },
-  {
     "src": "images/zoe-headshot.jpeg",
     "alt": "Zoe headshot"
   },
   {
     "src": "images/zoe1.jpg",
     "alt": "Zoe photo 1"
+  },
+  {
+    "src": "images/zoe-softball.jpg",
+    "alt": "Softball action"
   },
   {
     "src": "images/zoe2.jpg",
@@ -20,7 +20,7 @@
     "alt": "Zoe photo 3"
   },
   {
-    "src": "images/Ian_Fernandes_IMG_6269_V2.jpg",
-    "alt": "Ian_Fernandes_IMG_6269_V2.jpg"
+    "src": "images/wall82-103-b.jpg",
+    "alt": "wall82 103 b.jpg"
   }
 ]
