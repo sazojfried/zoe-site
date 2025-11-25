@@ -352,6 +352,9 @@
     }
 
     .admin-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: calc(var(--font-scale) * 14px);
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -381,15 +384,15 @@
 
     .admin-row {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
+      gap: 6px;
       margin-bottom: 10px;
       font-size: calc(var(--font-scale) * 12px);
     }
 
     .admin-row label {
-      flex: 1;
       color: var(--text-muted);
+      font-size: calc(var(--font-scale) * 12px);
     }
 
     .admin-row input[type="text"],
@@ -397,13 +400,13 @@
     .admin-row input[type="password"],
     .admin-row textarea,
     .admin-row select {
-      flex: 1.1;
-      padding: 8px 10px;
+      width: 100%;
+      padding: 10px;
       border-radius: 10px;
       border: 1px solid var(--border-subtle);
       background: var(--bg-card);
       color: var(--text-main);
-      font-size: calc(var(--font-scale) * 12px);
+      font-size: calc(var(--font-scale) * 13px);
     }
 
     .admin-row textarea {
@@ -418,22 +421,28 @@
     .admin-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
       margin-top: 8px;
     }
 
     .admin-button {
-      padding: 8px 12px;
-      border-radius: 10px;
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 12px;
       border: 1px solid var(--border-subtle);
       background: var(--bg-card);
       cursor: pointer;
-      font-size: calc(var(--font-scale) * 12px);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: var(--text-main);
+      transition: transform 0.15s ease, border-color 0.2s ease,
+        background-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .admin-button.primary {
-      background: var(--red-soft);
-      border-color: var(--red-soft);
+      background: var(--red);
+      border-color: var(--red);
       color: #fff;
     }
 
@@ -1099,7 +1108,7 @@
     <div id="admin-locked">
       <div class="admin-row">
         <label for="admin-password">Password</label>
-        <input id="admin-password" type="password" placeholder="Enter admin password" />
+        <input id="admin-password" type="password" autocomplete="off" placeholder="Enter admin password" />
       </div>
       <div class="admin-actions">
         <button class="admin-button primary" id="admin-auth-btn" type="button">Unlock</button>
