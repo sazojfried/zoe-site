@@ -408,6 +408,11 @@
       letter-spacing: 0.02em;
       font-weight: 500;
       text-transform: none;
+      display: none;
+    }
+
+    .admin-title-note.is-visible {
+      display: inline;
     }
 
     .admin-close {
@@ -651,6 +656,7 @@
     const adminClose = document.getElementById("admin-close");
     const adminLocked = document.getElementById("admin-locked");
     const adminActionsContainer = document.getElementById("admin-actions");
+    const adminTitleNote = document.querySelector(".admin-title-note");
     const adminPasswordInput = document.getElementById("admin-password");
     const adminAuthBtn = document.getElementById("admin-auth-btn");
     const REPO_CONFIG = {
@@ -1080,6 +1086,7 @@
     adminAuthBtn?.addEventListener("click", () => {
       const value = adminPasswordInput.value.trim();
       adminUnlocked = value === ADMIN_PASSWORD;
+      adminTitleNote?.classList.toggle("is-visible", adminUnlocked);
       if (adminUnlocked) {
         adminLocked.style.display = "none";
         adminActionsContainer.style.display = "flex";
