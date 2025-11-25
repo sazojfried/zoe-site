@@ -533,6 +533,7 @@
       <button class="admin-button" id="admin-upload" type="button">Upload photo</button>
       <button class="admin-button" id="admin-reset" type="button">Reset changes</button>
     </div>
+    <div id="admin-status" class="admin-alert"></div>
   </section>
 
   <div class="admin-hidden" aria-hidden="true">
@@ -599,6 +600,7 @@
       branch: "main"
     };
     let cachedToken = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+    const adminStatusEl = document.getElementById("admin-status");
 
     const uploadFile = document.getElementById("upload-file");
     const uploadAlt = document.getElementById("upload-alt");
@@ -611,8 +613,12 @@
     let latestSha = "";
     let adminUnlocked = false;
 
-    function logStatus(message) {
+    function logStatus(message, isError = false) {
       console.log(message);
+      if (adminStatusEl) {
+        adminStatusEl.textContent = message;
+        adminStatusEl.style.color = isError ? "#b31b1b" : "var(--text-muted)";
+      }
     }
 
     function setCachedToken(token) {
@@ -732,7 +738,7 @@
           { src: "images/zoe2.jpg", alt: "Zoe photo 2" },
           { src: "images/zoe3.jpg", alt: "Zoe photo 3" }
         ];
-        logStatus("Loaded fallback gallery data");
+        logStatus(err.message || "Loaded fallback gallery data", true);
       }
 
       renderGallery();
@@ -766,7 +772,7 @@
 
     function validateSettings(settings) {
       if (!settings.token) {
-        logStatus("Provide a GitHub personal access token when prompted.");
+        logStatus("Provide a GitHub personal access token when prompted.", true);
         return false;
       }
       return true;
@@ -778,7 +784,10 @@
         headers: { Authorization: `Bearer ${settings.token}` }
       });
       if (!response.ok) {
-        throw new Error("Unable to read gallery-data.json from repository");
+        const errorBody = await response.text();
+        const errorMessage = `Unable to read gallery-data.json from repository (status ${response.status}): ${errorBody}`;
+        logStatus(errorMessage, true);
+        throw new Error(errorMessage);
       }
       const json = await response.json();
       latestSha = json.sha;
@@ -808,7 +817,10 @@
       });
 
       if (!response.ok) {
-        throw new Error("Failed to write gallery-data.json");
+        const errorBody = await response.text();
+        const errorMessage = `Failed to write gallery-data.json (status ${response.status}): ${errorBody}`;
+        logStatus(errorMessage, true);
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
@@ -846,7 +858,10 @@
           });
 
           if (!response.ok) {
-            throw new Error("Image upload failed. Check token scope and branch.");
+            const errorBody = await response.text();
+            const errorMessage = `Image upload failed. Status ${response.status}: ${errorBody}`;
+            logStatus(errorMessage, true);
+            throw new Error(errorMessage);
           }
 
           logStatus(`Uploaded ${targetName} to repository.`);
@@ -863,7 +878,7 @@
 
           logStatus("Image added to gallery-data.json");
         } catch (err) {
-          logStatus(err.message);
+          logStatus(err.message, true);
         }
       };
 
@@ -885,7 +900,10 @@
         headers: { Authorization: `Bearer ${settings.token}` }
       });
       if (!response.ok) {
-        throw new Error("Unable to refresh gallery-data.json sha");
+        const errorBody = await response.text();
+        const errorMessage = `Unable to refresh gallery-data.json sha (status ${response.status}): ${errorBody}`;
+        logStatus(errorMessage, true);
+        throw new Error(errorMessage);
       }
       const json = await response.json();
       latestSha = json.sha;
@@ -965,7 +983,7 @@
         renderGallery();
         logStatus("Saved new order to repository.");
       } catch (err) {
-        logStatus(err.message);
+        logStatus(err.message, true);
       }
     });
 
