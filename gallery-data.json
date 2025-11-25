@@ -12,11 +12,11 @@
     "alt": "Zoe photo 1"
   },
   {
-    "src": "images/zoe2.jpg",
-    "alt": "Zoe photo 2"
-  },
-  {
     "src": "images/zoe3.jpg",
     "alt": "Zoe photo 3"
+  },
+  {
+    "src": "images/zoe2.jpg",
+    "alt": "Zoe photo 2"
   }
 ]
