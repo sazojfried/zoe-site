@@ -1,5 +1,9 @@
 [
   {
+    "src": "images/zoe-softball.jpg",
+    "alt": "Softball action"
+  },
+  {
     "src": "images/zoe-headshot.jpeg",
     "alt": "Zoe headshot"
   },
@@ -8,15 +12,15 @@
     "alt": "Zoe photo 1"
   },
   {
-    "src": "images/zoe-softball.jpg",
-    "alt": "Softball action"
-  },
-  {
     "src": "images/zoe2.jpg",
     "alt": "Zoe photo 2"
   },
   {
     "src": "images/zoe3.jpg",
     "alt": "Zoe photo 3"
+  },
+  {
+    "src": "images/Ian_Fernandes_IMG_6269_V2.jpg",
+    "alt": "Ian_Fernandes_IMG_6269_V2.jpg"
   }
 ]
