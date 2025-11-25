@@ -269,6 +269,22 @@
       display: grid;
       gap: 16px;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      position: relative;
+    }
+
+    .gallery.busy::after {
+      content: "Saving…";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      z-index: 10;
     }
 
     .gallery-item {
@@ -612,12 +628,42 @@
     let galleryItems = [];
     let latestSha = "";
     let adminUnlocked = false;
+    let isSaving = false;
+    let isUploading = false;
 
     function logStatus(message, isError = false) {
       console.log(message);
       if (adminStatusEl) {
         adminStatusEl.textContent = message;
         adminStatusEl.style.color = isError ? "#b31b1b" : "var(--text-muted)";
+      }
+    }
+
+    function setGalleryBusy(busy) {
+      if (!galleryContainer) return;
+      galleryContainer.classList.toggle("busy", busy);
+    }
+
+    function setBusyState(type, busy) {
+      if (type === "save") isSaving = busy;
+      if (type === "upload") isUploading = busy;
+
+      const anyBusy = isSaving || isUploading;
+
+      if (adminSaveBtn) adminSaveBtn.disabled = anyBusy;
+      if (adminUploadBtn) adminUploadBtn.disabled = anyBusy;
+      if (adminResetBtn) adminResetBtn.disabled = anyBusy;
+
+      setGalleryBusy(anyBusy);
+
+      if (busy) {
+        if (type === "save") {
+          logStatus("Saving changes to GitHub…");
+        } else if (type === "upload") {
+          logStatus("Uploading photo and updating gallery…");
+        }
+      } else if (!anyBusy) {
+        logStatus("Ready.");
       }
     }
 
@@ -840,6 +886,7 @@
 
       const reader = new FileReader();
       reader.onload = async () => {
+        setBusyState("upload", true);
         try {
           const base64 = reader.result.split(",")[1];
           const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/images/${targetName}`;
@@ -874,13 +921,20 @@
           }];
 
           const sha = await refreshLatestSha(settings);
-await commitGalleryData(settings, updatedItems, `Add ${targetName} to gallery-data.json`, sha);
+          await commitGalleryData(
+            settings,
+            updatedItems,
+            `Add ${targetName} to gallery-data.json`,
+            sha
+          );
           galleryItems = updatedItems;
           renderGallery();
 
           logStatus("Image added to gallery-data.json");
         } catch (err) {
           logStatus(err.message, true);
+        } finally {
+          setBusyState("upload", false);
         }
       };
 
@@ -965,31 +1019,32 @@ await commitGalleryData(settings, updatedItems, `Add ${targetName} to gallery-da
     });
 
     adminSaveBtn?.addEventListener("click", async () => {
-  if (!ensureUnlocked()) return;
-  const settings = collectRepoSettings();
-  if (!validateSettings(settings)) return;
+      if (!ensureUnlocked()) return;
+      const settings = collectRepoSettings();
+      if (!validateSettings(settings)) return;
 
-  try {
-    // Get current remote items + their sha *once*
-    const { items: currentRemoteItems, sha } = await getGalleryContent(settings);
+      setBusyState("save", true);
+      try {
+        const { items: currentRemoteItems, sha } = await getGalleryContent(settings);
+        const proposedItems = readOrderFromGallery();
+        const hasChanges =
+          JSON.stringify(currentRemoteItems) !== JSON.stringify(proposedItems);
 
-    const proposedItems = readOrderFromGallery();
-    const hasChanges =
-      JSON.stringify(currentRemoteItems) !== JSON.stringify(proposedItems);
+        if (!hasChanges) {
+          logStatus("No changes to save.");
+          return;
+        }
 
-    if (!hasChanges) {
-      logStatus("No changes to save.");
-      return;
-    }
-
-    galleryItems = proposedItems;
-    await commitGalleryData(settings, galleryItems, "Update gallery images", sha);
-    renderGallery();
-    logStatus("Saved new order to repository.");
-  } catch (err) {
-    logStatus(err.message, true);
-  }
-});
+        galleryItems = proposedItems;
+        await commitGalleryData(settings, galleryItems, "Update gallery images", sha);
+        renderGallery();
+        logStatus("Saved new order to repository.");
+      } catch (err) {
+        logStatus(err.message, true);
+      } finally {
+        setBusyState("save", false);
+      }
+    });
 
     adminResetBtn?.addEventListener("click", () => {
       if (!ensureUnlocked()) return;
