@@ -778,54 +778,56 @@
       return true;
     }
 
-    async function getGalleryContent(settings) {
-      const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json?ref=${settings.branch}`;
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${settings.token}` }
-      });
-      if (!response.ok) {
-        const errorBody = await response.text();
-        const errorMessage = `Unable to read gallery-data.json from repository (status ${response.status}): ${errorBody}`;
-        logStatus(errorMessage, true);
-        throw new Error(errorMessage);
-      }
-      const json = await response.json();
-      latestSha = json.sha;
-      const decoded = atob(json.content.replace(/\n/g, ""));
-      return JSON.parse(decoded);
-    }
+   async function getGalleryContent(settings) {
+  const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json?ref=${settings.branch}`;
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${settings.token}` }
+  });
+  if (!response.ok) {
+    const errorBody = await response.text();
+    const errorMessage = `Unable to read gallery-data.json from repository (status ${response.status}): ${errorBody}`;
+    logStatus(errorMessage, true);
+    throw new Error(errorMessage);
+  }
+  const json = await response.json();
+  const sha = json.sha;
+  const decoded = atob(json.content.replace(/\n/g, ""));
+  const items = JSON.parse(decoded);
+  return { items, sha };
+}
 
-    async function commitGalleryData(settings, updatedItems, message) {
-      const contentString = JSON.stringify(updatedItems, null, 2) + "\n";
-      const content = btoa(unescape(encodeURIComponent(contentString)));
+    async function commitGalleryData(settings, updatedItems, message, sha) {
+  const contentString = JSON.stringify(updatedItems, null, 2) + "\n";
+  const content = btoa(unescape(encodeURIComponent(contentString)));
 
-      const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json`;
-      const payload = {
-        message,
-        content,
-        sha: latestSha,
-        branch: settings.branch
-      };
+  const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json`;
+  const payload = {
+    message,
+    content,
+    sha,                 // << use the sha passed in
+    branch: settings.branch
+  };
 
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${settings.token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${settings.token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
 
-      if (!response.ok) {
-        const errorBody = await response.text();
-        const errorMessage = `Failed to write gallery-data.json (status ${response.status}): ${errorBody}`;
-        logStatus(errorMessage, true);
-        throw new Error(errorMessage);
-      }
+  if (!response.ok) {
+    const errorBody = await response.text();
+    const errorMessage = `Failed to write gallery-data.json (status ${response.status}): ${errorBody}`;
+    logStatus(errorMessage, true);
+    throw new Error(errorMessage);
+  }
 
-      const result = await response.json();
-      latestSha = result.content.sha;
-    }
+  const result = await response.json();
+  // If you still want to track latestSha, you can:
+  // latestSha = result.content.sha;
+}
 
     async function uploadImage(settings) {
       const file = uploadFile.files[0];
@@ -871,8 +873,8 @@
             alt: uploadAlt.value.trim() || targetName
           }];
 
-          await refreshLatestSha(settings);
-          await commitGalleryData(settings, updatedItems, `Add ${targetName} to gallery-data.json`);
+          const sha = await refreshLatestSha(settings);
+await commitGalleryData(settings, updatedItems, `Add ${targetName} to gallery-data.json`, sha);
           galleryItems = updatedItems;
           renderGallery();
 
@@ -894,21 +896,21 @@
       return items;
     }
 
-    async function refreshLatestSha(settings) {
-      const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json?ref=${settings.branch}`;
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${settings.token}` }
-      });
-      if (!response.ok) {
-        const errorBody = await response.text();
-        const errorMessage = `Unable to refresh gallery-data.json sha (status ${response.status}): ${errorBody}`;
-        logStatus(errorMessage, true);
-        throw new Error(errorMessage);
-      }
-      const json = await response.json();
-      latestSha = json.sha;
-      return json.sha;
-    }
+ async function refreshLatestSha(settings) {
+  const url = `https://api.github.com/repos/${settings.owner}/${settings.repo}/contents/gallery-data.json?ref=${settings.branch}`;
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${settings.token}` }
+  });
+  if (!response.ok) {
+    const errorBody = await response.text();
+    const errorMessage = `Unable to refresh gallery-data.json sha (status ${response.status}): ${errorBody}`;
+    logStatus(errorMessage, true);
+    throw new Error(errorMessage);
+  }
+  const json = await response.json();
+  return json.sha;
+}
+
 
     const setAdminOpen = (open) => {
       if (!adminPanel || !adminLauncher) return;
@@ -963,30 +965,31 @@
     });
 
     adminSaveBtn?.addEventListener("click", async () => {
-      if (!ensureUnlocked()) return;
-      const settings = collectRepoSettings();
-      if (!validateSettings(settings)) return;
+  if (!ensureUnlocked()) return;
+  const settings = collectRepoSettings();
+  if (!validateSettings(settings)) return;
 
-      try {
-        const currentRemoteItems = await getGalleryContent(settings);
-        const proposedItems = readOrderFromGallery();
-        const hasChanges =
-          JSON.stringify(currentRemoteItems) !== JSON.stringify(proposedItems);
+  try {
+    // Get current remote items + their sha *once*
+    const { items: currentRemoteItems, sha } = await getGalleryContent(settings);
 
-        if (!hasChanges) {
-          logStatus("No changes to save.");
-          return;
-        }
+    const proposedItems = readOrderFromGallery();
+    const hasChanges =
+      JSON.stringify(currentRemoteItems) !== JSON.stringify(proposedItems);
 
-        galleryItems = proposedItems;
-        await refreshLatestSha(settings);
-        await commitGalleryData(settings, galleryItems, "Update gallery images");
-        renderGallery();
-        logStatus("Saved new order to repository.");
-      } catch (err) {
-        logStatus(err.message, true);
-      }
-    });
+    if (!hasChanges) {
+      logStatus("No changes to save.");
+      return;
+    }
+
+    galleryItems = proposedItems;
+    await commitGalleryData(settings, galleryItems, "Update gallery images", sha);
+    renderGallery();
+    logStatus("Saved new order to repository.");
+  } catch (err) {
+    logStatus(err.message, true);
+  }
+});
 
     adminResetBtn?.addEventListener("click", () => {
       if (!ensureUnlocked()) return;
