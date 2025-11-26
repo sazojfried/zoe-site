@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grocery Organizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --primary: #0f6fff;
+      --accent: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(79, 70, 229, 0.08), transparent 35%),
+                  radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.07), transparent 40%),
+                  var(--bg);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--accent);
+      min-height: 100vh;
+    }
+    h1 {
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0 0 12px;
+    }
+    p { margin: 0; }
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    .hero-title {
+      font-size: clamp(28px, 4vw, 36px);
+      text-align: center;
+    }
+    .lead {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+    }
+    select, textarea, button {
+      width: 100%;
+      font: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      background: #f9fafb;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+      min-height: 44px;
+    }
+    select:focus, textarea:focus, button:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 111, 255, 0.2);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 140px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .controls button {
+      flex: 1 1 calc(50% - 10px);
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--accent);
+      background: #eef2ff;
+      border-color: #dcdffd;
+    }
+    .controls button.primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .controls button.secondary {
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+    .controls button.ghost {
+      background: #f9fafb;
+      border-color: var(--border);
+    }
+    .results-card {
+      position: relative;
+      overflow: visible;
+    }
+    .analysis-box {
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+      border-radius: var(--radius);
+      padding: 16px;
+      border: 1px solid #dce1ff;
+      margin-bottom: 14px;
+    }
+    .analysis-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .analysis-sub {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .section-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      padding: 6px 4px 6px 6px;
+      z-index: 1;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .chevron {
+      font-size: 14px;
+      margin-right: 4px;
+      color: var(--muted);
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 6px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: background 0.15s ease;
+    }
+    .item:hover { background: #f9fafb; }
+    .item-main { flex: 1; }
+    .item-name { font-weight: 500; }
+    .item-meta { display: flex; align-items: center; gap: 8px; }
+    .badge {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .badge-unavailable { background: #dc2626; color: #fff; }
+    .badge-available { background: #e0f7ed; color: #0f5132; }
+    .toggle-group { display: flex; gap: 6px; }
+    .toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      font-size: 13px;
+      background: #f9fafb;
+      cursor: pointer;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .toggle.picked {
+      background: #e0f2fe;
+      border-color: #93c5fd;
+      color: #0b5394;
+    }
+    .toggle.not-needed {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+    .status-picked .item-name { text-decoration: line-through; color: #6b7280; }
+    .status-not-needed .item-name { font-style: italic; color: #9ca3af; }
+    .suggestions {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .suggestions h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .suggestion-note { color: var(--muted); font-size: 13px; }
+    .back-to-top {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 10px 30px rgba(15,111,255,0.35);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .back-to-top.show { display: flex; opacity: 1; }
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: #16a34a;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      font-weight: 600;
+      min-width: 180px;
+      text-align: center;
+    }
+    .error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .controls button { flex: 1 1 100%; }
+      .section-header { position: sticky; top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="hero-title">Grocery trip, simplified</h1>
+    <p class="lead">Paste any list, pick your store, and get a clear aisle-by-aisle checklist.</p>
+    <div class="layout">
+      <div class="card">
+        <div class="field">
+          <label for="store">Store</label>
+          <select id="store">
+            <option value="decicco_brewster">DeCicco (Brewster)</option>
+            <option value="tops_carmel">Tops (Carmel)</option>
+            <option value="trader_joes_danbury">Trader Joe's (Danbury)</option>
+            <option value="shoprite">ShopRite</option>
+          </select>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label for="list">Your items</label>
+          <textarea id="list" placeholder="You can paste a messy list — we'll split on commas, slashes, or new lines."></textarea>
+        </div>
+        <div class="controls">
+          <button class="primary" id="generate">Generate checklist</button>
+          <button class="secondary" id="copy-link">Copy shareable link</button>
+          <button class="ghost" id="clear">Clear list</button>
+        </div>
+        <div id="error" class="error" style="display:none;"></div>
+      </div>
+      <div class="card results-card" id="results-card">
+        <div id="analysis" class="analysis-box" aria-live="polite">
+          <div class="analysis-title">No checklist yet</div>
+          <div class="analysis-sub">Paste your list and tap Generate.</div>
+        </div>
+        <div id="checklist"></div>
+        <div id="suggestions" class="suggestions" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    const storeSelect = document.getElementById('store');
+    const listInput = document.getElementById('list');
+    const generateBtn = document.getElementById('generate');
+    const clearBtn = document.getElementById('clear');
+    const copyLinkBtn = document.getElementById('copy-link');
+    const checklistEl = document.getElementById('checklist');
+    const analysisEl = document.getElementById('analysis');
+    const errorEl = document.getElementById('error');
+    const suggestionsEl = document.getElementById('suggestions');
+    const backToTopBtn = document.getElementById('back-to-top');
+    const toastContainer = document.getElementById('toast-container');
+    const resultsCard = document.getElementById('results-card');
+
+    const STORAGE_PREFIX = 'grocery_data_';
+    const LAST_STORE_KEY = 'grocery_last_store';
+
+    let renderedItems = [];
+    let itemState = {};
+
+    const sectionIcons = {
+      'Produce': '🥬',
+      'Cheese': '🧀',
+      'Household': '🧽',
+      'Bakery': '🍞',
+      'Pantry': '🥫',
+      'Meat': '🥩',
+      'Frozen': '🧊',
+      'Deli': '🥪',
+      'Dairy': '🥛',
+      'Beverages': '🥤'
+    };
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.setAttribute('role', 'status');
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
+    function parseInput(text) {
+      if (!text) return [];
+      // Split on newlines, commas, semicolons, slashes, or pipes
+      return text
+        .split(/[\n,;\/|]+/)
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
+
+    function getStateId(item) {
+      const section = item.section || 'General';
+      const name = item.name || item;
+      return `${section}::${name}`.toLowerCase();
+    }
+
+    function saveData(store) {
+      const payload = {
+        store,
+        rawText: listInput.value || '',
+        parsedItems: renderedItems,
+        itemState
+      };
+      try {
+        localStorage.setItem(STORAGE_PREFIX + store, JSON.stringify(payload));
+        localStorage.setItem(LAST_STORE_KEY, store);
+      } catch (e) {
+        console.warn('Unable to save data', e);
+      }
+    }
+
+    function loadData(store) {
+      try {
+        const saved = localStorage.getItem(STORAGE_PREFIX + store);
+        return saved ? JSON.parse(saved) : null;
+      } catch (e) {
+        console.warn('Unable to load data', e);
+        return null;
+      }
+    }
+
+    function clearData(store) {
+      try {
+        localStorage.removeItem(STORAGE_PREFIX + store);
+      } catch (e) { console.warn('Unable to clear', e); }
+    }
+
+    function setAnalysis(status, storeName, itemsCount = 0, unavailableCount = 0) {
+      const titleMap = {
+        analyzing: 'Analyzing your list…',
+        ready: 'Checklist ready',
+        idle: 'No checklist yet',
+        error: 'Something went wrong'
+      };
+      const subtitle = storeName ? `Store: ${storeName}` : '';
+      let infoLine = '';
+      if (status === 'analyzing') {
+        infoLine = `Items: ${itemsCount}`;
+      } else if (status === 'ready') {
+        infoLine = `Items: ${itemsCount}${unavailableCount ? ` (${unavailableCount} marked as “Might not be here”)` : ''}`;
+      }
+      analysisEl.innerHTML = `
+        <div class="analysis-title">${titleMap[status] || titleMap.idle}</div>
+        <div class="analysis-sub">${subtitle}</div>
+        ${infoLine ? `<div class="analysis-sub" style="margin-top:4px;">${infoLine}</div>` : ''}
+      `;
+    }
+
+    function createToggleButton(label, activeClass, currentStatus, newStatus) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `toggle ${currentStatus === newStatus ? activeClass : ''}`;
+      btn.textContent = label;
+      return btn;
+    }
+
+    function renderItems(items, isSuggestion = false) {
+      checklistEl.innerHTML = '';
+      if (!items || !items.length) return;
+
+      const groups = items.reduce((acc, item) => {
+        const section = item.section || 'Other';
+        acc[section] = acc[section] || [];
+        acc[section].push(item);
+        return acc;
+      }, {});
+
+      Object.keys(groups).forEach(section => {
+        const sectionCard = document.createElement('div');
+        sectionCard.className = 'section-card';
+
+        const header = document.createElement('div');
+        header.className = 'section-header';
+        const title = document.createElement('div');
+        title.className = 'section-title';
+        const icon = sectionIcons[section] || '🛒';
+        const chevron = document.createElement('span');
+        chevron.className = 'chevron';
+        chevron.textContent = '▼';
+        const titleText = document.createElement('span');
+        titleText.textContent = `${icon} ${section}`;
+        title.prepend(chevron);
+        title.appendChild(titleText);
+
+        const count = document.createElement('span');
+        count.className = 'analysis-sub';
+        count.textContent = `${groups[section].length} item${groups[section].length > 1 ? 's' : ''}`;
+
+        header.appendChild(title);
+        header.appendChild(count);
+        sectionCard.appendChild(header);
+
+        const list = document.createElement('div');
+
+        const collapsedState = { value: false };
+
+        const toggleCollapse = () => {
+          collapsedState.value = !collapsedState.value;
+          list.style.display = collapsedState.value ? 'none' : '';
+          chevron.textContent = collapsedState.value ? '▶' : '▼';
+          count.textContent = collapsedState.value ? `${section} (${groups[section].length})` : `${groups[section].length} item${groups[section].length > 1 ? 's' : ''}`;
+        };
+        header.addEventListener('click', toggleCollapse);
+
+        groups[section].forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'item';
+          const stateId = getStateId(item);
+          const currentState = itemState[stateId]?.status || 'needed';
+          row.classList.toggle('status-picked', currentState === 'picked');
+          row.classList.toggle('status-not-needed', currentState === 'not_needed');
+
+          const main = document.createElement('div');
+          main.className = 'item-main';
+          const name = document.createElement('div');
+          name.className = 'item-name';
+          name.textContent = item.name || item;
+          main.appendChild(name);
+
+          const meta = document.createElement('div');
+          meta.className = 'item-meta';
+
+          if (!isSuggestion) {
+            if (item.likely_available === false) {
+              const badge = document.createElement('div');
+              badge.className = 'badge badge-unavailable';
+              badge.textContent = 'Might not be here';
+              meta.appendChild(badge);
+            } else if (item.likely_available === true) {
+              const badge = document.createElement('div');
+              badge.className = 'badge badge-available';
+              badge.textContent = 'Likely here';
+              meta.appendChild(badge);
+            }
+          } else {
+            const note = document.createElement('div');
+            note.className = 'badge';
+            note.style.background = '#e5e7eb';
+            note.style.color = '#374151';
+            note.textContent = 'Suggestion';
+            meta.appendChild(note);
+          }
+
+          const toggleGroup = document.createElement('div');
+          toggleGroup.className = 'toggle-group';
+          const pickedBtn = createToggleButton('✔ Picked up', 'picked', currentState, 'picked');
+          const notNeededBtn = createToggleButton('✖ Not needed', 'not-needed', currentState, 'not_needed');
+
+          const setState = (status) => {
+            const existing = itemState[stateId]?.status || 'needed';
+            let nextStatus = status;
+            if (existing === status) nextStatus = 'needed';
+            itemState[stateId] = { status: nextStatus };
+            saveData(storeSelect.value);
+            renderItems(renderedItems, false);
+            if (Array.isArray(currentSuggestions)) {
+              renderSuggestions(currentSuggestions);
+            }
+          };
+
+          pickedBtn.addEventListener('click', () => setState('picked'));
+          notNeededBtn.addEventListener('click', () => setState('not_needed'));
+
+          toggleGroup.appendChild(pickedBtn);
+          toggleGroup.appendChild(notNeededBtn);
+          meta.appendChild(toggleGroup);
+
+          row.appendChild(main);
+          row.appendChild(meta);
+          list.appendChild(row);
+        });
+
+        sectionCard.appendChild(list);
+        checklistEl.appendChild(sectionCard);
+      });
+    }
+
+    let currentSuggestions = null;
+    function renderSuggestions(items) {
+      currentSuggestions = items;
+      suggestionsEl.innerHTML = '';
+      if (!Array.isArray(items) || !items.length) {
+        suggestionsEl.style.display = 'none';
+        return;
+      }
+      suggestionsEl.style.display = '';
+      const heading = document.createElement('h3');
+      heading.textContent = 'You might also need…';
+      suggestionsEl.appendChild(heading);
+
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'item';
+        const main = document.createElement('div');
+        main.className = 'item-main';
+        const name = document.createElement('div');
+        name.className = 'item-name';
+        name.textContent = item.name || item;
+        const note = document.createElement('div');
+        note.className = 'suggestion-note';
+        note.textContent = item.section ? `${item.section}` : 'Suggestion';
+        main.appendChild(name);
+        main.appendChild(note);
+
+        const meta = document.createElement('div');
+        meta.className = 'item-meta';
+        const badge = document.createElement('div');
+        badge.className = 'badge';
+        badge.style.background = '#e5e7eb';
+        badge.style.color = '#374151';
+        badge.textContent = 'Suggestion';
+        meta.appendChild(badge);
+
+        row.appendChild(main);
+        row.appendChild(meta);
+        suggestionsEl.appendChild(row);
+      });
+    }
+
+    function showError(message) {
+      errorEl.textContent = message;
+      errorEl.style.display = message ? '' : 'none';
+    }
+
+    function handleGenerate() {
+      const store = storeSelect.value;
+      const items = parseInput(listInput.value);
+      if (!items.length) {
+        showError('Please add at least one item.');
+        return;
+      }
+      showError('');
+      setAnalysis('analyzing', storeSelect.options[storeSelect.selectedIndex].text, items.length);
+
+      fetch('/api/grocery-sort', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ store, items })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data || !Array.isArray(data.items)) throw new Error('Invalid response');
+        renderedItems = data.items;
+        itemState = loadData(store)?.itemState || itemState;
+        renderItems(renderedItems);
+        const unavailable = data.items.filter(i => i.likely_available === false).length;
+        setAnalysis('ready', data.store || storeSelect.options[storeSelect.selectedIndex].text, data.items.length, unavailable);
+        saveData(store);
+        renderSuggestions(data.suggested_items);
+        showToast('Checklist ready!');
+      })
+      .catch(err => {
+        console.error(err);
+        setAnalysis('error', storeSelect.options[storeSelect.selectedIndex].text);
+        showError('Sorry, the checklist could not be generated right now. Please try again.');
+      });
+    }
+
+    function handleClear() {
+      listInput.value = '';
+      renderedItems = [];
+      itemState = {};
+      checklistEl.innerHTML = '';
+      suggestionsEl.style.display = 'none';
+      setAnalysis('idle');
+      showError('');
+      clearData(storeSelect.value);
+    }
+
+    function encodeShareData() {
+      try {
+        const payload = {
+          store: storeSelect.value,
+          parsedItems: renderedItems,
+          itemState
+        };
+        const json = JSON.stringify(payload);
+        const base64 = btoa(json).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        return base64;
+      } catch (e) {
+        console.warn('encode fail', e);
+        return null;
+      }
+    }
+
+    function decodeShareData(encoded) {
+      try {
+        const normalized = encoded.replace(/-/g, '+').replace(/_/g, '/');
+        const padding = '='.repeat((4 - (normalized.length % 4)) % 4);
+        const json = atob(normalized + padding);
+        return JSON.parse(json);
+      } catch (e) {
+        console.warn('decode fail', e);
+        return null;
+      }
+    }
+
+    function handleCopyLink() {
+      if (!renderedItems.length) {
+        showError('Generate a checklist before copying a link.');
+        return;
+      }
+      const encoded = encodeShareData();
+      if (!encoded) {
+        showError('Unable to create link right now.');
+        return;
+      }
+      const url = `${window.location.origin}${window.location.pathname}?list=${encoded}`;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Link copied!');
+      }).catch(() => {
+        showError('Could not copy link.');
+      });
+    }
+
+    function restoreFromData(data, skipSave = false) {
+      if (!data || !Array.isArray(data.parsedItems)) return false;
+      storeSelect.value = data.store || storeSelect.value;
+      renderedItems = data.parsedItems;
+      itemState = data.itemState || {};
+      listInput.value = data.rawText || data.parsedItems.map(i => i.name || i).join(', ');
+      renderItems(renderedItems);
+      const unavailable = renderedItems.filter(i => i.likely_available === false).length;
+      setAnalysis('ready', storeSelect.options[storeSelect.selectedIndex].text, renderedItems.length, unavailable);
+      renderSuggestions(data.suggested_items);
+      if (!skipSave) saveData(storeSelect.value);
+      return true;
+    }
+
+    function checkShareLink() {
+      const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+      const encoded = params.get('list') || (hash.startsWith('#data=') ? hash.replace('#data=', '') : null);
+      if (encoded) {
+        const data = decodeShareData(encoded);
+        if (data && restoreFromData(data, true)) {
+          showToast('Loaded shared list');
+          try { localStorage.setItem(STORAGE_PREFIX + data.store, JSON.stringify(data)); } catch (e) {}
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function restoreFromLocal() {
+      const stored = loadData(storeSelect.value);
+      if (stored) {
+        listInput.value = stored.rawText || '';
+        return restoreFromData(stored);
+      }
+      return false;
+    }
+
+    function initStore() {
+      const lastStore = localStorage.getItem(LAST_STORE_KEY);
+      if (lastStore) storeSelect.value = lastStore;
+    }
+
+    function setupBackToTop() {
+      const update = () => {
+        const trigger = resultsCard.offsetTop;
+        if (window.scrollY > trigger) {
+          backToTopBtn.classList.add('show');
+        } else {
+          backToTopBtn.classList.remove('show');
+        }
+      };
+      document.addEventListener('scroll', update, { passive: true });
+      update();
+      backToTopBtn.addEventListener('click', () => {
+        resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    function attachEvents() {
+      generateBtn.addEventListener('click', handleGenerate);
+      clearBtn.addEventListener('click', handleClear);
+      copyLinkBtn.addEventListener('click', handleCopyLink);
+      storeSelect.addEventListener('change', () => {
+        saveData(storeSelect.value);
+        listInput.value = loadData(storeSelect.value)?.rawText || '';
+        if (!restoreFromLocal()) {
+          renderedItems = [];
+          itemState = {};
+          checklistEl.innerHTML = '';
+          setAnalysis('idle');
+        }
+      });
+      listInput.addEventListener('input', () => {
+        saveData(storeSelect.value);
+      });
+    }
+
+    function init() {
+      initStore();
+      attachEvents();
+      setupBackToTop();
+      if (!checkShareLink()) {
+        restoreFromLocal();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
