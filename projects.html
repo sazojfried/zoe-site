@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Zoe Friedman — Projects</title>
+  <title>Just for Fun — Zoe Friedman</title>
+  <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
@@ -591,17 +592,12 @@
     <div class="nav-inner">
       <div class="logo-block">
         <div class="logo-name">ZOE FRIEDMAN</div>
-        <div class="logo-sub">Economics · Softball · Community</div>
+        <div class="logo-sub">Just for fun</div>
       </div>
 
       <div class="nav-right">
         <nav class="nav-links">
-          <a href="index.html#home">Home</a>
-          <a href="index.html#stats">Stats</a>
-          <a href="index.html#experience">Experience</a>
-          <a href="index.html#contact">Contact</a>
-          <a href="gallery.html">Gallery</a>
-          <a href="projects.html" class="active">Projects</a>
+          <a href="/">← Back to zoefriedman.com</a>
         </nav>
 
         <button id="theme-toggle" class="theme-toggle" type="button">
@@ -1876,100 +1872,5 @@
 
   </script>
 
-  <button class="admin-launcher" id="admin-launcher" type="button">Admin</button>
-
-  <section id="admin-panel" class="admin-panel" aria-live="polite">
-    <div class="admin-header">
-      <div class="admin-title">Projects Admin</div>
-      <button class="admin-close" id="admin-close" type="button" aria-label="Close admin">×</button>
-    </div>
-
-    <div id="admin-locked">
-      <div class="admin-row">
-        <label for="admin-password">Password</label>
-        <input
-          id="admin-password"
-          type="password"
-          autocomplete="off"
-          placeholder="Enter admin password"
-        />
-      </div>
-      <div class="admin-actions">
-        <button class="admin-button primary" id="admin-auth-btn" type="button">Unlock</button>
-      </div>
-      <div class="admin-alert">Client-side lock for quick edits.</div>
-    </div>
-
-    <div id="admin-content" style="display: none;">
-      <div class="admin-section">
-        <p>Sorry, Zo - gotta edit this one manually.</p>
-      </div>
-    </div>
-
-    <div id="admin-status" class="admin-alert"></div>
-  </section>
-
-  <script>
-    (() => {
-      const ADMIN_PASSWORD = "samandzoe";
-      const STORAGE_KEY = "zoe-projects-admin-session";
-
-      const adminPanel = document.getElementById("admin-panel");
-      const adminLauncher = document.getElementById("admin-launcher");
-      const adminClose = document.getElementById("admin-close");
-      const adminLocked = document.getElementById("admin-locked");
-      const adminContent = document.getElementById("admin-content");
-      const adminPassword = document.getElementById("admin-password");
-      const adminAuthBtn = document.getElementById("admin-auth-btn");
-      const adminStatus = document.getElementById("admin-status");
-
-      if (!adminPanel) return;
-
-      const setAdminOpen = (open) => {
-        adminPanel.classList.toggle("open", open);
-        if (open && adminPassword) {
-          adminPassword.focus();
-        }
-      };
-
-      const unlockAdmin = () => {
-        sessionStorage.setItem(STORAGE_KEY, "true");
-        if (adminLocked) adminLocked.style.display = "none";
-        if (adminContent) adminContent.style.display = "block";
-        if (adminStatus) adminStatus.textContent = "";
-      };
-
-      const isUnlocked = () => sessionStorage.getItem(STORAGE_KEY) === "true";
-
-      if (isUnlocked()) {
-        unlockAdmin();
-      }
-
-      adminLauncher?.addEventListener("click", () => setAdminOpen(true));
-      adminClose?.addEventListener("click", () => setAdminOpen(false));
-
-      adminAuthBtn?.addEventListener("click", () => {
-        const pass = adminPassword?.value.trim() || "";
-        if (pass === ADMIN_PASSWORD) {
-          unlockAdmin();
-          if (adminPassword) adminPassword.value = "";
-        } else if (adminStatus) {
-          adminStatus.textContent = "Incorrect password.";
-        }
-      });
-
-      adminPassword?.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          adminAuthBtn?.click();
-        }
-      });
-
-      window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          setAdminOpen(false);
-        }
-      });
-    })();
-  </script>
 </body>
 </html>
